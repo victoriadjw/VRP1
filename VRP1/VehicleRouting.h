@@ -15,6 +15,7 @@
 
 
 using namespace std;
+//template<class VertexInfo,class ArcInfo>
 class VehicleRouting
 {
 public:
@@ -22,10 +23,10 @@ public:
 	typedef int ObjValue;	// unit for objective value
 	typedef int ArcInfoType;	// information type of arc
 	typedef int VertexType;		// information type of vertex
-	
+
 	// graph kind, DG: directed graph; WDG: weighted directed graph;
 	// UDG: undirected graph; WUDG: weighted undirected graph
-	enum GraphKind{DG,WDG,UDG,WUDG};
+	enum GraphKind{ DG, WDG, UDG, WUDG };
 	class Graph
 	{
 	public:
@@ -36,9 +37,9 @@ public:
 			//vertices = new Vertex[vertexNum];
 			for (int i = 0; i < vertexNum; i++)
 			{
-				Vertex v;
-				v.firstArc = NULL;
-				vertices.push_back(v);
+				//Vertex v;
+				//v.firstArc = NULL;
+				//vertices.push_back(v);
 				//vertices[i].firstArc = NULL;
 			}
 		}
@@ -56,15 +57,13 @@ public:
 		}
 		void printGraph()
 		{
-			for (int i = 0; i < vertexNum; i++)
+			for (vector<Vertex<VertexInfo>>::iterator iter=vertices.begin();iter!=vertices.end();iter++)
 			{
-				cout << "the adjacent vertex of node " << vertices[i].data << ":";
-				ArcNode *p = vertices[i].firstArc;
-				while (p != NULL)
+				cout << "the adjacent vertex of node " << (*iter).vertexInfo.id<< ":";
+				for (list<ArcNode<ArcInfo>>::iterator iter_list = (*iter).firstArc.begin(); iter_list != (*iter).firstArc.end(); iter_list++)
 				{
-					cout << " -> " << vertices[p->adjVertex].data
-						<< "(" << p->arcInfo << ")";
-					p = p->nextArc;
+					cout << " -> " << (*iter_list).adjVertex
+						<< "(" << (*iter_list).arcInfo.weight << ")";
 				}
 				cout << endl;
 			}
@@ -76,31 +75,19 @@ public:
 			VertexType val;
 			while (cin >> val)
 			{
-				Vertex v;
-				v.data = val;
-				v.firstArc = NULL;
+				Vertex<VertexInfo> v;
+				v.vertexInfo.id = val;
 				vertices.push_back(v);
 				vertexNum += 1;
 			}
 		}
 		void insertArc(int vHead, int vTail, ArcInfoType arcInfo)
 		{
-			ArcNode *an=new ArcNode;
-			an->adjVertex = vTail;
-			an->nextArc = NULL;
-			an->arcInfo = arcInfo;
-
-			ArcNode *p = vertices[vHead].firstArc;
-			if (p == NULL)
-			{
-				vertices[vHead].firstArc = an;
-			}
-			else
-			{
-				while (p->nextArc != NULL)
-					p = p->nextArc;
-				p->nextArc = an;
-			}
+			ArcNode<ArcInfo> an;
+			an.adjVertex = vTail;
+			an.arcInfo.weight = arcInfo;
+			vertices[vHead].firstArc.push_back(an);
+			
 			arcNum += 1;
 		}
 		void createDG()
@@ -152,18 +139,32 @@ public:
 			}
 
 		}
-		struct ArcNode
+		class ArcInfo
 		{
+		public:
+			int weight;
+		};
+		class VertexInfo
+		{
+		public:
+			int id;
+			string name;
+		};
+		template <class ArcInfo>
+		class ArcNode
+		{
+		public:
 			int adjVertex;		// adjecent vertex of arc
-			ArcNode *nextArc;	// next arc
-			ArcInfoType arcInfo;	// information of arc
+			ArcInfo arcInfo;	// information of arc
 		};
-		struct Vertex
+		template <class VertexInfo>
+		class Vertex
 		{
-			VertexType data;	// information of vertex
-			ArcNode *firstArc;	// first arc adjacent to the vertex
+		public:
+			VertexInfo vertexInfo;	// information of vertex
+			list<ArcNode<ArcInfo>> firstArc;	// first arc adjacent to the vertex
 		};
-		vector<Vertex> vertices;
+		vector<Vertex<VertexInfo>> vertices;
 		int vertexNum;	// number of vertex
 		int arcNum;		// number of arc
 		GraphKind graphKind;	// kind of graph
