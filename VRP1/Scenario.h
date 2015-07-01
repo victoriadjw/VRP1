@@ -7,6 +7,7 @@
 #define SCENARIO_H
 
 #include"Utility.h"
+#include"VehicleRouting.h"
 
 typedef double GeographyType;
 typedef int CapacityType;
@@ -22,6 +23,8 @@ typedef int DistanceType;
 typedef double ObjectType;
 
 enum OrderType{Mondatory, Optional};
+
+class VehicleRouting;
 
 class GoodsInfo
 {
@@ -106,12 +109,20 @@ public:
 
 class Input
 {
-
+public:
+	Input();
+	Timer currentTime;
+private:
+	VehicleRouting &vr;
 };
 
 class Output
 {
-
+public:
+	Output();
+	Timer currentTime;
+private:
+	const VehicleRouting &vr;
 };
 
 #endif

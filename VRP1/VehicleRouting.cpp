@@ -1,7 +1,7 @@
 #include "VehicleRouting.h"
 
-
 using namespace std;
+
 void VehicleRouting::createDG()
 {
 	cout << "input the keyword of each vertex:" << endl;

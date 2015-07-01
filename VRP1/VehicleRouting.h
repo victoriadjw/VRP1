@@ -24,10 +24,10 @@ public:
 	void createDG();
 	void createUDG();
 	void printGraph() const;
+	void initSolution(Solution &);
 
-	class Scenario;
-	class Order;
-	class Vehilce;
-
+	list<Order *> orderList;
+	list<Vehicle *> vehicleList;
+	Solution *solution;
 };
 #endif
