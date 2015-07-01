@@ -23,7 +23,7 @@ public:
 
 	void createDG();
 	void createUDG();
-	void printGraph();
+	void printGraph() const;
 
 	class Scenario;
 	class Order;

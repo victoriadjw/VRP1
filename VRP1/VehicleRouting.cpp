@@ -43,12 +43,12 @@ void VehicleRouting::createUDG()
 		insertArc(vTail, vHead, ai);
 	}
 }
-void VehicleRouting::printGraph()
+void VehicleRouting::printGraph() const
 {
-	for (vector<Vertex>::iterator iter = vertices.begin(); iter != vertices.end(); iter++)
+	for (vector<Vertex>::const_iterator iter = vertices.begin(); iter != vertices.end(); iter++)
 	{
 		cout << "the adjacent vertex of node " << (*iter).vertexInfo.id << ":";
-		for (list<ArcNode>::iterator iter_list = (*iter).firstArc.begin(); iter_list != (*iter).firstArc.end(); iter_list++)
+		for (list<ArcNode>::const_iterator iter_list = (*iter).firstArc.begin(); iter_list != (*iter).firstArc.end(); iter_list++)
 		{
 			cout << " -> " << (*iter_list).adjVertex
 				<< "(" << (*iter_list).arcInfo.distance << ")";

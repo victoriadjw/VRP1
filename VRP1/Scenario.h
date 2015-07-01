@@ -18,6 +18,10 @@ typedef int VertexID;
 typedef int VehicleID;
 typedef int OrderID;
 typedef int QuantityType;
+typedef int DistanceType;
+typedef double ObjectType;
+
+enum OrderType{Mondatory, Optional};
 
 class GoodsInfo
 {
@@ -65,8 +69,40 @@ public:
 	VertexInfo &offerVertex, &requestVertex;	// offer and request vertex of the order
 	GoodsID goodsID;	// requried goods ID of the order
 	QuantityType requestQuantity;	// request quantity of the order
+	OrderType orderType;	// type of the order
 	Timer dueTime;	// due time of the order
 };
+
+// contain load and unload information
+class LoadInfo
+{
+public:
+	VertexID vertexID;	// load and unload vertex
+	OrderID resolvedOrderID;	// resolved order ID 
+	vector<GoodsID> loadGoodsID, unloadGoodsID;	// load and unload goods ID
+	vector<QuantityType> loadQuantity, unloadQuantity;	// load and unload quantity
+	Timer arrivalTime, departureTime;	// arrival and departureTime of the vertex
+	DistanceType driveDistance;		//  already drived distance
+};
+// describe a route corresponding to a vehicle
+class Route
+{
+public:
+	VehicleID vehicleID;	// corresponding vehicle
+	list<LoadInfo *> loadInfo;	// load information
+	Timer beginTime, endTime;	// begin and end time of the route
+	DistanceType routeDistance; // total distance of the route
+	ObjectType routeObject;		// objective value of the route
+};
+
+class Solution
+{
+public:
+	list<Route *> routeList;	// route list
+	ObjectType solutionObjective;	// objective value of the solution
+	int numMandatoryOrder, numOptimalOrder;	// number of mandatory and optimal order
+};
+
 
 class Input
 {

@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 
 	//run(argc, argv);
 
-	Timer *t = new Timer(2, 38, 20);
+	Timer *t = new Timer(2, 8, 19);
 	VehicleRouting vr;
 	vr.createUDG();
 	vr.printGraph();

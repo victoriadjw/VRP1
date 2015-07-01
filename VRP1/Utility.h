@@ -23,9 +23,9 @@ using namespace std;
 class Timer
 {
 public:
-	typedef std::chrono::steady_clock Clock;
+	typedef std::chrono::system_clock Clock;
 	typedef std::chrono::milliseconds Duration;
-	typedef std::chrono::steady_clock::time_point TimePoint;
+	typedef std::chrono::system_clock::time_point TimePoint;
 	//std::chrono::system_clock::time_point
 	Timer()
 	{
@@ -50,18 +50,15 @@ public:
 		)
 	{
 		std::tm t;
-		t.tm_hour = tm_hour, t.tm_mday = tm_mday;
-		t.tm_min = tm_min, t.tm_mon = tm_mon, t.tm_sec = tm_sec;
-		t.tm_year = tm_year - 1900;
+		t.tm_year = tm_year - 1900, t.tm_mon = tm_mon-1, t.tm_mday = tm_mday;
+		t.tm_hour = tm_hour, t.tm_min = tm_min, t.tm_sec = tm_sec;
 		time_t tt = mktime(&t);
-		currentTime = std::chrono::system_clock::from_time_t(tt);
+		currentTime = Clock::from_time_t(tt);
 		cout << ctime(&tt) << "\t" <<
-			std::chrono::duration_cast<std::chrono::hours>(
-			currentTime.time_since_epoch()).count();
+			std::chrono::duration_cast<std::chrono::hours>(currentTime.time_since_epoch()).count();
 
-		std::chrono::time_point<std::chrono::system_clock> now_time = std::chrono::system_clock::now(); //当前时间  
-		time_t now_c = std::chrono::system_clock::to_time_t(now_time);
-
+		TimePoint now_time = Clock::now(); // get current time
+		time_t now_c = Clock::to_time_t(now_time);
 		tm* now_tm = localtime(&now_c);
 		cout << "\nnow : " << std::put_time(now_tm, "%c") << endl;
 	}
