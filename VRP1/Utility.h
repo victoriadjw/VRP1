@@ -24,7 +24,7 @@ class Timer
 {
 public:
 	typedef std::chrono::system_clock Clock;
-	typedef std::chrono::milliseconds Duration;
+	typedef std::chrono::seconds Duration;
 	typedef std::chrono::system_clock::time_point TimePoint;
 	//std::chrono::system_clock::time_point
 	Timer()
@@ -43,8 +43,8 @@ public:
 	Timer(int tm_sec,	//int	seconds after the minute	0 - 60 *
 		int tm_min,		//int	minutes after the hour	0 - 59
 		int tm_hour,	//int	hours since midnight	0 - 23
-		int tm_mday = 30,	//int	day of the month	1 - 31
-		int tm_mon = 8,		//int	months since January	0 - 11
+		int tm_mday = 1,	//int	day of the month	1 - 31
+		int tm_mon = 7,		//int	months since January	0 - 11
 		int tm_year = 2015	//int	years since 1900
 
 		)
@@ -71,15 +71,18 @@ public:
 	{
 		return (Clock::now() >= endTime);
 	}
-
+	bool isTimeOut(TimePoint curTime)
+	{
+		return (curTime>=endTime);
+	}
 	Duration restTime() const
 	{
 		return std::chrono::duration_cast<Duration>(
-			endTime - Clock::now());
+			currentTime - Clock::now());
 	}
 
-	TimePoint currentTime;	// current time
 private:
+	TimePoint currentTime;	// current time
 	TimePoint endTime;
 };
 #endif

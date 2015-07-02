@@ -89,7 +89,10 @@ int main(int argc, char *argv[])
 
 	//run(argc, argv);
 
-	Timer *t = new Timer(2, 8, 19);
+	Timer *t = new Timer(0, 31, 22);
+	std::chrono::seconds difft = t->restTime();
+	cout << difft.count() << endl;
+
 	VehicleRouting vr;
 	vr.createUDG();
 	vr.printGraph();
