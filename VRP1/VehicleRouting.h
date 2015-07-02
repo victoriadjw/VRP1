@@ -23,6 +23,7 @@ public:
 
 	void createDG();
 	void createUDG();
+	void calculateDistance();
 	void printGraph() const;
 	void initSolution(Solution &);
 
