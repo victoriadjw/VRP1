@@ -25,8 +25,8 @@ void help()
 		"                  the first char can be:\n"
 		"                      'g'(greedy init) or 'e'(exact init).\n"
 		"                  the second char can be:\n"
-		"                      'w'(Random Walk), 'i'(Iterative Local Search),\n"
-		"                      'p'(Tabu Search Possibility), 'l'(TS Loop),\n"
+		"                      'w'(Random Walk), 'i'(Iterative Local Seedgeh),\n"
+		"                      'p'(Tabu Seedgeh Possibility), 'l'(TS Loop),\n"
 		"                      'r'(TS Rand), 's'(Swap Chain) or 'b'(Bias TS).\n"
 		"                  i is a non-negative integer in enum Solution::ModeSeq.\n"
 		"                  next real number is the coefficient of no improve count.\n"
@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
 
 	//run(argc, argv);
 
-	Timer *t = new Timer(0, 31, 22);
-	std::chrono::seconds difft = t->restTime();
+	Timer t(0, 31, 22);
+	std::chrono::seconds difft = t.restTime();
 	cout << difft.count() << endl;
 
 	VehicleRouting vr;

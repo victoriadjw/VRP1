@@ -2,7 +2,7 @@
 #define GRAPH_H
 
 using namespace std;
-template<class VertexInfo,class ArcInfo>
+template<class VertexInfo,class EdgeInfo>
 class Graph
 {
 public:
@@ -14,30 +14,30 @@ public:
 		vertices.push_back(v);
 		vertexNum += 1;
 	}
-	void insertArc(int vHead, int vTail, ArcInfo *arcInfo)
+	void insertEdge(int vHead, int vTail, EdgeInfo *edgeInfo)
 	{
-		ArcNode *an=new ArcNode;
+		EdgeNode *an=new EdgeNode;
 		an->adjVertex = vTail;
-		an->arcInfo = arcInfo;
-		vertices[vHead]->firstArc.push_back(an);
-		arcNum += 1;
+		an->edgeInfo = edgeInfo;
+		vertices[vHead]->firstEdge.push_back(an);
+		edgeNum += 1;
 	}
 
-	class ArcNode
+	class EdgeNode
 	{
 	public:
-		int adjVertex;		// adjecent vertex of arc
-		ArcInfo *arcInfo;	// information of arc
+		int adjVertex;		// adjecent vertex of edge
+		EdgeInfo *edgeInfo;	// information of edge
 	};
 	class Vertex
 	{
 	public:
 		VertexInfo *vertexInfo;	// information of vertex
-		list<ArcNode *> firstArc;	// first arc adjacent to the vertex
+		list<EdgeNode *> firstEdge;	// first edge adjacent to the vertex
 	};
 	vector<Vertex *> vertices;
 	int vertexNum;	// number of vertex
-	int arcNum;		// number of arc
+	int edgeNum;		// number of edge
 
 };
 

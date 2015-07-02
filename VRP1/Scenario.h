@@ -19,7 +19,7 @@ typedef int VertexID;
 typedef int VehicleID;
 typedef int OrderID;
 typedef int QuantityType;
-typedef int DistanceType;
+typedef double DistanceType;
 typedef double ObjectType;
 
 enum OrderType{Mondatory, Optional};
@@ -37,7 +37,7 @@ public:
 	UnitWeightType unitWeight;		// unit weight
 };
 
-class ArcInfo
+class EdgeInfo
 {
 public:
 	int distance;
@@ -57,11 +57,11 @@ public:
 class Vehicle
 {
 public:
-	VehicleID id;	// identity
-	string registrationNumber;	// registration number of the vehicle
-	string modelOfVehicle;	// model of the vehicle
-	LengthType length, width, height;	// length, width, and height of the carriage of the vehicle
-	CapacityType capacity;	// capacity of the vehicle
+	const VehicleID id;	// identity
+	const string registrationNumber;	// registration number of the vehicle
+	const string modelOfVehicle;	// model of the vehicle
+	const LengthType length, width, height;	// length, width, and height of the carriage of the vehicle
+	const CapacityType capacity;	// capacity of the vehicle
 	VertexInfo initPosition;	// initial position of the vehicle
 };
 
@@ -73,7 +73,7 @@ public:
 	GoodsID goodsID;	// requried goods ID of the order
 	QuantityType requestQuantity;	// request quantity of the order
 	OrderType orderType;	// type of the order
-	Timer dueTime;	// due time of the order
+	const Timer dueTime;	// due time of the order
 };
 
 // contain load and unload information
@@ -110,10 +110,11 @@ public:
 class Input
 {
 public:
-	Input();
-	Timer currentTime;
+	Input(const string &inputFileName);
+	
 private:
 	VehicleRouting &vr;
+	Timer currentTime;
 };
 
 class Output

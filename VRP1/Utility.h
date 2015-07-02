@@ -4,8 +4,8 @@
 *
 */
 
-#ifndef VRP1_H
-#define VRP1_H
+#ifndef UTILITY_H
+#define UTILITY_H
 
 #include<iostream>
 #include<fstream>
@@ -17,8 +17,10 @@
 #include<chrono>
 #include<ctime>
 #include <iomanip>    
+#include<math.h>
 
 using namespace std;
+
 
 class Timer
 {
