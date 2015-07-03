@@ -80,12 +80,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Scenario.h" />
     <ClInclude Include="VehicleRouting.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Scenario.cpp" />
     <ClCompile Include="VehicleRouting.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

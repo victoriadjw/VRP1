@@ -21,6 +21,9 @@
 
 using namespace std;
 
+#define PI  3.1415926
+#define EARTH_RADIUS  6378.137// earth radius
+#define BUFF_SIZE 1000
 
 class Timer
 {
@@ -82,9 +85,35 @@ public:
 		return std::chrono::duration_cast<Duration>(
 			currentTime - Clock::now());
 	}
-
+	static string getCurrentTime()
+	{
+		char timeBuf[64];
+		time_t t = time(NULL);
+		tm *date = localtime(&t);
+		strftime(timeBuf, 64, "%Y-%m-%d %a %H:%M:%S", date);
+		return std::string(timeBuf);
+	}
 private:
 	TimePoint currentTime;	// current time
 	TimePoint endTime;
 };
+
+
+
+static double rad(const double &d)
+{
+	return (d * PI / 180.0);
+}
+
+static double getDistance(const double &lat1, const double &lng1, const double &lat2, const double &lng2)
+{
+	double radLat1 = rad(lat1);
+	double radLat2 = rad(lat2);
+	double a = radLat1 - radLat2;
+	double b = rad(lng1) - rad(lng2);
+	double s = 2 * asin(sqrt(pow(sin(a / 2), 2) +
+		cos(radLat1)*cos(radLat2)*pow(sin(b / 2), 2)));
+	return (round(s * EARTH_RADIUS * 10000) / 10000);
+}
+
 #endif

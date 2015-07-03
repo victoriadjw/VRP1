@@ -1,0 +1,100 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+<title>Sara Ceschia&#039;s web page - File Formats for VRPTCDC</title>
+
+
+<base href="http://www.diegm.uniud.it/ceschia/" />
+<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-9 Ted Kulp. All rights reserved." />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ 
+<!-- Add code here that should appear in the metadata section of all new pages -->
+
+
+
+</head>
+<body>
+
+<!-- 
+            <div style="float: right; width: 25%;">
+        
+<ul class="clearfix">
+
+<li><a href="http://www.diegm.uniud.it/ceschia/"> Home </a>
+
+
+</li>
+
+<li><a href="http://www.diegm.uniud.it/ceschia/index.php?page=cv"> Curriculum Vitae </a>
+
+
+</li>
+
+<li class="activeparent"> <a href="http://www.diegm.uniud.it/ceschia/index.php?page=research" class="activeparent"> Research </a>
+
+
+</li>
+
+<li><a href="http://www.diegm.uniud.it/ceschia/index.php?page=papers"> Papers </a>
+
+
+
+</li>
+</ul>
+ 
+      </div>
+      -->
+ <div style="float: right; width: 25%;">
+<h3>Links:</h3>
+<ul>
+        <li><a href="http://www.diegm.uniud.it/ceschia/">Home</a></li>
+        <li><a href="http://satt.diegm.uniud.it/">SaTT Group</a></li>
+        <li><a href=" http://www.uniud.it/">University of Udine</a></li>
+</ul>
+</div>
+
+            <div>
+         <h2>File Formats for VRPTCDC</h2>
+         <h3>Input format<a name="input"></a></h3>
+The file starts with a header summarizing the main features of the instance, each on a single line, as in the following example:
+<pre>NAME: case1-A
+TYPE: HVRPFDTW 
+COMMENT: original
+NUM_CLIENTS: 44
+NUM_ORDERS: 139
+NUM_VEHICLES: 7
+NUM_CARRIERS: 4
+NUM_BILLINGS: 6
+NUM_REGIONS: 19
+EDGE_WEIGHT_TYPE: EXPLICIT
+EDGE_WEIGHT_FORMAT: FULL_MATRIX
+PLAN_HORIZON: 1 - 3;
+ </pre>
+<dl> <dt><code>NAME:</code><em> {string}</em></dt> <dd>the name of the instance</dd> <dt><code>TYPE:</code><em> {enum}</em></dt> <dd>the type of the problem</dd> <dt><code>COMMENT:</code><em> {string}</em></dt> <dd>a comment or a description of the instance</dd> <dt><code>NUM_CLIENTS: </code><em> {int}</em></dt> <dd>the number of customers (i.e., the length of the subsequent <code>CLIENTS</code> section)</dd> <dt><code>NUM_ORDERS:</code><em> {int}</em></dt> <dd>the number of orders (i.e., the length of the subsequent <code>ORDERS</code> section)</dd> <dt><code>NUM_VEHICLES:</code><em> {int}</em></dt> <dd>the maximum number of vehicles available in each day (i.e., the length of the subsequent <code>VEHICLES</code> section)</dd> <dt><code>NUM_CARRIERS:</code><em> {int}</em></dt> <dd>number of carriers (i.e., the length of the subsequent <code>CARRIERS</code> section)</dd> <dt><code>NUM_BILLINGS:</code><em> {int}</em></dt> <dd>the number of different vehicle cost functions</dd> <dt><code>NUM_REGIONS:</code><em> {int}</em></dt> <dd>the number of different regions where customers are located (i.e., the length of the subsequent <code>REGIONS</code> section)</dd> <dt><code>EDGE_WEIGHT_TYPE:</code><em> {enum}</em></dt> <dd>how edge weight is specified (EUC_2D, MAN_2D, MAX_2D, EXPLICIT)</dd> <dt><code>EDGE_WEIGHT_FORMAT:</code><em> {enum}</em></dt> <dd>for <code>EDGE_WEIGHT_TYPE EXPLICIT</code>, it is the specification of the shape of matrix (FULL_MATRIX, LOWER_TRIANG, ADJ, ...)</dd> <dt><code>PLAN_HORIZON:</code><em> {<code>first_day</code>(int)} - {<code>last_day</code>(int)}</em></dt> <dd>the plannig period comprises all the days from <code>first_day</code> to <code>last_day</code> (<code>first_day</code> and <code>last_day</code> included)</dd> </dl> <br /> The <code>DATA_SECTION</code> separates specification from data section. It contains the following parts: <dl> <dt><code>DEPOT_SECTION:</code><em> {<code>depot_id</code>(string)}</em></dt><dd>the identifier of the depot</dd> <dt><code>REGIONS:</code><em>{<code>region_id1</code>(string)} [{<code>region_id2</code>(string)} ...]</em></dt><dd>it is a list of identifiers of regions</dd> <dt><code>CARRIERS:</code><em> {<code>carrier_id</code>(string)} {<code>billing_id</code>(string)} {<code>num_incompatible_regions</code>(int)} {<code>id_incompatible_region1</code>} [{<code>id_incompatible_region2</code>} ...]</em></dt><dd> each line contains the information about a single carrier. The data is the name of the carrier (a valid identifier with no spaces), the name of the billing (a valid identifier with no spaces), the number of incompatible regions and the list of incompatible regions, separated by spaces as in the following example:
+<pre>cr2 b2 1 r23</pre>
+This line indicates that carrier <code>cr2</code> uses the billing <code>b2</code> and it has 1 incompatible region which is <code>r23</code>. </dd> <dt><code>VEHICLES:</code><em> {<code>vehicle_id</code>(string)} {<code>capacity</code>(int)} {<code>cost</code>(int)} {<code>carrier_id</code>(string)}</em></dt><dd> each line contains the information about a single vehicle. The data is the name of the vehicle (a valid identifier with no spaces), its capacity (in Kg), its use-cost (in €) and the carrier identifier (a valid identifier with no spaces) which belongs to. The data is separated by spaces as in the following example:
+<pre>v1 50000 100 cr4</pre>
+This line indicates that vehicle <code>v1</code>, that belongs to carrier <code>cr4</code>, has a maximum capacity of 50000 kilograms and a fixed cost of 100 euros.</dd> <dt><code>CLIENTS:</code><em> {client_id(string)} {region_id(string)} {ready_time(int)} {due_date(int)} {service_duration(int)}</em></dt><dd> each line contains the information about a single client. The data is the name of the client (a valid identifier with no spaces), the name of the region (a valid identifier with no spaces) where the client is located, the time which service must begin and end (in minutes), the duration of the visit (in minutes). The data is separated by spaces as in the following example:
+<pre>c43   r39 420 1020 60</pre>
+This line indicates that for client <code>c43</code>, located in region <code>r39</code>, the visit must start after 420 (i.e. 7 am) and end before 1020 (i.e. 5 p.m.). </dd> <dt><code>ORDERS:</code> <em>{<code>order_id</code>(string)} {<code>client_id</code>(string)} {<code>quantity</code>(int)} {<code>mandatory</code>(bool)} {<code>ready_date</code>(int)}{<code>due_date</code>(int)}</em></dt><dd> each line contains the information about a single order. The data is the name of the order (a valid identifier with no spaces), the name of the client that made the order, its quantity (in Kg), if the order is mandatory, the ready date and the due date. The data is separated by spaces as in the following example:
+<pre>o0   c516  1562 0 1 3</pre>
+This line indicates that order <code>o0</code>, made by client <code>c516</code>, has a quantity of 1512 kilograms, is optional and must be delivered from day 1 to day 3 of the planning horizon (day 1 and 3 included). </dd> <dt><code>EDGE_WEIGHT_SECTION:</code><em> {<code>client1_id</code>(string)} {<code>client2_id</code>(string)} {<code>distance</code>(real)} {<code>time_distance</code>(int)}</em></dt><dd> each line contains the distances between each couple of clients. The data is the name of the first client and second client (a valid identifier with no spaces) and the distance between this couple of clients expressed in Km and seconds. The data is separated by spaces as in the following example:
+<pre>c0 c43 213.688 7358</pre>
+This line indicates that the distance between client <code>c0</code> and client <code>c43</code> is 213.688 kilometers or 7358 seconds. </dd> </dl>
+
+<h3>Output format<a name="output"></a></h3>
+A solution is presented as a list of routes for each day. The fleet available is the same in each day of the planning horizon. It is taken for granted that every route must start and end at depot. In addition there a the list of unscheduled orders which are not delivered. <dl> <dt> <code>Day day_number :</code> <!--{day_number(int)}--> </dt><dd>the day of the planning horizon</dd> <dt><code># route_number vehicle_id(vehicle_id.capacity) number_orders_route: order_id1 order_id2 ... [route_demand]</code> <!--{route_number(int)} {vehicle_id(string)} {vehicle_id.capacity(int)} {order_id1(string)} [{order_id2(string)} ...] {route_demand(int)}--></dt><dd> each line contains the information about the route <code>route_number</code> in the day <code>day_number</code>. The data is the name of the vehicle that performs the route, its maximum capacity, the number of orders that are in the route and the list of these orders. Finally there is the total demand of all orders delivered in this route. This is an example:
+<pre># 0  v1(5000) 5: o133 o75 o86 o87 o88 [3526]
+</pre>
+This line indicates that route 0, performed by vehicle <code>v1</code> of maximum capacity 5000 kilograms, has 5 orders, which are <code>o133, o75, o86, o87</code> and <code>o88</code>. The sum of the demand of each order is 3526 kilograms. </dd> <dt><code>Unscheduled number_orders_unscheduled: order_id1 order_id2 ... [route_demand]</code></dt><dd> the line contains the information about unscheduled orders: the total number of unscheduled orders, their names and the total demand undelivered. In the following example
+<pre>Unscheduled 3: o43 o22 o4 [1501]
+</pre>
+there are 3 orders unscheduled (<code>o43 o22 o4</code>) with total demand of 1501 kilograms.</dd> </dl> 
+      </div>
+      
+</body>
+</html><!-- 0.089494 / 29 / 10926072 / 11431048 -->
