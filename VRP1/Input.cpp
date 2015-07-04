@@ -24,6 +24,7 @@ bool Input::readGraph(Graph<VertexInfo, EdgeInfo> &g)
 }
 void Input::printGraph(const Graph<VertexInfo, EdgeInfo> &g)
 {
+	cout << endl << "vertexNum: " << g.vertexNum << ", edgeNum: " << g.edgeNum << endl;
 	for (vector<Graph<VertexInfo, EdgeInfo>::Vertex *>::const_iterator iter = g.vertices.begin(); iter != g.vertices.end(); iter++)
 	{
 		cout << "the adjacent vertex of node " << (*iter)->vertexInfo->id << ":";
@@ -72,45 +73,125 @@ Input::Input(const string &inputFileName, const string &errorLogFileName, Vehicl
 		return;
 	}
 	string strTemp;
-	ifs >> strTemp >> strTemp;
-	
-	getline(ifs, strTemp);
-	getline(ifs, strTemp);
-	getline(ifs, strTemp);
-
 	char buffer[BUFF_SIZE];
+	int num,num1;
+
 	ifs.getline(buffer, BUFF_SIZE, ':');
-	//ifs >> num_client;
+	ifs >> strTemp;
+	vr.setName(strTemp);
+	getline(ifs, strTemp);
+
+	getline(ifs, strTemp);
 	getline(ifs, strTemp);
 
 	ifs.getline(buffer, BUFF_SIZE, ':');
-	//ifs >> num_order;
+	ifs >> num;
+	vr.setNumClient(num);
 	getline(ifs, strTemp);
 
 	ifs.getline(buffer, BUFF_SIZE, ':');
-	//ifs >> num_vehicle;
+	ifs >> num;
+	vr.setNumOrder(num);
 	getline(ifs, strTemp);
 
 	ifs.getline(buffer, BUFF_SIZE, ':');
-	//ifs >> num_carrier;
+	ifs >> num;
+	vr.setNumVehicle(num);
 	getline(ifs, strTemp);
 
 	ifs.getline(buffer, BUFF_SIZE, ':');
-	//ifs >> num_billing;
+	ifs >> num;
+	vr.setNumCarrier(num);
 	getline(ifs, strTemp);
 
 	ifs.getline(buffer, BUFF_SIZE, ':');
-	//ifs >> num_region;
+	ifs >> num;
+	vr.setNumBilling(num);
+	getline(ifs, strTemp);
+
+	ifs.getline(buffer, BUFF_SIZE, ':');
+	ifs >> num;
+	vr.setNumRegion(num);
 	getline(ifs, strTemp);
 
 	getline(ifs, strTemp);  // EDGE_WEIGHT_TYPE
 	getline(ifs, strTemp);  // EDGE_WEIGHT_FORMAT
 
 	ifs.getline(buffer, BUFF_SIZE, ':');
-	//ifs >> plan_horizon.first >> strTemp >> plan_horizon.second;
+	ifs >> num >> strTemp >> num1;
+	vr.setPlanHorizon(num, num1);
 	getline(ifs, strTemp);
+	readDataSection(vr);
 
+}
+void Input::readDataSection(VehicleRouting &vr)
+{
+	string temp;
+	getline(ifs, temp);
+	getline(ifs, temp);
+	getline(ifs, temp);
+	getline(ifs, temp);
+	getline(ifs, temp);
+	VertexInfo *vi=new VertexInfo;
+	vi->nameOfDeliveryCenter = temp;
+	vr.g.addVertex(vi);
 
+	getline(ifs, temp);
+	getline(ifs, temp);
+	getline(ifs, temp);
+	// REGIONS
+	string pattern = " ";
+	vector<string> result = split(temp, pattern);
+	for (int i = 0; i < result.size(); i++)
+	{
+		cout << result[i] << ", ";
+		vi = new VertexInfo;
+		vi->nameOfDeliveryCenter = result[i];
+		vr.g.addVertex(vi);
+		vr.regionMap[result[i]] = i;
+	}
+	printGraph(vr.g);
+	getline(ifs, temp);
+	//BILLINGS
+	for (int i = 0; i < 16; i++)
+		getline(ifs, temp);
+	//CARRIERS
+	getline(ifs, temp);
+	string crid, bid;
+	for (int i = 0; i < vr.getNumCarrier(); i++)
+	{
+		int numIncomRegion;
+		ifs >> crid >> bid >> numIncomRegion;
+		Carrier cr(crid, bid, numIncomRegion);
+		string regionID;
+		for (int j = 0; j < numIncomRegion; j++)
+		{
+			ifs >> regionID;
+			cr.addIncompatRegion(regionID);
+		}
+		vr.carrierVec.push_back(cr);
+		vr.carrierMap[crid] = i;
+	}
+	//VEHICLES
+	ifs >> temp >> temp;
+	string vid;
+	CapacityType cap;
+	CostType cost;
+	for (int i = 0; i < vr.getNumVehicle(); i++)
+	{
+		ifs >> vid >> cap >> cost >> crid;
+		Vehicle ve(0, vid, crid, cost, cap);
+		vr.vehicleVec.push_back(ve);
+		cout << vid << " " << cap << " " << cost << " " << crid << endl;
+	}
+	//CLIENTS
+	getline(ifs, temp);
+	vr.clientVec.resize(vr.getNumClient());
+	for (int i = 0; i < vr.getNumClient(); i++)
+	{
+		ifs >> vr.clientVec[i];
+		vr.clientMap[vr.clientVec[i].getID()] = i;
+	}
 }
 Input::~Input()
 {

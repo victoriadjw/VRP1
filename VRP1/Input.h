@@ -13,6 +13,7 @@ public:
 private:
 	void errorLog(const string &msg);
 	void calculateDistance(Graph<VertexInfo, EdgeInfo> &);
+	void readDataSection(VehicleRouting &);
 	ifstream ifs;
 	ofstream ofs;
 	Timer currentTime;

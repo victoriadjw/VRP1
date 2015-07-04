@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 	std::chrono::seconds difft = t.restTime();
 	cout << difft.count() << endl;
 
-	Graph<VertexInfo, EdgeInfo> g;
+	//Graph<VertexInfo, EdgeInfo> g;
 
 	VehicleRouting vr;
 

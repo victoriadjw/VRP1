@@ -116,4 +116,24 @@ static double getDistance(const double &lat1, const double &lng1, const double &
 	return (round(s * EARTH_RADIUS * 10000) / 10000);
 }
 
+// split a string according to a specific pattern
+static std::vector<std::string> split(std::string str, std::string pattern)
+{
+	std::string::size_type pos;
+	std::vector<std::string> result;
+	str += pattern;// extend the string
+	int size = str.size();
+
+	for (int i = 0; i<size; i++)
+	{
+		pos = str.find(pattern, i);
+		if (pos<size)
+		{
+			std::string s = str.substr(i, pos - i);
+			result.push_back(s);
+			i = pos + pattern.size() - 1;
+		}
+	}
+	return result;
+}
 #endif

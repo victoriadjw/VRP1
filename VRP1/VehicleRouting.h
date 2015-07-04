@@ -26,9 +26,34 @@ public:
 	Timer t;
 	Graph<VertexInfo, EdgeInfo> g;
 	list<Order *> orderList;
-	list<Vehicle *> vehicleList;
+	vector<Vehicle> vehicleVec;
+	vector<Client> clientVec;
 	Solution *solution;
+	vector<Carrier> carrierVec;
+
+	map<RegionID, int> regionMap;
+	map<CarrierID, int>carrierMap;
+	map<ClientID, int>clientMap;
+
+	void setName(const string &);
+	void setNumClient(const int &);
+	void setNumOrder(const int &);
+	void setNumVehicle(const int &);
+	void setNumCarrier(const int &);
+	void setNumBilling(const int &);
+	void setNumRegion(const int &);
+	void setPlanHorizon(const int &, const int &);
+
+	int getNumClient()const;
+	int getNumOrder()const;
+	int getNumVehicle()const;
+	int getNumCarrier()const;
+	int getNumBilling()const;
+	int getNumRegion()const;
 
 private:
+	string name;
+	int numClient,numOrder,numVehicle,numCarrier,numBilling,numRegion;
+	pair<int, int>planHorizon;
 };
 #endif

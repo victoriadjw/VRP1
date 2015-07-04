@@ -6,7 +6,7 @@ template<class VertexInfo,class EdgeInfo>
 class Graph
 {
 public:
-
+	Graph(){ vertexNum = edgeNum = 0; /*cout << "construct graph" << endl;*/ }
 	void addVertex(VertexInfo *vertexInfo)
 	{
 		Vertex *v=new Vertex;
