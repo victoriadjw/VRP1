@@ -186,12 +186,36 @@ void Input::readDataSection(VehicleRouting &vr)
 	}
 	//CLIENTS
 	getline(ifs, temp);
+	getline(ifs, temp);
+	getline(ifs, temp);
 	vr.clientVec.resize(vr.getNumClient());
 	for (int i = 0; i < vr.getNumClient(); i++)
 	{
 		ifs >> vr.clientVec[i];
 		vr.clientMap[vr.clientVec[i].getID()] = i;
+		cout << vr.clientVec[i].getID() << endl;
 	}
+	//ORDERS
+	getline(ifs, temp);
+	getline(ifs, temp);
+	getline(ifs, temp);
+	vr.orderVec.resize(vr.getNumOrder());
+	for (int i = 0; i < vr.getNumOrder(); i++)
+	{
+		ifs >> vr.orderVec[i];
+		vr.orderVec[i].setApplierID("c0");	// the applier id is depot c0
+		vr.orderMap[vr.orderVec[i].getID()] = i;
+		cout << vr.orderVec[i].getID() << endl;
+	}
+	//EDGES
+	getline(ifs, temp);
+	getline(ifs, temp);
+	getline(ifs, temp);
+	while (getline(ifs, temp) && temp != "END")
+	{
+		cout << temp << endl;
+	}
+
 }
 Input::~Input()
 {

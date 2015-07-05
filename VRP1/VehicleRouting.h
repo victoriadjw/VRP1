@@ -25,7 +25,7 @@ public:
 	VehicleRouting(){ }
 	Timer t;
 	Graph<VertexInfo, EdgeInfo> g;
-	list<Order *> orderList;
+	vector<Order> orderVec;
 	vector<Vehicle> vehicleVec;
 	vector<Client> clientVec;
 	Solution *solution;
@@ -34,6 +34,7 @@ public:
 	map<RegionID, int> regionMap;
 	map<CarrierID, int>carrierMap;
 	map<ClientID, int>clientMap;
+	map<OrderID, int>orderMap;
 
 	void setName(const string &);
 	void setNumClient(const int &);

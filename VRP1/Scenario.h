@@ -80,6 +80,13 @@ class Order
 	friend std::istream& operator>>(std::istream&, Order&);
 public:
 	Order(){};
+	OrderID getID(){ return id; }
+	ClientID getApplierID(){ return applierID; }
+	ClientID getRequestID(){ return requestID; }
+	QuantityType getQuantity(){ return requestQuantity; }
+	OrderType getOrderType(){ return orderType; }
+	void setApplierID(const ClientID &aid){ applierID = aid; }
+private:
 	OrderID id;	// identity
 	ClientID applierID, requestID;	// offer and request vertex of the order
 	GoodsID goodsID;	// requried goods ID of the order
@@ -114,8 +121,8 @@ class Carrier {
 public:
 	Carrier(string &cid, string &bid,int &numIncompa) :
 		carrierID(cid), billingID(bid),numIncompatibleRegion(numIncompa){ }
-	string getID() const { return carrierID; }
-	string getBilling() const { return billingID; }
+	CarrierID getID() const { return carrierID; }
+	CarrierID getBilling() const { return billingID; }
 	void addIncompatRegion(const string &regionID){
 		incompatRegions.push_back(regionID);
 	}

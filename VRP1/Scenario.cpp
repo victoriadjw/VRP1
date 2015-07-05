@@ -12,7 +12,6 @@ std::istream& operator>>(std::istream &is, Order &o)
 	int ot;
 	is >> o.id >> o.requestID >> o.requestQuantity
 		>> ot >> o.readyTime>>o.dueTime;
-	/*if (ot==1)
-		o.orderType=OrderType.*/
+	o.orderType = ot == 1 ? OrderType::Mondatory : OrderType::Optional;
 	return is;
 }
