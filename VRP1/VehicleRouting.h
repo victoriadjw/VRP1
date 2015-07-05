@@ -13,7 +13,6 @@
 #include<sstream>
 #include<iostream>
 
-#include"Graph.h"
 #include"Scenario.h"
 
 class VehicleRouting
@@ -23,8 +22,13 @@ public:
 	typedef int ObjValue;	// unit for objective value
 
 	VehicleRouting(){ }
+	void modifyOrder();
 	Timer t;
-	Graph<VertexInfo, EdgeInfo> g;
+	// map structure
+	vector<VertexInfo> vertexVec;
+	vector<EdgeInfo> edgeVec;
+	map<VertexID, int> vertexMap;
+
 	vector<Order> orderVec;
 	vector<Vehicle> vehicleVec;
 	vector<Client> clientVec;
@@ -53,6 +57,7 @@ public:
 	int getNumRegion()const;
 
 private:
+	void calculateDistance();	// calculate distance according to latitude and longitude
 	string name;
 	int numClient,numOrder,numVehicle,numCarrier,numBilling,numRegion;
 	pair<int, int>planHorizon;

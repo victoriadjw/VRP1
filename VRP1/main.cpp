@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 	//Graph<VertexInfo, EdgeInfo> g;
 
 	VehicleRouting vr;
-
 	Input in("vrptwcdc//case1-A.vrp", "results//log.txt", vr);
+	vr.modifyOrder();
 	system("pause");
 }

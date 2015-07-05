@@ -20,3 +20,21 @@ int VehicleRouting::getNumCarrier()const{ return numCarrier; }
 int VehicleRouting::getNumBilling()const{ return numBilling; }
 int VehicleRouting::getNumRegion()const{ return numRegion; }
 
+void VehicleRouting::calculateDistance()
+{
+	for (vector<EdgeInfo>::iterator iter = edgeVec.begin(); iter != edgeVec.end(); iter++)
+	{
+		(*iter).setDistance(getDistance(vertexVec[vertexMap[(*iter).getEdge().first]].latitude,
+			vertexVec[vertexMap[(*iter).getEdge().first]].longitude,
+			vertexVec[vertexMap[(*iter).getEdge().second]].latitude,
+			vertexVec[vertexMap[(*iter).getEdge().second]].longitude));
+	}
+}
+
+void VehicleRouting::modifyOrder()
+{
+	for (vector<Order>::iterator iter = orderVec.begin(); iter != orderVec.end(); iter++)
+	{
+		cout << *iter << endl;
+	}
+}

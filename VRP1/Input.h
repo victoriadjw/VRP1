@@ -8,11 +8,10 @@ class Input
 public:
 	Input(const string &_inputFileName, const string &_errorLogFileName, VehicleRouting &vr);
 	~Input();
-	bool readGraph(Graph<VertexInfo, EdgeInfo> &);
-	void printGraph(const Graph<VertexInfo, EdgeInfo> &);
+	bool readGraph();
+	void printGraph(const VehicleRouting &);
 private:
 	void errorLog(const string &msg);
-	void calculateDistance(Graph<VertexInfo, EdgeInfo> &);
 	void readDataSection(VehicleRouting &);
 	ifstream ifs;
 	ofstream ofs;

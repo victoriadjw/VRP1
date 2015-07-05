@@ -9,7 +9,6 @@
 #include<vector>
 #include<list>
 
-#include"Graph.h"
 #include"Utility.h"
 
 typedef double GeographyType;
@@ -18,7 +17,7 @@ typedef int UnitVolumeType;
 typedef int UnitWeightType;
 typedef double LengthType;
 typedef int GoodsID;
-typedef int VertexID;
+typedef string VertexID;
 typedef int VehicleID;
 typedef string OrderID;
 typedef string ClientID;
@@ -26,11 +25,12 @@ typedef string RegionID;
 typedef string CarrierID;
 typedef int QuantityType;
 typedef double DistanceType;
+typedef int TimeDistanceType;
 typedef double ObjectType;
 typedef int CostType;
 typedef int TimeType;
 
-enum OrderType{Mondatory, Optional};
+enum OrderType{ Optional, Mondatory };
 
 class GoodsInfo
 {
@@ -45,19 +45,31 @@ public:
 
 class EdgeInfo
 {
+	friend std::ostream& operator<<(std::ostream&, const EdgeInfo&);
+	friend std::istream& operator>>(std::istream&, EdgeInfo&);
 public:
-	int distance;
+	pair<VertexID, VertexID>& getEdge(){ return edge; }
+	void setDistance(const DistanceType &d){ distance = d; }
+private:
+	pair<VertexID, VertexID> edge;
+	DistanceType distance;
+	TimeDistanceType timeDistance;
 };
 class VertexInfo
 {
-public:
-	
+	friend std::istream& operator>>(std::istream&, VertexInfo&);
+public:	
 	VertexID id;	// identity
 	GeographyType longitude, latitude;	// longitude and latitude coordinates
 	string nameOfDeliveryCenter;	// name of the delivery center
 	string provinceAffiliated;		// affiliated province
 	CapacityType capacity;			// capacity of the delivery center
 	vector<GoodsInfo> goods;
+	vector<int> adjEdgeVec;			// adjacent edge index in edge vec
+
+	TimeType servTime;
+	RegionID regionID;
+	std::pair<int, int> timeWindow;	// time window
 };
 
 class Vehicle
@@ -78,6 +90,7 @@ public:
 class Order
 {
 	friend std::istream& operator>>(std::istream&, Order&);
+	friend std::ostream& operator<<(std::ostream&, const Order&);
 public:
 	Order(){};
 	OrderID getID(){ return id; }
@@ -138,15 +151,16 @@ class Client{
 public:
 	Client() { }
 	Client(ClientID cid, std::string rid, int rt, int dt, int st) :
-		ID(cid), IDRegion(rid), servTime(st * 60), timeWindow(rt, dt) { }
-	ClientID getID() const { return ID; }
-	std::string getRegion() const { return IDRegion; }
+		id(cid), regionID(rid), servTime(st * 60), timeWindow(rt, dt) { }
+	ClientID getID() const { return id; }
+	ClientID getRegion() const { return regionID; }
 	int getReadyTime() const { return timeWindow.first * 60; }
 	int getDueTime() const { return timeWindow.second * 60; }
-	int getServiceTime() const { return servTime * 60; }
+	TimeType getServiceTime() const { return servTime * 60; }
 private:
-	ClientID ID, IDRegion;
-	int servTime;
+	ClientID id;
+	RegionID regionID;
+	TimeType servTime;
 	std::pair<int, int> timeWindow;
 };
 

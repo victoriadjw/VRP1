@@ -1,57 +1,20 @@
 #include"Input.h"
 
-bool Input::readGraph(Graph<VertexInfo, EdgeInfo> &g)
+void Input::printGraph(const VehicleRouting &vr)
 {
-	cout << "ifs the keyword of each vertex:" << endl;
-	int id;
-	while (cin >> id)
+	cout << endl << "vertexNum: " << vr.vertexVec.size()<< ", edgeNum: " << vr.edgeVec.size() << endl;
+	for (vector<VertexInfo>::const_iterator iter = vr.vertexVec.begin(); iter != vr.vertexVec.end(); iter++)
 	{
-		VertexInfo *vi = new VertexInfo;
-		vi->id = id;
-		g.addVertex(vi);
-	}
-	cin.clear();
-	cout << "ifs the starting and ending vertex of each edge:" << endl;
-	int vHead, vTail, weight;
-	while (cin >> vHead >> vTail >> weight)
-	{
-		EdgeInfo *ai = new EdgeInfo;
-		ai->distance = weight;
-		g.insertEdge(vHead, vTail, ai);
-		g.insertEdge(vTail, vHead, ai);
-	}
-	return true;
-}
-void Input::printGraph(const Graph<VertexInfo, EdgeInfo> &g)
-{
-	cout << endl << "vertexNum: " << g.vertexNum << ", edgeNum: " << g.edgeNum << endl;
-	for (vector<Graph<VertexInfo, EdgeInfo>::Vertex *>::const_iterator iter = g.vertices.begin(); iter != g.vertices.end(); iter++)
-	{
-		cout << "the adjacent vertex of node " << (*iter)->vertexInfo->id << ":";
-		for (list<Graph<VertexInfo, EdgeInfo>::EdgeNode *>::const_iterator iter_list = (*iter)->firstEdge.begin();
-			iter_list != (*iter)->firstEdge.end(); iter_list++)
+		cout << "the adjacent vertex of node " << (*iter).id<< ":" <<(*iter).adjEdgeVec.size();
+		for (vector<int>::const_iterator iter_e = (*iter).adjEdgeVec.begin();
+			iter_e != (*iter).adjEdgeVec.end(); iter_e++)
 		{
-			cout << " -> " << (*iter_list)->adjVertex
-				<< "(" << (*iter_list)->edgeInfo->distance << ")";
+			cout << " -> " << vr.edgeVec[*iter_e] << endl;
 		}
 		cout << endl;
 	}
-	cout << "vertex num: " << g.vertexNum << " " << g.vertices.size() << endl
-		<< "edge num: " << (g.edgeNum >> 1);
 }
 
-void Input::calculateDistance(Graph<VertexInfo, EdgeInfo> &g)
-{
-	for (vector<Graph<VertexInfo, EdgeInfo>::Vertex *>::const_iterator iter = g.vertices.begin(); iter != g.vertices.end(); iter++)
-	{
-		for (list<Graph<VertexInfo, EdgeInfo>::EdgeNode *>::const_iterator iter_list = (*iter)->firstEdge.begin();
-			iter_list != (*iter)->firstEdge.end(); iter_list++)
-		{
-			(*iter_list)->edgeInfo->distance = getDistance((*iter)->vertexInfo->latitude, (*iter)->vertexInfo->longitude,
-				(*iter)->vertexInfo->latitude, (*iter)->vertexInfo->longitude);
-		}
-	}
-}
 
 void Input::errorLog(const string &msg)
 {
@@ -134,7 +97,6 @@ void Input::readDataSection(VehicleRouting &vr)
 	getline(ifs, temp);
 	VertexInfo *vi=new VertexInfo;
 	vi->nameOfDeliveryCenter = temp;
-	vr.g.addVertex(vi);
 
 	getline(ifs, temp);
 	getline(ifs, temp);
@@ -147,16 +109,12 @@ void Input::readDataSection(VehicleRouting &vr)
 		cout << result[i] << ", ";
 		vi = new VertexInfo;
 		vi->nameOfDeliveryCenter = result[i];
-		vr.g.addVertex(vi);
 		vr.regionMap[result[i]] = i;
 	}
-	printGraph(vr.g);
-	getline(ifs, temp);
 	//BILLINGS
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 18; i++)
 		getline(ifs, temp);
 	//CARRIERS
-	getline(ifs, temp);
 	string crid, bid;
 	for (int i = 0; i < vr.getNumCarrier(); i++)
 	{
@@ -188,12 +146,12 @@ void Input::readDataSection(VehicleRouting &vr)
 	getline(ifs, temp);
 	getline(ifs, temp);
 	getline(ifs, temp);
-	vr.clientVec.resize(vr.getNumClient());
+	vr.vertexVec.resize(vr.getNumClient());
 	for (int i = 0; i < vr.getNumClient(); i++)
 	{
-		ifs >> vr.clientVec[i];
-		vr.clientMap[vr.clientVec[i].getID()] = i;
-		cout << vr.clientVec[i].getID() << endl;
+		ifs >> vr.vertexVec[i];
+		vr.vertexMap[vr.vertexVec[i].id] = i;
+		cout << vr.vertexVec[i].id << endl;
 	}
 	//ORDERS
 	getline(ifs, temp);
@@ -213,9 +171,12 @@ void Input::readDataSection(VehicleRouting &vr)
 	getline(ifs, temp);
 	while (getline(ifs, temp) && temp != "END")
 	{
-		cout << temp << endl;
+		EdgeInfo e;
+		ifs >> e;
+		vr.edgeVec.push_back(e);
+		vr.vertexVec[vr.vertexMap[e.getEdge().first]].adjEdgeVec.push_back(vr.edgeVec.size() - 1);
 	}
-
+	//printGraph(vr);
 }
 Input::~Input()
 {
