@@ -99,5 +99,5 @@ int main(int argc, char *argv[])
 	VehicleRouting vr;
 	Input in("vrptwcdc//case1-A.vrp", "results//log.txt", vr);
 	vr.modifyOrder();
-	system("pause");
+	system("pause"); 
 }
