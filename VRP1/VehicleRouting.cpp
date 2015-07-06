@@ -30,11 +30,17 @@ void VehicleRouting::calculateDistance()
 			vertexVec[vertexMap[(*iter).getEdge().second]].longitude));
 	}
 }
-
 void VehicleRouting::modifyOrder()
 {
 	for (vector<Order>::iterator iter = orderVec.begin(); iter != orderVec.end(); iter++)
 	{
-		cout << *iter << endl;
+		if ((*iter).getOrderType() == OrderType::Optional)
+		{
+			int vindex = rand() % vertexVec.size();
+			while (vindex!=0&&vertexVec[vindex].id == (*iter).getRequestID())
+				vindex = rand() % vertexVec.size();
+			(*iter).setApplierID(vertexVec[vindex].id);
+		}
+		//cout << *iter << endl;
 	}
 }

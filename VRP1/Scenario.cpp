@@ -36,7 +36,7 @@ std::istream& operator>>(std::istream &is, Order &o)
 std::ostream& operator<<(std::ostream &is, const Order &o)
 {
 	//int ot;
-	is << o.id << " " << o.requestID << " " << o.requestQuantity << " "
+	is << o.id << " " << o.applierID << " " << o.requestID << " " << o.requestQuantity << " "
 		<< o.orderType << " " << o.readyTime << " " << o.dueTime;
 	//o.orderType = ot == 1 ? OrderType::Mondatory : OrderType::Optional;
 	return is;

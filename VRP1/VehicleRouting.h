@@ -22,7 +22,7 @@ public:
 	typedef int ObjValue;	// unit for objective value
 
 	VehicleRouting(){ }
-	void modifyOrder();
+	void modifyOrder();	// modify the order to accommodate the specific problem
 	Timer t;
 	// map structure
 	vector<VertexInfo> vertexVec;
