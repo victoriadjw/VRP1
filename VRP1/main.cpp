@@ -94,10 +94,11 @@ int main(int argc, char *argv[])
 	std::chrono::seconds difft = t.restTime();
 	cout << difft.count() << endl;
 
-	//Graph<VertexInfo, EdgeInfo> g;
+	//Graph<Client, Edge> g;
 
 	VehicleRouting vr;
 	Input in("vrptwcdc//case1-A.vrp", "results//log.txt", vr);
 	vr.modifyOrder();
+	vr.assign();
 	system("pause"); 
 }

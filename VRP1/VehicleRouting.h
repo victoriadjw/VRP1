@@ -23,21 +23,20 @@ public:
 
 	VehicleRouting(){ }
 	void modifyOrder();	// modify the order to accommodate the specific problem
+	void assign();		// assign orders to vehicles
 	Timer t;
 	// map structure
-	vector<VertexInfo> vertexVec;
-	vector<EdgeInfo> edgeVec;
-	map<VertexID, int> vertexMap;
+	vector<Client> clientVec;
+	vector<Edge> edgeVec;
+	map<ClientID, int> clientMap;
 
 	vector<Order> orderVec;
 	vector<Vehicle> vehicleVec;
-	vector<Client> clientVec;
 	Solution *solution;
 	vector<Carrier> carrierVec;
 
 	map<RegionID, int> regionMap;
 	map<CarrierID, int>carrierMap;
-	map<ClientID, int>clientMap;
 	map<OrderID, int>orderMap;
 
 	void setName(const string &);
@@ -58,8 +57,11 @@ public:
 
 private:
 	void calculateDistance();	// calculate distance according to latitude and longitude
+	bool cmpDistance(const OrderID &, const OrderID &);	// ascending order according to distance 
+	DistanceType getDistanceByOrder(const OrderID &);
 	string name;
 	int numClient,numOrder,numVehicle,numCarrier,numBilling,numRegion;
-	pair<int, int>planHorizon;
+	pair<int, int>CyclePlan ;
+	vector<int> mandatoryOrderIndexVec;
 };
 #endif

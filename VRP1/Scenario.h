@@ -17,7 +17,7 @@ typedef int UnitVolumeType;
 typedef int UnitWeightType;
 typedef double LengthType;
 typedef int GoodsID;
-typedef string VertexID;
+typedef string ClientID;
 typedef int VehicleID;
 typedef string OrderID;
 typedef string ClientID;
@@ -30,36 +30,37 @@ typedef double ObjectType;
 typedef int CostType;
 typedef int TimeType;
 
-enum OrderType{ Optional, Mondatory };
+enum OrderType{ Optional, Mandatory };
 
 class GoodsInfo
 {
 public:
-	GoodsID id;	// identity
-	string nameOfGoods;		// name of the goods
+	GoodsID GoodID;	// identity
+	string GoodName;		// name of the goods
 	QuantityType quantity;	// quantity of the goods
 	CapacityType outputPerMonth;	// output per month
 	UnitVolumeType unitVolume;		// unit volume
 	UnitWeightType unitWeight;		// unit weight
 };
 
-class EdgeInfo
+class Edge
 {
-	friend std::ostream& operator<<(std::ostream&, const EdgeInfo&);
-	friend std::istream& operator>>(std::istream&, EdgeInfo&);
+	friend std::ostream& operator<<(std::ostream&, const Edge&);
+	friend std::istream& operator>>(std::istream&, Edge&);
 public:
-	pair<VertexID, VertexID>& getEdge(){ return edge; }
+	pair<ClientID, ClientID>& getEdge(){ return edge; }
 	void setDistance(const DistanceType &d){ distance = d; }
+	DistanceType getDistance(){ return distance; }
 private:
-	pair<VertexID, VertexID> edge;
+	pair<ClientID, ClientID> edge;
 	DistanceType distance;
 	TimeDistanceType timeDistance;
 };
-class VertexInfo
+class Client
 {
-	friend std::istream& operator>>(std::istream&, VertexInfo&);
+	friend std::istream& operator>>(std::istream&, Client&);
 public:	
-	VertexID id;	// identity
+	ClientID PriDCID;	// identity
 	GeographyType longitude, latitude;	// longitude and latitude coordinates
 	string nameOfDeliveryCenter;	// name of the delivery center
 	string provinceAffiliated;		// affiliated province
@@ -75,15 +76,15 @@ public:
 class Vehicle
 {
 public:
-	Vehicle(VehicleID _id, string _register, string _cid, CostType _cost, CapacityType _capacity) :id(_id), 
+	Vehicle(VehicleID _id, string _register, string _cid, CostType _cost, CapacityType _capacity) :VehID(_id),
 		registrationNumber(_register), carrierID(_cid), cost(_cost),capacity(_capacity){}
-	const VehicleID id;	// identity
+	const VehicleID VehID;	// identity
 	const string registrationNumber;	// registration number of the vehicle
 	string modelOfVehicle;	// model of the vehicle
 	const string carrierID;			// which carrier belongs to
 	LengthType length, width, height;	// length, width, and height of the carriage of the vehicle
 	const CapacityType capacity;	// capacity of the vehicle
-	VertexInfo initPosition;	// initial position of the vehicle
+	Client initPosition;	// initial position of the vehicle
 	const CostType cost;		// fixed cost
 };
 
@@ -93,26 +94,27 @@ class Order
 	friend std::ostream& operator<<(std::ostream&, const Order&);
 public:
 	Order(){};
-	OrderID getID(){ return id; }
-	ClientID getApplierID(){ return applierID; }
-	ClientID getRequestID(){ return requestID; }
-	QuantityType getQuantity(){ return requestQuantity; }
+	OrderID getID(){ return OrdID; }
+	ClientID getApplierID(){ return OrdSupDisCenter; }
+	ClientID getRequestID(){ return OrdDemDisCenter; }
+	QuantityType getQuantity(){ return OrdDemandAmount; }
 	OrderType getOrderType(){ return orderType; }
-	void setApplierID(const ClientID &aid){ applierID = aid; }
+	void setApplierID(const ClientID &aid){ OrdSupDisCenter = aid; }
+	void setOrderType(const OrderType &t){ orderType = t; }
 private:
-	OrderID id;	// identity
-	ClientID applierID, requestID;	// offer and request vertex of the order
+	OrderID OrdID;	// identity
+	ClientID OrdSupDisCenter, OrdDemDisCenter;	// offer and request vertex of the order
 	GoodsID goodsID;	// requried goods ID of the order
-	QuantityType requestQuantity;	// request quantity of the order
+	QuantityType OrdDemandAmount;	// request quantity of the order
 	OrderType orderType;	// type of the order
-	TimeType readyTime,dueTime;	// due time of the order
+	TimeType readyTime, OrdDeadline;	// due time of the order
 };
 
 // contain load and unload information
 class LoadInfo
 {
 public:
-	VertexID vertexID;	// load and unload vertex
+	ClientID vertexID;	// load and unload vertex
 	OrderID resolvedOrderID;	// resolved order ID 
 	vector<GoodsID> loadGoodsID, unloadGoodsID;	// load and unload goods ID
 	vector<QuantityType> loadQuantity, unloadQuantity;	// load and unload quantity
@@ -146,23 +148,23 @@ private:
 	vector<string> incompatRegions;
 };
 
-class Client{
-	friend std::istream& operator>>(std::istream&, Client&);
-public:
-	Client() { }
-	Client(ClientID cid, std::string rid, int rt, int dt, int st) :
-		id(cid), regionID(rid), servTime(st * 60), timeWindow(rt, dt) { }
-	ClientID getID() const { return id; }
-	ClientID getRegion() const { return regionID; }
-	int getReadyTime() const { return timeWindow.first * 60; }
-	int getDueTime() const { return timeWindow.second * 60; }
-	TimeType getServiceTime() const { return servTime * 60; }
-private:
-	ClientID id;
-	RegionID regionID;
-	TimeType servTime;
-	std::pair<int, int> timeWindow;
-};
+//class Client{
+//	friend std::istream& operator>>(std::istream&, Client&);
+//public:
+//	Client() { }
+//	Client(ClientID cid, std::string rid, int rt, int dt, int st) :
+//		id(cid), regionID(rid), servTime(st * 60), timeWindow(rt, dt) { }
+//	ClientID getID() const { return id; }
+//	ClientID getRegion() const { return regionID; }
+//	int getReadyTime() const { return timeWindow.first * 60; }
+//	int getDueTime() const { return timeWindow.second * 60; }
+//	TimeType getServiceTime() const { return servTime * 60; }
+//private:
+//	ClientID id;
+//	RegionID regionID;
+//	TimeType servTime;
+//	std::pair<int, int> timeWindow;
+//};
 
 class Solution
 {

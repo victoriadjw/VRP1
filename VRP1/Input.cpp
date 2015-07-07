@@ -2,10 +2,10 @@
 
 void Input::printGraph(const VehicleRouting &vr)
 {
-	cout << endl << "vertexNum: " << vr.vertexVec.size()<< ", edgeNum: " << vr.edgeVec.size() << endl;
-	for (vector<VertexInfo>::const_iterator iter = vr.vertexVec.begin(); iter != vr.vertexVec.end(); iter++)
+	cout << endl << "vertexNum: " << vr.clientVec.size()<< ", edgeNum: " << vr.edgeVec.size() << endl;
+	for (vector<Client>::const_iterator iter = vr.clientVec.begin(); iter != vr.clientVec.end(); iter++)
 	{
-		cout << "the adjacent vertex of node " << (*iter).id<< ":" <<(*iter).adjEdgeVec.size();
+		cout << "the adjacent vertex of node " << (*iter).PriDCID << ":" << (*iter).adjEdgeVec.size();
 		for (vector<int>::const_iterator iter_e = (*iter).adjEdgeVec.begin();
 			iter_e != (*iter).adjEdgeVec.end(); iter_e++)
 		{
@@ -95,7 +95,7 @@ void Input::readDataSection(VehicleRouting &vr)
 	getline(ifs, temp);
 	getline(ifs, temp);
 	getline(ifs, temp);
-	VertexInfo *vi=new VertexInfo;
+	Client *vi=new Client;
 	vi->nameOfDeliveryCenter = temp;
 
 	getline(ifs, temp);
@@ -107,7 +107,7 @@ void Input::readDataSection(VehicleRouting &vr)
 	for (int i = 0; i < result.size(); i++)
 	{
 		cout << result[i] << ", ";
-		vi = new VertexInfo;
+		vi = new Client;
 		vi->nameOfDeliveryCenter = result[i];
 		vr.regionMap[result[i]] = i;
 	}
@@ -146,12 +146,12 @@ void Input::readDataSection(VehicleRouting &vr)
 	getline(ifs, temp);
 	getline(ifs, temp);
 	getline(ifs, temp);
-	vr.vertexVec.resize(vr.getNumClient());
+	vr.clientVec.resize(vr.getNumClient());
 	for (int i = 0; i < vr.getNumClient(); i++)
 	{
-		ifs >> vr.vertexVec[i];
-		vr.vertexMap[vr.vertexVec[i].id] = i;
-		cout << vr.vertexVec[i].id << endl;
+		ifs >> vr.clientVec[i];
+		vr.clientMap[vr.clientVec[i].PriDCID] = i;
+		cout << vr.clientVec[i].PriDCID << endl;
 	}
 	//ORDERS
 	getline(ifs, temp);
@@ -171,10 +171,11 @@ void Input::readDataSection(VehicleRouting &vr)
 	getline(ifs, temp);
 	while (getline(ifs, temp) && temp != "END")
 	{
-		EdgeInfo e;
+		Edge e;
 		ifs >> e;
 		vr.edgeVec.push_back(e);
-		vr.vertexVec[vr.vertexMap[e.getEdge().first]].adjEdgeVec.push_back(vr.edgeVec.size() - 1);
+		// add the index of e in edgeVec to adjEdgeVec of clientVec
+		vr.clientVec[vr.clientMap[e.getEdge().first]].adjEdgeVec.push_back(vr.edgeVec.size() - 1);
 	}
 	//printGraph(vr);
 }
