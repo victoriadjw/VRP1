@@ -4,10 +4,10 @@
 void VehicleRouting::setName(const string &_name){ name = _name; }
 void VehicleRouting::setNumBilling(const int &_numBilling){	numBilling = _numBilling;}
 void VehicleRouting::setNumCarrier(const int &_numCarrier){	numCarrier = _numCarrier;}
-void VehicleRouting::setNumClient(const int &_numClient){numClient = _numClient;}
+void VehicleRouting::setNumClient(const int &_numClient){ numClient = _numClient;}
 void VehicleRouting::setNumOrder(const int &_numOrder){	numOrder = _numOrder;}
 void VehicleRouting::setNumVehicle(const int &_numVehicle){	numVehicle = _numVehicle;}
-void VehicleRouting::setNumRegion(const int &_numRegion){numRegion = _numRegion;}
+void VehicleRouting::setNumRegion(const int &_numRegion){ numRegion = _numRegion;}
 void VehicleRouting::setPlanHorizon(const int &start, const int &end)
 {
 	CyclePlan .first = start;
@@ -52,20 +52,32 @@ void VehicleRouting::modifyOrder()
 		cout << *iter << endl;
 	}
 }
-DistanceType VehicleRouting::getDistanceByOrder(const OrderID &oid)
-{
-	std::vector<int> &adjEdge = clientVec[clientMap[orderVec[orderMap[oid]].getApplierID()]].adjEdgeVec;
-	for (std::vector<int>::iterator iter = adjEdge.begin(); iter != adjEdge.end();iter++)
+
+class VehicleRouting::CmpDistance{
+public:
+	CmpDistance(const vector<Edge> &_edgeVec,const vector<Order> &_orderVec)
+		:edgeVec(_edgeVec), orderVec(_orderVec){}
+	// sort to (least...greatest)
+	bool operator()(const int &l, const int &r)
 	{
-		if (edgeVec[*iter].getEdge().second == orderVec[orderMap[oid]].getRequestID())
-			return edgeVec[*iter].getDistance();
+		return getDistanceByOrderIndex(l) < getDistanceByOrderIndex(r);
 	}
-	return -1;
-}
-bool VehicleRouting::cmpDistance(const OrderID &l, const OrderID &r)
-{	
-	return getDistanceByOrder(l)<getDistanceByOrder(r);
-}
+	DistanceType getDistanceByOrderIndex(const int &oin)
+	{
+		ClientID &apid = orderVec[oin].getApplierID();
+		ClientID &rqid = orderVec[oin].getRequestID();
+		
+		for (std::vector<Edge>::const_iterator iter = edgeVec.begin(); iter != edgeVec.end(); iter++)
+		{
+			if ((*iter).getEdge().first == apid && (*iter).getEdge().second == rqid)
+				return (*iter).getDistance();
+		}
+		return -1;
+	}
+private:
+	const vector<Edge> &edgeVec;
+	const vector<Order> &orderVec;
+};
 void VehicleRouting::assign()
 {
 	cout << "mandatory order:" << endl;
@@ -77,10 +89,36 @@ void VehicleRouting::assign()
 			cout << i << " : " << *iter << endl;
 			mandatoryOrderIndexVec.push_back(i);
 		}
-		//std::sort(mandatoryOrderIndexVec.begin(), mandatoryOrderIndexVec.end(), cmpDistance);
+		std::sort(mandatoryOrderIndexVec.begin(), mandatoryOrderIndexVec.end(), CmpDistance(edgeVec,orderVec));
 	}
+	cout << "sorted mandatory order:" << endl;
+	CmpDistance cd(edgeVec, orderVec);
 	for (std::vector<int>::iterator iter = mandatoryOrderIndexVec.begin(); iter != mandatoryOrderIndexVec.end(); iter++)
 	{
-		cout << orderVec[*iter] << endl;
+		cout << orderVec[*iter] <<"\t"<<*iter<<"\t"<<cd.getDistanceByOrderIndex(*iter)<< endl;
 	}
+	vector<Route> routeVec;
+	for (vector<Vehicle>::iterator iter = vehicleVec.begin(); iter != vehicleVec.end(); iter++)
+	{
+		Route r;
+		r.VehID = (*iter).VehID;
+		routeVec.push_back(r);
+	}
+	for (vector<int>::iterator iter = mandatoryOrderIndexVec.begin(); iter != mandatoryOrderIndexVec.end(); iter++)
+	{
+		int rd = rand() % routeVec.size();
+		if (routeVec[rd].mandaQuantity + orderVec[*iter].getQuantity()>vehicleVec[vehicleMap[routeVec[rd].VehID]].capacity)
+			rd = rand() % routeVec.size();
+		routeVec[rd].serveOrderList.push_back(orderVec[*iter].getID());
+	}
+	for (vector<Route>::iterator iter = routeVec.begin(); iter != routeVec.end(); iter++)
+	{
+		cout << (*iter).VehID << " : " << endl;;
+		for (list<OrderID>::iterator it = (*iter).serveOrderList.begin();
+			it != (*iter).serveOrderList.end(); it++)
+		{
+			cout << orderVec[orderMap[*it]] <<"\t"<<cd.getDistanceByOrderIndex(orderMap[*it])<< endl;
+		}
+	}
+
 }

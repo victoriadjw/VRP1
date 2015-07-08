@@ -32,12 +32,13 @@ public:
 
 	vector<Order> orderVec;
 	vector<Vehicle> vehicleVec;
-	Solution *solution;
+	Solution solution;
 	vector<Carrier> carrierVec;
 
 	map<RegionID, int> regionMap;
 	map<CarrierID, int>carrierMap;
 	map<OrderID, int>orderMap;
+	map<VehicleID, int>vehicleMap;
 
 	void setName(const string &);
 	void setNumClient(const int &);
@@ -54,11 +55,10 @@ public:
 	int getNumCarrier()const;
 	int getNumBilling()const;
 	int getNumRegion()const;
-
 private:
 	void calculateDistance();	// calculate distance according to latitude and longitude
-	bool cmpDistance(const OrderID &, const OrderID &);	// ascending order according to distance 
-	DistanceType getDistanceByOrder(const OrderID &);
+	class CmpDistance;
+	DistanceType getDistanceByOrderIndex(const int &);
 	string name;
 	int numClient,numOrder,numVehicle,numCarrier,numBilling,numRegion;
 	pair<int, int>CyclePlan ;

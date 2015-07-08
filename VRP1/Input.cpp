@@ -138,8 +138,9 @@ void Input::readDataSection(VehicleRouting &vr)
 	for (int i = 0; i < vr.getNumVehicle(); i++)
 	{
 		ifs >> vid >> cap >> cost >> crid;
-		Vehicle ve(0, vid, crid, cost, cap);
+		Vehicle ve(vid, crid, cost, cap);
 		vr.vehicleVec.push_back(ve);
+		vr.vehicleMap[vid] = i;
 		cout << vid << " " << cap << " " << cost << " " << crid << endl;
 	}
 	//CLIENTS
