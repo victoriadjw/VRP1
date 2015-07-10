@@ -8,6 +8,7 @@
 
 #include<vector>
 #include<list>
+#include<set>
 
 #include"Utility.h"
 
@@ -152,7 +153,7 @@ private:
 class Solution
 {
 public:
-	list<Route *> routeList;	// route list
+	vector<Route> routeVec;	// route list
 	ObjectType solutionObjective;	// objective value of the solution
 	int numMandatoryOrder, numOptimalOrder;	// number of mandatory and optimal order
 };

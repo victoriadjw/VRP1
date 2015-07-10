@@ -170,6 +170,7 @@ void Input::readDataSection(VehicleRouting &vr)
 	getline(ifs, temp);
 	getline(ifs, temp);
 	getline(ifs, temp);
+	vr.orderEdge.resize(vr.clientVec.size(), vector<int>(vr.clientVec.size(), -1));
 	while (getline(ifs, temp) && temp != "END")
 	{
 		Edge e;
@@ -177,6 +178,7 @@ void Input::readDataSection(VehicleRouting &vr)
 		vr.edgeVec.push_back(e);
 		// add the index of e in edgeVec to adjEdgeVec of clientVec
 		vr.clientVec[vr.clientMap[e.getEdge().first]].adjEdgeVec.push_back(vr.edgeVec.size() - 1);
+		vr.orderEdge[vr.clientMap[e.getEdge().first]][vr.clientMap[e.getEdge().second]] = vr.edgeVec.size() - 1;
 	}
 	//printGraph(vr);
 }

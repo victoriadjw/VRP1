@@ -37,14 +37,14 @@ void VehicleRouting::modifyOrder()
 	{
 		if ((*iter).getOrderType() == OrderType::Optional)
 		{
-			if (rand() % 6 == 0) // change the order to mandatory with probability of 1/6
+			if (rand() % 4 == 0) // change the order to mandatory with probability of 1/6
 			{
 				(*iter).setOrderType(OrderType::Mandatory);
 			}
 			else
 			{
 				int vindex = rand() % clientVec.size();
-				while (vindex != 0 && clientVec[vindex].PriDCID == (*iter).getRequestID())
+				while (vindex == 0 || clientVec[vindex].PriDCID == (*iter).getRequestID())
 					vindex = rand() % clientVec.size();
 				(*iter).setApplierID(clientVec[vindex].PriDCID);
 			}
@@ -55,12 +55,17 @@ void VehicleRouting::modifyOrder()
 
 class VehicleRouting::CmpDistance{
 public:
-	CmpDistance(const vector<Edge> &_edgeVec,const vector<Order> &_orderVec)
-		:edgeVec(_edgeVec), orderVec(_orderVec){}
+	CmpDistance(const vector<Edge> &_edgeVec, const vector<Order> &_orderVec,
+		map<ClientID, int> &_clientMap,
+		const vector<vector<int>> &_orderEdge)
+		:edgeVec(_edgeVec), orderVec(_orderVec),
+		clientMap(_clientMap),orderEdge(_orderEdge){}
 	// sort to (least...greatest)
 	bool operator()(const int &l, const int &r)
 	{
-		return getDistanceByOrderIndex(l) < getDistanceByOrderIndex(r);
+		int le = orderEdge[clientMap[orderVec[l].getApplierID()]][clientMap[orderVec[l].getRequestID()]];
+		int re = orderEdge[clientMap[orderVec[r].getApplierID()]][clientMap[orderVec[r].getRequestID()]];
+		return edgeVec[le].getDistance()<edgeVec[re].getDistance();
 	}
 	DistanceType getDistanceByOrderIndex(const int &oin)
 	{
@@ -77,6 +82,8 @@ public:
 private:
 	const vector<Edge> &edgeVec;
 	const vector<Order> &orderVec;
+	map<ClientID, int> &clientMap;
+	const vector<vector<int>> &orderEdge;
 };
 void VehicleRouting::assign()
 {
@@ -89,35 +96,86 @@ void VehicleRouting::assign()
 			cout << i << " : " << *iter << endl;
 			mandatoryOrderIndexVec.push_back(i);
 		}
-		std::sort(mandatoryOrderIndexVec.begin(), mandatoryOrderIndexVec.end(), CmpDistance(edgeVec,orderVec));
+		else
+		{
+			optionalOrderIndexVec.push_back(i);
+		}
 	}
-	cout << "sorted mandatory order:" << endl;
-	CmpDistance cd(edgeVec, orderVec);
+	std::sort(mandatoryOrderIndexVec.begin(), mandatoryOrderIndexVec.end(), CmpDistance(edgeVec, orderVec, clientMap, orderEdge));
+	sort(optionalOrderIndexVec.begin(), optionalOrderIndexVec.end(), CmpDistance(edgeVec, orderVec, clientMap, orderEdge));
+	cout << "sorted mandatory order:" << mandatoryOrderIndexVec.size() << endl;
+	CmpDistance cd(edgeVec, orderVec, clientMap, orderEdge);
 	for (std::vector<int>::iterator iter = mandatoryOrderIndexVec.begin(); iter != mandatoryOrderIndexVec.end(); iter++)
 	{
 		cout << orderVec[*iter] <<"\t"<<*iter<<"\t"<<cd.getDistanceByOrderIndex(*iter)<< endl;
 	}
-	vector<Route> routeVec;
+	cout << "sorted optional order:" << optionalOrderIndexVec.size() << endl;
+	for (std::vector<int>::iterator iter = optionalOrderIndexVec.begin(); iter != optionalOrderIndexVec.end(); iter++)
+	{
+		cout << orderVec[*iter] << "\t" << *iter << "\t" << cd.getDistanceByOrderIndex(*iter) << endl;
+	}
+	//vector<Route> routeVec;
 	for (vector<Vehicle>::iterator iter = vehicleVec.begin(); iter != vehicleVec.end(); iter++)
 	{
 		Route r;
 		r.VehID = (*iter).VehID;
-		routeVec.push_back(r);
+		solution.routeVec.push_back(r);
 	}
+	// assign mandatory order to each route, confine to vehicle's capacity
 	for (vector<int>::iterator iter = mandatoryOrderIndexVec.begin(); iter != mandatoryOrderIndexVec.end(); iter++)
 	{
-		int rd = rand() % routeVec.size();
-		if (routeVec[rd].mandaQuantity + orderVec[*iter].getQuantity()>vehicleVec[vehicleMap[routeVec[rd].VehID]].capacity)
-			rd = rand() % routeVec.size();
-		routeVec[rd].serveOrderList.push_back(orderVec[*iter].getID());
+		int rd = rand() % solution.routeVec.size();
+		if (solution.routeVec[rd].mandaQuantity + orderVec[*iter].getQuantity()>vehicleVec[vehicleMap[solution.routeVec[rd].VehID]].capacity)
+			rd = rand() % solution.routeVec.size();
+		solution.routeVec[rd].serveOrderList.push_back(orderVec[*iter].getID());
 	}
-	for (vector<Route>::iterator iter = routeVec.begin(); iter != routeVec.end(); iter++)
+	// assign optional order to each route
+	for (vector<int>::iterator iter = optionalOrderIndexVec.begin(); iter != optionalOrderIndexVec.end(); iter++)
+	{
+		solution.routeVec[rand() % solution.routeVec.size()].serveOrderList.push_back(orderVec[*iter].getID());
+	}
+	for (vector<Route>::iterator iter = solution.routeVec.begin(); iter != solution.routeVec.end(); iter++)
 	{
 		cout << (*iter).VehID << " : " << endl;;
 		for (list<OrderID>::iterator it = (*iter).serveOrderList.begin();
 			it != (*iter).serveOrderList.end(); it++)
 		{
 			cout << orderVec[orderMap[*it]] <<"\t"<<cd.getDistanceByOrderIndex(orderMap[*it])<< endl;
+		}
+	}
+	generateRoute(1);
+}
+void VehicleRouting::generateRoute(const int &rin)
+{
+	// find the optional MM order with the in degree of the initial vertex is 0, 
+	// note that the in degree of all MM order may be larger than 0
+	set<ClientID> MMOrderClientIDSet;
+	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
+		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
+	{
+		if (orderVec[orderMap[*iter]].getOrderType() == OrderType::Mandatory)
+		{
+			MMOrderClientIDSet.insert(orderVec[orderMap[*iter]].getApplierID());
+			MMOrderClientIDSet.insert(orderVec[orderMap[*iter]].getRequestID());
+		}
+		cout << *iter << endl;
+	}
+	cout << "client id of mandatory order: \n";
+	for (set<ClientID>::iterator iter = MMOrderClientIDSet.begin();
+		iter != MMOrderClientIDSet.end(); iter++)
+	{
+		cout << *iter << "\t";
+	}
+	vector<OrderID> MMOrderInitVec;
+	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
+		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
+	{
+		if (orderVec[orderMap[*iter]].getOrderType() == OrderType::Optional&&
+			MMOrderClientIDSet.count(orderVec[orderMap[*iter]].getApplierID()) == 1&&
+			MMOrderClientIDSet.count(orderVec[orderMap[*iter]].getRequestID()) == 1)
+		{
+			MMOrderInitVec.push_back(*iter);
+			cout << *iter << endl;
 		}
 	}
 

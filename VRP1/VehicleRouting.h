@@ -24,6 +24,7 @@ public:
 	VehicleRouting(){ }
 	void modifyOrder();	// modify the order to accommodate the specific problem
 	void assign();		// assign orders to vehicles
+	void generateRoute(const int &);	// generate route according to route index
 	Timer t;
 	// map structure
 	vector<Client> clientVec;
@@ -39,6 +40,7 @@ public:
 	map<CarrierID, int>carrierMap;
 	map<OrderID, int>orderMap;
 	map<VehicleID, int>vehicleMap;
+	vector<vector<int>> orderEdge;
 
 	void setName(const string &);
 	void setNumClient(const int &);
@@ -62,6 +64,6 @@ private:
 	string name;
 	int numClient,numOrder,numVehicle,numCarrier,numBilling,numRegion;
 	pair<int, int>CyclePlan ;
-	vector<int> mandatoryOrderIndexVec;
+	vector<int> mandatoryOrderIndexVec, optionalOrderIndexVec;
 };
 #endif
