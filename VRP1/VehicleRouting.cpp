@@ -149,7 +149,8 @@ void VehicleRouting::generateRoute(const int &rin)
 {
 	// find the optional MM order with the in degree of the initial vertex is 0, 
 	// note that the in degree of all MM order may be larger than 0
-	set<ClientID> MMOrderClientIDSet;
+	set<ClientID> MMOrderClientIDSet;	// the ClientID set of mandatory order
+	int mand_order_cnt = 0;
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
 	{
@@ -157,6 +158,7 @@ void VehicleRouting::generateRoute(const int &rin)
 		{
 			MMOrderClientIDSet.insert(orderVec[orderMap[*iter]].getApplierID());
 			MMOrderClientIDSet.insert(orderVec[orderMap[*iter]].getRequestID());
+			mand_order_cnt += 1;
 		}
 		cout << *iter << endl;
 	}
@@ -166,7 +168,8 @@ void VehicleRouting::generateRoute(const int &rin)
 	{
 		cout << *iter << "\t";
 	}
-	vector<OrderID> MMOrderInitVec;
+	vector<OrderID> MMOptionalOrderVec;		// the optional MM order
+	set<ClientID> MMOrderInitClientIDSet;	// the initial ClientID set of the optional MM order
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
 	{
@@ -174,9 +177,53 @@ void VehicleRouting::generateRoute(const int &rin)
 			MMOrderClientIDSet.count(orderVec[orderMap[*iter]].getApplierID()) == 1&&
 			MMOrderClientIDSet.count(orderVec[orderMap[*iter]].getRequestID()) == 1)
 		{
-			MMOrderInitVec.push_back(*iter);
+			MMOptionalOrderVec.push_back(*iter);
+			MMOrderInitClientIDSet.insert(orderVec[orderMap[*iter]].getApplierID());
 			cout << *iter << endl;
 		}
 	}
-
+	vector<OrderID> MMOrderInitVec;	// the optional order where the initial ClientID are not in MMOrderInitClientIDSet
+	for (vector<OrderID>::iterator iter = MMOptionalOrderVec.begin();
+		iter != MMOptionalOrderVec.end(); iter++)
+	{
+		if (MMOrderInitClientIDSet.count(orderVec[orderMap[*iter]].getRequestID()) == 0)
+			MMOrderInitVec.push_back(*iter);
+	}
+	if (MMOrderInitVec.size() == 0)
+	{
+		// there exists a circle, at least one order 
+		// should be served by other vehicles.
+		// remove an order to other route
+	}
+	cout << MMOrderInitVec.size();
+	cout << "arrange the order sequence: " << endl;
+	set<OrderID> servedOrderIDSet;
+	ClientID &initClientID = clientVec[0].PriDCID;
+	cout << initClientID << " -> ";
+	while (servedOrderIDSet.size() != mand_order_cnt)
+	{
+		OrderID least_oid = findLeastCostOrder(servedOrderIDSet, solution.routeVec[rin].serveOrderList, initClientID);
+		servedOrderIDSet.insert(least_oid);
+		initClientID = orderVec[orderMap[least_oid]].getRequestID();
+		cout <<least_oid <<" " << initClientID << " -> ";
+	}
+}
+// find the OrderID of the least cost order in servedOrderList/servedOrderIDSet with respect to initClientID
+OrderID VehicleRouting::findLeastCostOrder(const set<OrderID> &servedOrderIDSet,const list<OrderID> &servedOrderList, const ClientID &initClientID)
+{
+	DistanceType least_dis=INT16_MAX;
+	OrderID least_oid;
+	for (list<OrderID>::const_iterator iter = servedOrderList.begin(); iter != servedOrderList.end(); iter++)
+	{
+		if (servedOrderIDSet.count(*iter) == 1||
+			orderVec[orderMap[*iter]].getOrderType()==OrderType::Optional)
+			continue;
+		DistanceType cur_dis = edgeVec[orderEdge[clientMap[initClientID]][clientMap[orderVec[orderMap[*iter]].getRequestID()]]].getDistance();
+		if (least_dis > cur_dis)
+		{
+			least_dis = cur_dis;
+			least_oid = *iter;
+		}
+	}
+	return least_oid;
 }

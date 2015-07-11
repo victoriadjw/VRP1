@@ -25,6 +25,8 @@ public:
 	void modifyOrder();	// modify the order to accommodate the specific problem
 	void assign();		// assign orders to vehicles
 	void generateRoute(const int &);	// generate route according to route index
+	// find the least cost in mandatory order
+	OrderID findLeastCostOrder(const set<OrderID>&, const list<OrderID>&, const ClientID&);
 	Timer t;
 	// map structure
 	vector<Client> clientVec;
