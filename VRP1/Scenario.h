@@ -127,7 +127,8 @@ class Route
 public:
 	Route(){ mandaQuantity = 0; cout << "route constructed." << endl; }
 	VehicleID VehID;	// corresponding vehicle
-	list<OrderID> serveOrderList;	// load information
+	vector<OrderID> serveOrderVec;	// load information
+	vector<OrderID> arrangedOrderVec;	// load information
 	Timer beginTime, endTime;	// begin and end time of the route
 	DistanceType routeDistance; // total distance of the route
 	ObjectType routeObject;		// objective value of the route
