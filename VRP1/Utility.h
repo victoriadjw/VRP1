@@ -17,6 +17,7 @@
 #include<chrono>
 #include<ctime>
 #include <iomanip>    
+#include<algorithm>
 #include<math.h>
 
 using namespace std;
@@ -136,4 +137,21 @@ static std::vector<std::string> split(std::string str, std::string pattern)
 	}
 	return result;
 }
+
+template<typename T>
+class MyVector : vector<T>
+{
+public:
+	MyVector(int size):vector<T>(size){	}
+
+	MyVector(int size, const T &value) :vector<T>(size, value){}
+
+
+	// TODO[0]: iii
+	int find(const T &value)const{
+		return (std::find(this->begin(), this->end, value) - this->begin());
+	}
+
+private:
+};
 #endif
