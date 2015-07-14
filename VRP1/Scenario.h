@@ -112,12 +112,15 @@ private:
 };
 
 // contain load and unload information
-class LoadInfo
+class ServeClient
 {
 public:
-	OrderID resolvedOrderID;	// resolved order ID 
-	vector<GoodsID> loadGoodsID, unloadGoodsID;	// load and unload goods ID
+	ServeClient(const ClientID &vcd, const QuantityType &cq):
+	visitClientID(vcd),currentQuantity(cq){}
+	ClientID visitClientID;	// visit ClientID	// unique except depot
+	vector<OrderID> loadOrderID, unloadOrderID;	// load and unload goods ID
 	vector<QuantityType> loadQuantity, unloadQuantity;	// load and unload quantity
+	QuantityType currentQuantity;	// current quantity of goods
 	Timer arrivalTime, departureTime;	// arrival and departureTime of the vertex
 	DistanceType driveDistance;		//  already drived distance
 };
@@ -128,9 +131,12 @@ public:
 	Route(){ mandaQuantity = 0; cout << "route constructed." << endl; }
 	VehicleID VehID;	// corresponding vehicle
 	list<OrderID> serveOrderList;	// load information
-	vector<vector<OrderID>> arrangedOrderVec;	// the sequence of served OrderID
-	vector<ClientID> servedClientIDVec;	// the served ClientID sequence
-	vector<QuantityType> quantityGoods;	// the quantity of goods in vehicle
+	//vector<vector<OrderID>> arrangedOrderVec;	// the sequence of served OrderID
+	//vector<ClientID> servedClientIDVec;	// the served ClientID sequence
+	//vector<QuantityType> quantityGoods;	// the quantity of goods in vehicle
+
+	list<ServeClient> serveClientList;	// served client list
+
 	Timer beginTime, endTime;	// begin and end time of the route
 	DistanceType routeDistance; // total distance of the route
 	ObjectType routeObject;		// objective value of the route
