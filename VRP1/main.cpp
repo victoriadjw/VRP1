@@ -1,6 +1,6 @@
 #include "VehicleRouting.h"
 #include"Input.h"
-
+#include"DijkstraShortPath.h"
 using namespace std;
 
 const std::string ARGV_HELP;
@@ -82,13 +82,14 @@ int run(int argc, char *argv[])
 	return 0;
 
 }
-
+#if 1
 int main(int argc, char *argv[])
 {
 	//return run(argc, argv);
 	cout << "vehicle routing problem." << endl;
 
 	//run(argc, argv);
+	
 
 	Timer t(0, 31, 22);
 	std::chrono::seconds difft = t.restTime();
@@ -98,7 +99,9 @@ int main(int argc, char *argv[])
 
 	VehicleRouting vr;
 	Input in("vrptwcdc//case1-A.vrp", "results//log.txt", vr);
+	DijkstraShortPath dsp(vr.clientVec,vr.edgeVec);
 	vr.modifyOrder();
 	vr.assign();
 	system("pause"); 
 }
+#endif
