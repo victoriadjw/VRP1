@@ -14,6 +14,7 @@
 #include<iostream>
 
 #include"Scenario.h"
+#include"DijkstraShortPath.h"
 
 class VehicleRouting
 {
@@ -42,7 +43,10 @@ public:
 	map<CarrierID, int>carrierMap;
 	map<OrderID, int>orderMap;
 	map<VehicleID, int>vehicleMap;
-	vector<vector<int>> orderEdge;
+	vector<vector<int>> orderEdge; 
+	
+	DijkstraShortPath *dsp;
+	
 
 	void setName(const string &);
 	void setNumClient(const int &);

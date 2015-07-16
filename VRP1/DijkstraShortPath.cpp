@@ -2,25 +2,54 @@
 
 DijkstraShortPath::DijkstraShortPath(const vector<Client> &cv, const vector<Edge> &ev) :clientVec(cv), edgeVec(ev)
 {
-	// property accessor
-	property_map<graph_t, vertex_name_t>::type clientID = get(vertex_name, g);
+	cid_map = get(vertex_name, g);
 	for (vector<Client>::const_iterator iter = clientVec.begin();
 		iter != clientVec.end(); iter++)
 	{
 		vertex_map[iter->PriDCID] = add_vertex(g);
-		clientID[vertex_map[iter->PriDCID]] = iter->PriDCID;
+		cid_map[vertex_map[iter->PriDCID]] = iter->PriDCID;
 	}
 	for (vector<Edge>::const_iterator iter = edgeVec.begin();
 		iter != edgeVec.end(); iter++)
 	{
 		add_edge(vertex_map[iter->getEdge().first], vertex_map[iter->getEdge().second], iter->getDistance(), g);
 	}
-	print_graph(g, clientID);
+	print_graph(g, cid_map);
 	//print_graph(g, get(vertex_index,g));
 }
+
+void DijkstraShortPath::GetShortPath(const ClientID &stard_cid, const ClientID &end_cid, DistanceType &shortest_distance, vector<ClientID> &shortest_vid_vec)
+{
+	vector<vertex_descriptor> p(num_vertices(g));
+	vector<DistanceType> d(num_vertices(g));
+	dijkstra_shortest_paths(g, vertex_map[stard_cid],
+		predecessor_map(boost::make_iterator_property_map(p.begin(), get(boost::vertex_index, g))).
+		distance_map(boost::make_iterator_property_map(d.begin(), get(boost::vertex_index, g))));
+	std::cout << "distances and partents: " << std::endl;
+	graph_traits<graph_t>::vertex_iterator vi, vend;
+	for (boost::tie(vi, vend) = vertices(g); vi != vend; vi++)
+	{
+		std::cout << "distance(" << cid_map[*vi] << ")=" << d[*vi] << ",";
+		std::cout << "parent(" << cid_map[*vi] << ")=" << cid_map[p[*vi]] << std::endl;
+	}
+	shortest_vid_vec.clear();
+	cout << stard_cid<<" " << vertex_map[stard_cid] << ", "<<end_cid<<" " << vertex_map[end_cid] << endl;
+	vertex_descriptor vd;
+	for (vd = vertex_map[end_cid]; vd != vertex_map[stard_cid]; vd = p[vd])
+	{
+		cout << cid_map[vd] << " ";
+		shortest_vid_vec.push_back(cid_map[vd]);
+	}
+	cout << cid_map[vd] << endl;
+	shortest_vid_vec.push_back(cid_map[vd]);
+	reverse(shortest_vid_vec.begin(), shortest_vid_vec.end());
+	for (vector<ClientID>::iterator iter = shortest_vid_vec.begin();
+		iter != shortest_vid_vec.end(); iter++)
+		cout << *iter << ",";
+
+}
 #if 0
-int
-main(int, char *[])
+int main(int, char *[])
 {
 	typedef adjacency_list < listS, vecS, directedS,
 		no_property, property < edge_weight_t, int > > graph_t;

@@ -1,6 +1,5 @@
 #include "VehicleRouting.h"
 #include"Input.h"
-#include"DijkstraShortPath.h"
 using namespace std;
 
 const std::string ARGV_HELP;
@@ -99,7 +98,10 @@ int main(int argc, char *argv[])
 
 	VehicleRouting vr;
 	Input in("vrptwcdc//case1-A.vrp", "results//log.txt", vr);
-	DijkstraShortPath dsp(vr.clientVec,vr.edgeVec);
+	/*DijkstraShortPath dsp(vr.clientVec,vr.edgeVec);
+	DistanceType shortest_distance;
+	vector<ClientID> shortest_vid_vec;
+	dsp.GetShortPath(vr.clientVec[0].PriDCID, vr.clientVec[24].PriDCID, shortest_distance, shortest_vid_vec);*/
 	vr.modifyOrder();
 	vr.assign();
 	system("pause"); 

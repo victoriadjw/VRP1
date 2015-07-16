@@ -181,6 +181,7 @@ void Input::readDataSection(VehicleRouting &vr)
 		vr.orderEdge[vr.clientMap[e.getEdge().first]][vr.clientMap[e.getEdge().second]] = vr.edgeVec.size() - 1;
 	}
 	//printGraph(vr);
+	vr.dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec);
 }
 Input::~Input()
 {
