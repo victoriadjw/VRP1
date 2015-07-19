@@ -17,12 +17,13 @@ DijkstraShortPath::DijkstraShortPath(const vector<Client> &cv, const vector<Edge
 	print_graph(g, cid_map);
 	//print_graph(g, get(vertex_index,g));
 }
-
-void DijkstraShortPath::GetShortPath(const ClientID &stard_cid, const ClientID &end_cid, DistanceType &shortest_distance, vector<ClientID> &shortest_vid_vec)
+// get the shortest path for a given pair of client id
+void DijkstraShortPath::getShortPath(const ClientID &start_cid, const ClientID &end_cid, 
+	DistanceType &shortest_distance, vector<ClientID> &shortest_cid_vec)
 {
 	vector<vertex_descriptor> p(num_vertices(g));
 	vector<DistanceType> d(num_vertices(g));
-	dijkstra_shortest_paths(g, vertex_map[stard_cid],
+	dijkstra_shortest_paths(g, vertex_map[start_cid],
 		predecessor_map(boost::make_iterator_property_map(p.begin(), get(boost::vertex_index, g))).
 		distance_map(boost::make_iterator_property_map(d.begin(), get(boost::vertex_index, g))));
 	std::cout << "distances and partents: " << std::endl;
@@ -32,21 +33,59 @@ void DijkstraShortPath::GetShortPath(const ClientID &stard_cid, const ClientID &
 		std::cout << "distance(" << cid_map[*vi] << ")=" << d[*vi] << ",";
 		std::cout << "parent(" << cid_map[*vi] << ")=" << cid_map[p[*vi]] << std::endl;
 	}
-	shortest_vid_vec.clear();
-	cout << stard_cid<<" " << vertex_map[stard_cid] << ", "<<end_cid<<" " << vertex_map[end_cid] << endl;
+	shortest_cid_vec.clear();
+	cout << start_cid<<" " << vertex_map[start_cid] << ", "<<end_cid<<" " << vertex_map[end_cid] << endl;
 	vertex_descriptor vd;
-	for (vd = vertex_map[end_cid]; vd != vertex_map[stard_cid]; vd = p[vd])
+	for (vd = vertex_map[end_cid]; vd != vertex_map[start_cid]; vd = p[vd])
 	{
 		cout << cid_map[vd] << " ";
-		shortest_vid_vec.push_back(cid_map[vd]);
+		shortest_cid_vec.push_back(cid_map[vd]);
 	}
 	cout << cid_map[vd] << endl;
-	shortest_vid_vec.push_back(cid_map[vd]);
-	reverse(shortest_vid_vec.begin(), shortest_vid_vec.end());
-	for (vector<ClientID>::iterator iter = shortest_vid_vec.begin();
-		iter != shortest_vid_vec.end(); iter++)
+	shortest_cid_vec.push_back(cid_map[vd]);
+	reverse(shortest_cid_vec.begin(), shortest_cid_vec.end());
+	for (vector<ClientID>::iterator iter = shortest_cid_vec.begin();
+		iter != shortest_cid_vec.end(); iter++)
 		cout << *iter << ",";
 
+}
+// get the shortest path for a given starting client id and a given vector of client id
+void DijkstraShortPath::getShortPathClient(const ClientID &start_cid, const set<ClientID> &end_cid_set, ClientID &sel_end_cid, 
+	DistanceType &shortest_distance, vector<ClientID> &shortest_cid_vec)
+{
+	vector<vertex_descriptor> p(num_vertices(g));
+	vector<DistanceType> d(num_vertices(g));
+	dijkstra_shortest_paths(g, vertex_map[start_cid],
+		predecessor_map(boost::make_iterator_property_map(p.begin(), get(boost::vertex_index, g))).
+		distance_map(boost::make_iterator_property_map(d.begin(), get(boost::vertex_index, g))));
+	//std::cout << "distances and partents for one client id and a vector of client id: " << std::endl;
+	shortest_distance = DBL_MAX;
+	graph_traits<graph_t>::vertex_iterator vi, vend;
+	for (boost::tie(vi, vend) = vertices(g); vi != vend; vi++)
+	{
+		//std::cout << "distance(" << cid_map[*vi] << ")=" << d[*vi] << ",";
+		//std::cout << "parent(" << cid_map[*vi] << ")=" << cid_map[p[*vi]] << std::endl;
+		if (end_cid_set.count(cid_map[*vi])==1&&
+			d[*vi] < shortest_distance)
+		{
+			shortest_distance = d[*vi];
+			sel_end_cid = cid_map[*vi];
+		}
+	}
+	shortest_cid_vec.clear();
+	//cout << start_cid << " " << vertex_map[start_cid] << ", " << sel_end_cid << " " << vertex_map[sel_end_cid] << endl;
+	vertex_descriptor vd;
+	for (vd = vertex_map[sel_end_cid]; vd != vertex_map[start_cid]; vd = p[vd])
+	{
+		//cout << cid_map[vd] << " ";
+		shortest_cid_vec.push_back(cid_map[vd]);
+	}
+	//cout << cid_map[vd] << endl;
+	shortest_cid_vec.push_back(cid_map[vd]);
+	reverse(shortest_cid_vec.begin(), shortest_cid_vec.end());
+	/*for (vector<ClientID>::iterator iter = shortest_cid_vec.begin();
+		iter != shortest_cid_vec.end(); iter++)
+		cout << *iter << ",";*/
 }
 #if 0
 int main(int, char *[])

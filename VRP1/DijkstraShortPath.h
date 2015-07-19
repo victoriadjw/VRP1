@@ -8,6 +8,7 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/property_map/property_map.hpp>
 #include <boost/graph/graph_utility.hpp>
+#include<float.h>
 
 #include"Scenario.h"
 using namespace boost;
@@ -19,8 +20,11 @@ public:
 	typedef property<edge_weight_t, DistanceType> EdgeWeightProperty;
 	typedef adjacency_list < listS, vecS, directedS, VertexProperty, EdgeWeightProperty> graph_t;
 	typedef graph_traits < graph_t >::vertex_descriptor vertex_descriptor;
-	DijkstraShortPath(const vector<Client> &,const vector<Edge> &);
-	void GetShortPath(const ClientID &,const ClientID &,DistanceType &,vector<ClientID> &);
+	DijkstraShortPath(const vector<Client> &, const vector<Edge> &);
+	// get the shortest path for a given pair of client id
+	void getShortPath(const ClientID &, const ClientID &, DistanceType &, vector<ClientID> &);
+	// get the shortest path for a given starting client id and a given vector of client id
+	void getShortPathClient(const ClientID &, const set<ClientID> &, ClientID &, DistanceType &, vector<ClientID> &);
 private:
 	const vector<Client> &clientVec;
 	const vector<Edge> &edgeVec;
