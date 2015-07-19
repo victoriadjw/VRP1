@@ -1,5 +1,6 @@
 #include "VehicleRouting.h"
 #include"Input.h"
+#include"Solver.h"
 using namespace std;
 
 const std::string ARGV_HELP;
@@ -93,9 +94,14 @@ int main(int argc, char *argv[])
 	Timer t(0, 31, 22);
 	std::chrono::seconds difft = t.restTime();
 	cout << difft.count() << endl;
-
-	//Graph<Client, Edge> g;
-
+	int temp_i = 10;
+	const int &rin = temp_i;
+	cout << rin << endl;
+	temp_i -= 1;
+	cout << rin << endl;
+	const int &rin1 = 40;
+	const int &rin2 = temp_i * 2;
+	cout << rin1 << " " << rin2 << endl;
 	VehicleRouting vr;
 	Input in("vrptwcdc//case1-A.vrp", "results//log.txt", vr);
 	/*DijkstraShortPath dsp(vr.clientVec,vr.edgeVec);
@@ -103,7 +109,9 @@ int main(int argc, char *argv[])
 	vector<ClientID> shortest_vid_vec;
 	dsp.GetShortPath(vr.clientVec[0].PriDCID, vr.clientVec[24].PriDCID, shortest_distance, shortest_vid_vec);*/
 	vr.modifyOrder();
-	vr.assign();
+	vr.setMandOptionOrder();
+	Solver solver(vr);
+	solver.assign();
 	system("pause"); 
 }
 #endif

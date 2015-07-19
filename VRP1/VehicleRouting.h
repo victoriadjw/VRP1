@@ -23,30 +23,26 @@ public:
 	typedef int ObjValue;	// unit for objective value
 
 	VehicleRouting(){ }
-	void modifyOrder();	// modify the order to accommodate the specific problem
-	void assign();		// assign orders to vehicles
-	void generateRoute(const int &);	// generate route according to route index
-	// find the least cost in mandatory order
-	OrderID findLeastCostOrder( const list<OrderID>&, const ClientID&);
+
 	Timer t;
-	// map structure
+
 	vector<Client> clientVec;
 	vector<Edge> edgeVec;
-	map<ClientID, int> clientMap;
-
 	vector<Order> orderVec;
 	vector<Vehicle> vehicleVec;
-	Solution solution;
 	vector<Carrier> carrierVec;
 
+	mutable map<ClientID, int> clientMap;
 	map<RegionID, int> regionMap;
 	map<CarrierID, int>carrierMap;
-	map<OrderID, int>orderMap;
-	map<VehicleID, int>vehicleMap;
+	mutable map<OrderID, int>orderMap;
+	mutable map<VehicleID, int>vehicleMap;
 	vector<vector<int>> orderEdge; 
-	
-	DijkstraShortPath *dsp;
-	
+
+
+	void modifyOrder();
+	void setMandOptionOrder();
+	DistanceType getDistanceByOrderIndex(const OrderID &)const;
 
 	void setName(const string &);
 	void setNumClient(const int &);
@@ -63,10 +59,11 @@ public:
 	int getNumCarrier()const;
 	int getNumBilling()const;
 	int getNumRegion()const;
+	vector<int> getMandatoryOrderIndexVec()const;
+	vector<int> getOptionalOrderIndexVec()const;
 private:
 	void calculateDistance();	// calculate distance according to latitude and longitude
 	class CmpDistance;
-	DistanceType getDistanceByOrderIndex(const int &);
 	string name;
 	int numClient,numOrder,numVehicle,numCarrier,numBilling,numRegion;
 	pair<int, int>CyclePlan ;

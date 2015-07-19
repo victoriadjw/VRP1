@@ -82,6 +82,7 @@
     <ClInclude Include="DijkstraShortPath.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Scenario.h" />
+    <ClInclude Include="Solver.h" />
     <ClInclude Include="VehicleRouting.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
@@ -90,6 +91,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Scenario.cpp" />
+    <ClCompile Include="Solver.cpp" />
     <ClCompile Include="VehicleRouting.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
