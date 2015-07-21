@@ -26,27 +26,27 @@ void DijkstraShortPath::getShortPath(const ClientID &start_cid, const ClientID &
 	dijkstra_shortest_paths(g, vertex_map[start_cid],
 		predecessor_map(boost::make_iterator_property_map(p.begin(), get(boost::vertex_index, g))).
 		distance_map(boost::make_iterator_property_map(d.begin(), get(boost::vertex_index, g))));
-	std::cout << "distances and partents: " << std::endl;
+	/*std::cout << "distances and partents: " << std::endl;
 	graph_traits<graph_t>::vertex_iterator vi, vend;
 	for (boost::tie(vi, vend) = vertices(g); vi != vend; vi++)
 	{
 		std::cout << "distance(" << cid_map[*vi] << ")=" << d[*vi] << ",";
 		std::cout << "parent(" << cid_map[*vi] << ")=" << cid_map[p[*vi]] << std::endl;
-	}
+	}*/
 	shortest_cid_vec.clear();
-	cout << start_cid<<" " << vertex_map[start_cid] << ", "<<end_cid<<" " << vertex_map[end_cid] << endl;
+	//cout << start_cid<<" " << vertex_map[start_cid] << ", "<<end_cid<<" " << vertex_map[end_cid] << endl;
 	vertex_descriptor vd;
 	for (vd = vertex_map[end_cid]; vd != vertex_map[start_cid]; vd = p[vd])
 	{
-		cout << cid_map[vd] << " ";
+		//cout << cid_map[vd] << " ";
 		shortest_cid_vec.push_back(cid_map[vd]);
 	}
-	cout << cid_map[vd] << endl;
+	//cout << cid_map[vd] << endl;
 	shortest_cid_vec.push_back(cid_map[vd]);
 	reverse(shortest_cid_vec.begin(), shortest_cid_vec.end());
-	for (vector<ClientID>::iterator iter = shortest_cid_vec.begin();
+	/*for (vector<ClientID>::iterator iter = shortest_cid_vec.begin();
 		iter != shortest_cid_vec.end(); iter++)
-		cout << *iter << ",";
+		cout << *iter << ",";*/
 
 }
 // get the shortest path for a given starting client id and a given vector of client id

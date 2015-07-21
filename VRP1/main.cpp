@@ -89,7 +89,13 @@ int main(int argc, char *argv[])
 	cout << "vehicle routing problem." << endl;
 
 	//run(argc, argv);
-	
+	//int myints[] = { 10, 20, 30, 40, 50, 60, 70 };
+	std::vector<int> myints;
+	for (int i = 0; i < 7; i++)
+		myints.push_back(i + 1);
+	std::vector<int> myvector(7);
+
+	std::copy(myints.begin(), myints.end(), myvector.begin());
 
 	Timer t(0, 31, 22);
 	std::chrono::seconds difft = t.restTime();

@@ -25,7 +25,8 @@ public:
 	// find the least cost in mandatory order
 	OrderID findLeastCostOrder(const list<OrderID>&, const ClientID&);
 	// find the iterator of a client id in serve client id list
-	void findClientIDServeList(const list<ServeClient> &, const ClientID &, list<ServeClient>::const_iterator &);
+	void findClientIDServeList( list<ServeClient> &, const ClientID &, list<ServeClient>::iterator &);
+	void printRoute(const int&)const;
 private:
 	const VehicleRouting &vr;
 	DijkstraShortPath *dsp;

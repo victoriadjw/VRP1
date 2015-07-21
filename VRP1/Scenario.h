@@ -100,6 +100,7 @@ public:
 	ClientID getRequestID()const{ return OrdDemDisCenter; }
 	QuantityType getQuantity()const{ return OrdDemandAmount; }
 	OrderType getOrderType()const{ return orderType; }
+	CostType getOrderValue()const{ return orderValue; }
 	void setApplierID(const ClientID &aid){ OrdSupDisCenter = aid; }
 	void setOrderType(const OrderType &t){ orderType = t; }
 private:
@@ -109,6 +110,7 @@ private:
 	QuantityType OrdDemandAmount;	// request quantity of the order
 	OrderType orderType;	// type of the order
 	TimeType readyTime, OrdDeadline;	// due time of the order
+	CostType orderValue;	// the value of the order
 };
 
 // contain load and unload information
