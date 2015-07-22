@@ -199,7 +199,7 @@ void Solver::generateRoute(const int &rin)
 			{
 				it->currentQuantity += (unload_term - unload_init + vr.orderVec[vr.orderMap[*iter]].getQuantity());
 			}
-			swap(init_scid, term_scid);
+			swap(*init_scid, *term_scid);
 			solution.routeVec[rin].serveOrderList.remove(*iter);
 		}
 	}
@@ -352,7 +352,8 @@ void Solver::printRoute(const int &rin)const
 		for (vector<OrderID>::const_iterator it = (*iter).loadOrderID.begin(); 
 			it != (*iter).loadOrderID.end(); it++)
 		{
-			cout << *it << " ";
+			//cout << *it << " ";
+			cout << *it << " (" << vr.orderVec[vr.orderMap.at(*it)] << ") ";
 		}
 		cout << "; unload: " << (*iter).unloadOrderID.size() << ":";
 		for (vector<OrderID>::const_iterator it = (*iter).unloadOrderID.begin(); 

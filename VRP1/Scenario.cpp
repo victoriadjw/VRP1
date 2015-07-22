@@ -30,9 +30,10 @@ std::istream& operator>>(std::istream &is, Order &o)
 }
 std::ostream& operator<<(std::ostream &is, const Order &o)
 {
-	//int ot;
-	is << o.OrdID << "\t" << o.OrdSupDisCenter << "\t" << o.OrdDemDisCenter << "\t" << o.OrdDemandAmount << "\t"
-		<< o.orderType << "\t" << o.readyTime << "\t" << o.OrdDeadline;
+	//is << o.OrdID << "\t" << o.OrdSupDisCenter << "\t" << o.OrdDemDisCenter << "\t" << o.OrdDemandAmount << "\t"
+	//	<< o.orderType << "\t" << o.readyTime << "\t" << o.OrdDeadline;
 	//o.orderType = ot == 1 ? OrderType::Mandatory : OrderType::Optional;
+	is << o.OrdID << " " << o.OrdSupDisCenter << " " << o.OrdDemDisCenter << " "
+		<<o.OrdDemandAmount << " "<< o.orderType;
 	return is;
 }
