@@ -14,7 +14,7 @@ DijkstraShortPath::DijkstraShortPath(const vector<Client> &cv, const vector<Edge
 	{
 		add_edge(vertex_map[iter->getEdge().first], vertex_map[iter->getEdge().second], iter->getDistance(), g);
 	}
-	print_graph(g, cid_map);
+	//print_graph(g, cid_map);
 	//print_graph(g, get(vertex_index,g));
 }
 // get the shortest path for a given pair of client id
@@ -49,7 +49,7 @@ void DijkstraShortPath::getShortPath(const ClientID &start_cid, const ClientID &
 		cout << *iter << ",";*/
 
 }
-// get the shortest path for a given starting client id and a given vector of client id
+// get the shortest path for a given starting client id and a given set of client id
 void DijkstraShortPath::getShortPathClient(const ClientID &start_cid, const set<ClientID> &end_cid_set, ClientID &sel_end_cid, 
 	DistanceType &shortest_distance, vector<ClientID> &shortest_cid_vec)
 {

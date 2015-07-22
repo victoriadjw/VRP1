@@ -13,16 +13,16 @@ void Solver::assign()
 	}
 	// assign mandatory order to each route, confine to vehicle's capacity
 	vector<int> moiv = vr.getMandatoryOrderIndexVec();
-	for (vector<int>::iterator iter =moiv.begin(); iter != moiv.end(); iter++)
+	for (vector<int>::iterator iter = moiv.begin(); iter != moiv.end(); iter++)
 	{
 		int rd = rand() % solution.routeVec.size();
-		if (solution.routeVec[rd].mandaQuantity + vr.orderVec[*iter].getQuantity()>
+		if (solution.routeVec[rd].mandaQuantity + vr.orderVec[*iter].getQuantity() >
 			vr.vehicleVec[vr.vehicleMap[solution.routeVec[rd].VehID]].capacity)
 			rd = rand() % solution.routeVec.size();
 		solution.routeVec[rd].mandaQuantity += vr.orderVec[*iter].getQuantity();
 		solution.routeVec[rd].serveOrderList.push_back(vr.orderVec[*iter].getID());
 	}
-	
+
 	// assign optional order to each route
 	vector<int> ooiv = vr.getOptionalOrderIndexVec();
 	for (vector<int>::iterator iter = ooiv.begin(); iter != ooiv.end(); iter++)
@@ -31,7 +31,7 @@ void Solver::assign()
 	}
 	for (vector<Route>::iterator iter = solution.routeVec.begin(); iter != solution.routeVec.end(); iter++)
 	{
-		cout << (*iter).VehID <<", "<<(*iter).serveOrderList.size()<< " : " << endl;;
+		cout << (*iter).VehID << ", " << (*iter).serveOrderList.size() << " : " << endl;;
 		for (list<OrderID>::iterator it = (*iter).serveOrderList.begin();
 			it != (*iter).serveOrderList.end(); it++)
 		{
@@ -57,9 +57,9 @@ void Solver::generateRoute(const int &rin)
 			MMOrderClientIDSet.insert(vr.orderVec[vr.orderMap[*iter]].getRequestID());
 			MMOrderVec.push_back(*iter);
 		}
-		cout << *iter << endl;
+		cout << *iter << "\t";
 	}
-	cout <<solution.routeVec[rin].serveOrderList.size()<< "\tclient id of mandatory order: \n";
+	cout << solution.routeVec[rin].serveOrderList.size() << "\tclient id of mandatory order: \n";
 	for (set<ClientID>::iterator iter = MMOrderClientIDSet.begin();
 		iter != MMOrderClientIDSet.end(); iter++)
 	{
@@ -90,7 +90,7 @@ void Solver::generateRoute(const int &rin)
 	}
 	if (MMOrderInitVec.size() == 0)
 	{
-		// there exists a circle, at least one order 
+		// NOTE: there exists a circle, at least one order 
 		// should be served by other vehicles.
 		// remove an order to other route
 	}
@@ -112,7 +112,7 @@ void Solver::generateRoute(const int &rin)
 	//cout << init_cid << " -> ";
 	MMOrderClientIDSet.erase(vr.clientVec[0].PriDCID);
 	while (!MMOrderClientIDSet.empty())
-	{		
+	{
 		ClientID sel_end_cid;
 		DistanceType shortest_distance;
 		vector<ClientID> shortest_cid_vec;
@@ -130,7 +130,7 @@ void Solver::generateRoute(const int &rin)
 			}
 		}
 		solution.routeVec[rin].serveClientList.push_back(sc1);
-	//	cout << init_cid << "->";
+		//	cout << init_cid << "->";
 		init_cid = sel_end_cid;
 	}
 	// insert the last visiting client depot
@@ -177,6 +177,8 @@ void Solver::generateRoute(const int &rin)
 			continue;
 		}
 		// the MM optional order is opposite to the arranged list
+		// NOTE: impose the MM optional order to add to the arranged list
+		// no matter it can improve the profit or not
 		QuantityType unload_init, unload_term;
 		unload_init = unload_term = 0;
 		for (vector<OrderID>::iterator it1 = init_scid->unloadOrderID.begin();
@@ -203,109 +205,199 @@ void Solver::generateRoute(const int &rin)
 			solution.routeVec[rin].serveOrderList.remove(*iter);
 		}
 	}
-	
 	printRoute(rin);
 	// insert the MO and OM optional order to the already arranged orders
-	
-	insertOptionalOrderToRoute(rin);
-	printRoute(rin);
-	
-}
-
-// insert optional order (OM, MO and OO) to a route
-void Solver::insertOptionalOrderToRoute(const int &rin)
-{
-	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
-		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
+	int serve_order_cnt = solution.routeVec[rin].serveOrderList.size() + 1;
+	while (serve_order_cnt > solution.routeVec[rin].serveOrderList.size())
 	{
-		if (vr.orderVec[vr.orderMap[*iter]].getOrderType() == OrderType::Mandatory)
-			continue;
-		list<ServeClient>::iterator start_sc_iter, end_sc_iter;
-		findClientIDServeList(solution.routeVec[rin].serveClientList,
-			vr.orderVec[vr.orderMap[*iter]].getApplierID(), start_sc_iter);
-		findClientIDServeList(solution.routeVec[rin].serveClientList,
-			vr.orderVec[vr.orderMap[*iter]].getRequestID(), end_sc_iter);
-		// insert MO optional order
-		if (start_sc_iter != solution.routeVec[rin].serveClientList.end() &&
-			end_sc_iter == solution.routeVec[rin].serveClientList.end())
+		serve_order_cnt = solution.routeVec[rin].serveOrderList.size();
+		for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
+			iter != solution.routeVec[rin].serveOrderList.end();)
 		{
-			if (start_sc_iter->currentQuantity + vr.orderVec[vr.orderMap[*iter]].getQuantity() <=
-				vr.vehicleVec[vr.vehicleMap[solution.routeVec[rin].VehID]].capacity)
+			if (vr.orderVec[vr.orderMap[*iter]].getOrderType() == OrderType::Mandatory)
+				continue;
+			list<ServeClient>::iterator start_sc_iter, end_sc_iter;
+			findClientIDServeList(solution.routeVec[rin].serveClientList,
+				vr.orderVec[vr.orderMap[*iter]].getApplierID(), start_sc_iter);
+			findClientIDServeList(solution.routeVec[rin].serveClientList,
+				vr.orderVec[vr.orderMap[*iter]].getRequestID(), end_sc_iter);
+			// insert MO optional order
+			if (start_sc_iter != solution.routeVec[rin].serveClientList.end() &&
+				end_sc_iter == solution.routeVec[rin].serveClientList.end())
 			{
-				DistanceType min_extra_distance = DBL_MAX, out_distance, in_distance;
-				vector<ClientID> min_out_shortest_cid_vec, min_in_shortest_cid_vec, out_shortest_cid_vec, in_shortest_cid_vec;				
-				list<ServeClient>::iterator min_start_sc_iter, min_end_sc_iter;	// min_start_sc_iter is directly in front of min_end_sc_iter
-				for (list<ServeClient>::iterator sc_iter = start_sc_iter;
-					sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
-				{
-					list<ServeClient>::iterator next_sc_iter = sc_iter;
-					next_sc_iter++;
-					if (next_sc_iter == solution.routeVec[rin].serveClientList.end())
-						break;
-					dsp->getShortPath(sc_iter->visitClientID, vr.orderVec[vr.orderMap[*iter]].getRequestID(),
-						out_distance, out_shortest_cid_vec);
-					dsp->getShortPath(vr.orderVec[vr.orderMap[*iter]].getRequestID(), next_sc_iter->visitClientID,
-						in_distance, in_shortest_cid_vec);
-					if ( in_distance + out_distance < min_extra_distance)
-					{
-						min_extra_distance = in_distance + out_distance;
-						min_start_sc_iter = sc_iter;
-						min_end_sc_iter = next_sc_iter;
-						
-						min_out_shortest_cid_vec.resize(out_shortest_cid_vec.size());
-						min_in_shortest_cid_vec.resize(in_shortest_cid_vec.size());
-						std::copy(out_shortest_cid_vec.begin(), out_shortest_cid_vec.end(), min_out_shortest_cid_vec.begin());
-						std::copy(in_shortest_cid_vec.begin(), in_shortest_cid_vec.end(), min_in_shortest_cid_vec.begin());
-					}
-				}
-				if (min_extra_distance == DBL_MAX)	// do not exist extra route
-					continue;
-				// the order is worth doing
-				if (min_extra_distance < vr.orderVec[vr.orderMap[*iter]].getOrderValue())
-				{
-					// load this MO optional order iter in start_sc_iter
-					start_sc_iter->loadOrderID.push_back(*iter);	
-					// from start_sc_iter to min_start_sc_iter, add the weight of this MO optional order iter
-					for (list<ServeClient>::iterator sc_iter = start_sc_iter; sc_iter != min_start_sc_iter; sc_iter++)
-					{
-						sc_iter->currentQuantity += vr.orderVec[vr.orderMap[*iter]].getQuantity();
-					}
-					min_start_sc_iter->currentQuantity += vr.orderVec[vr.orderMap[*iter]].getQuantity();
-					// from min_start_sc_iter to iter->requestID, add new ServeClient to list
-					for (vector<ClientID>::iterator cid_iter = min_out_shortest_cid_vec.begin();
-						cid_iter != min_out_shortest_cid_vec.end(); cid_iter++)
-					{
-						if (*cid_iter == min_out_shortest_cid_vec.front())
-							continue;
-						list<ServeClient>::iterator prior_min_end_sc_iter = min_end_sc_iter;
-						prior_min_end_sc_iter--;	// prior of min_end_sc_iter
-						ServeClient sc1(*cid_iter, prior_min_end_sc_iter->currentQuantity);
-						if (*cid_iter == min_out_shortest_cid_vec.back())
-						{
-							sc1.unloadOrderID.push_back(*iter);
-							sc1.currentQuantity -= vr.orderVec[vr.orderMap[*iter]].getQuantity();
-						}
-						// add sc1 to the front of min_end_sc_iter
-						solution.routeVec[rin].serveClientList.insert(min_end_sc_iter, sc1);
-					}
-					// from iter->requestID to min_end_sc_iter, add new ServeClient to list
-					for (vector<ClientID>::iterator cid_iter = min_in_shortest_cid_vec.begin();
-						cid_iter != min_in_shortest_cid_vec.end(); cid_iter++)
-					{
-						if (*cid_iter == min_in_shortest_cid_vec.front()||
-							*cid_iter==min_in_shortest_cid_vec.back())
-							continue;
-						list<ServeClient>::iterator prior_min_end_sc_iter = min_end_sc_iter;
-						prior_min_end_sc_iter--;	// prior of min_end_sc_iter
-						ServeClient sc1(*cid_iter, prior_min_end_sc_iter->currentQuantity);
-						solution.routeVec[rin].serveClientList.insert(min_end_sc_iter, sc1);
-					}
-				}
+				insertMOOrderToRoute(rin, iter, start_sc_iter);
+			}// insert OM optional order
+			else if (start_sc_iter == solution.routeVec[rin].serveClientList.end() &&
+				end_sc_iter != solution.routeVec[rin].serveClientList.end())
+			{
+				insertOMOrderToRoute(rin, iter, end_sc_iter);
 			}
+			else
+				iter++;
 		}
 	}
+	printRoute(rin);
+	cout << "\nThe left orders1:" << solution.routeVec[rin].serveOrderList.size() << endl;
+	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
+		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
+		cout << vr.orderVec[vr.orderMap.at(*iter)] << "\t";
+	
 }
 
+void Solver::insertMOOrderToRoute(const int &rin, list<OrderID>::iterator &iter, list<ServeClient>::iterator &start_sc_iter)
+{
+	if (start_sc_iter->currentQuantity + vr.orderVec[vr.orderMap[*iter]].getQuantity() >
+		vr.vehicleVec[vr.vehicleMap[solution.routeVec[rin].VehID]].capacity)
+		return;	// exceed the capacity of the vehicle
+	DistanceType min_extra_distance = DBL_MAX, out_distance, in_distance;
+	vector<ClientID> min_out_shortest_cid_vec, min_in_shortest_cid_vec, out_shortest_cid_vec, in_shortest_cid_vec;
+	list<ServeClient>::iterator min_start_sc_iter, min_end_sc_iter;	// min_start_sc_iter is directly in front of min_end_sc_iter
+	for (list<ServeClient>::iterator sc_iter = start_sc_iter;
+		sc_iter != --solution.routeVec[rin].serveClientList.end(); sc_iter++)
+	{
+		list<ServeClient>::iterator next_sc_iter = sc_iter;
+		next_sc_iter++;
+		dsp->getShortPath(sc_iter->visitClientID, vr.orderVec[vr.orderMap[*iter]].getRequestID(),
+			out_distance, out_shortest_cid_vec);
+		dsp->getShortPath(vr.orderVec[vr.orderMap[*iter]].getRequestID(), next_sc_iter->visitClientID,
+			in_distance, in_shortest_cid_vec);
+		if (in_distance + out_distance < min_extra_distance)
+		{
+			min_extra_distance = in_distance + out_distance;
+			min_start_sc_iter = sc_iter;
+			min_end_sc_iter = next_sc_iter;
+			// resize is needed for std::copy
+			min_out_shortest_cid_vec.resize(out_shortest_cid_vec.size());
+			min_in_shortest_cid_vec.resize(in_shortest_cid_vec.size());
+			std::copy(out_shortest_cid_vec.begin(), out_shortest_cid_vec.end(), min_out_shortest_cid_vec.begin());
+			std::copy(in_shortest_cid_vec.begin(), in_shortest_cid_vec.end(), min_in_shortest_cid_vec.begin());
+		}
+	}
+	if (min_extra_distance == DBL_MAX)	// does not exist extra route
+		return;
+	// the order is worth doing
+	if (min_extra_distance < vr.orderVec[vr.orderMap[*iter]].getOrderValue())
+	{
+		// load this MO optional order iter in start_sc_iter
+		start_sc_iter->loadOrderID.push_back(*iter);
+		// from start_sc_iter to min_start_sc_iter, add the weight of this MO optional order iter
+		for (list<ServeClient>::iterator sc_iter = start_sc_iter; sc_iter != min_start_sc_iter; sc_iter++)
+		{
+			sc_iter->currentQuantity += vr.orderVec[vr.orderMap[*iter]].getQuantity();
+		}
+		min_start_sc_iter->currentQuantity += vr.orderVec[vr.orderMap[*iter]].getQuantity();
+		// from min_start_sc_iter to iter->requestID, add new ServeClient to list
+		// NOTE: the new ServeClient to be added may be already existed in the list,
+		// this circumstance should be carefully treated.
+		for (vector<ClientID>::iterator cid_iter = min_out_shortest_cid_vec.begin();
+			cid_iter != min_out_shortest_cid_vec.end(); cid_iter++)
+		{
+			if (*cid_iter == min_out_shortest_cid_vec.front())
+				continue;
+			list<ServeClient>::iterator prior_min_end_sc_iter = min_end_sc_iter;
+			prior_min_end_sc_iter--;	// prior of min_end_sc_iter
+			ServeClient sc1(*cid_iter, prior_min_end_sc_iter->currentQuantity);
+			if (*cid_iter == min_out_shortest_cid_vec.back())
+			{
+				sc1.unloadOrderID.push_back(*iter);
+				sc1.currentQuantity -= vr.orderVec[vr.orderMap[*iter]].getQuantity();
+			}
+			// add sc1 to the front of min_end_sc_iter
+			solution.routeVec[rin].serveClientList.insert(min_end_sc_iter, sc1);
+		}
+		// from iter->requestID to min_end_sc_iter, add new ServeClient to list
+		for (vector<ClientID>::iterator cid_iter = min_in_shortest_cid_vec.begin();
+			cid_iter != min_in_shortest_cid_vec.end(); cid_iter++)
+		{
+			if (*cid_iter == min_in_shortest_cid_vec.front() ||
+				*cid_iter == min_in_shortest_cid_vec.back())
+				continue;
+			list<ServeClient>::iterator prior_min_end_sc_iter = min_end_sc_iter;
+			prior_min_end_sc_iter--;	// prior of min_end_sc_iter
+			ServeClient sc1(*cid_iter, prior_min_end_sc_iter->currentQuantity);
+			solution.routeVec[rin].serveClientList.insert(min_end_sc_iter, sc1);
+		}
+		iter = solution.routeVec[rin].serveOrderList.erase(iter);
+	}
+}
+void Solver::insertOMOrderToRoute(const int &rin, list<OrderID>::iterator &iter, list<ServeClient>::iterator &end_sc_iter)
+{
+	DistanceType min_extra_distance = DBL_MAX, out_distance, in_distance;
+	vector<ClientID> min_out_shortest_cid_vec, min_in_shortest_cid_vec, out_shortest_cid_vec, in_shortest_cid_vec;
+	list<ServeClient>::iterator min_start_sc_iter, min_end_sc_iter;	// min_start_sc_iter is directly in front of min_end_sc_iter
+	for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
+		sc_iter != end_sc_iter; sc_iter++)
+	{
+		list<ServeClient>::iterator next_sc_iter = sc_iter;
+		next_sc_iter++;
+		if (sc_iter->currentQuantity + vr.orderVec[vr.orderMap.at(*iter)].getQuantity() >
+			vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
+			continue;	// exceed the capacity of the vehicle
+		dsp->getShortPath(sc_iter->visitClientID, vr.orderVec[vr.orderMap.at(*iter)].getApplierID(), out_distance, out_shortest_cid_vec);
+		dsp->getShortPath(vr.orderVec[vr.orderMap.at(*iter)].getApplierID(), next_sc_iter->visitClientID, in_distance, in_shortest_cid_vec);
+		if (in_distance + out_distance < min_extra_distance)
+		{
+			min_extra_distance = in_distance + out_distance;
+			min_start_sc_iter = sc_iter;
+			min_end_sc_iter = next_sc_iter;
+			// resize is needed for std::copy
+			min_out_shortest_cid_vec.resize(out_shortest_cid_vec.size());
+			min_in_shortest_cid_vec.resize(in_shortest_cid_vec.size());
+			std::copy(out_shortest_cid_vec.begin(), out_shortest_cid_vec.end(), min_out_shortest_cid_vec.begin());
+			std::copy(in_shortest_cid_vec.begin(), in_shortest_cid_vec.end(), min_in_shortest_cid_vec.begin());
+		}
+	}
+	if (min_extra_distance == DBL_MAX)	// does not exist extra route
+		return;
+	// the order is not worth doing, skip it
+	if (min_extra_distance >= vr.orderVec[vr.orderMap.at(*iter)].getOrderValue())
+		return;
+	// frome min_start_sc_iter to iter->applierID, add new ServeClient to list
+	// NOTE: the new ServeClient to be added may be already existed in the list,
+	// this circumstance should be carefully treated.
+	for (vector<ClientID>::iterator cid_iter = ++min_out_shortest_cid_vec.begin();
+		cid_iter != min_out_shortest_cid_vec.end(); cid_iter++)
+	{
+		// skip the first element of the vector in for
+		list<ServeClient>::iterator prior_min_end_sc_iter = min_end_sc_iter;
+		prior_min_end_sc_iter--;	// prior of min_end_sc_iter
+		ServeClient sc1(*cid_iter, prior_min_end_sc_iter->currentQuantity);
+		if (cid_iter == --min_out_shortest_cid_vec.end())
+		{
+			sc1.loadOrderID.push_back(*iter);
+			sc1.currentQuantity += vr.orderVec[vr.orderMap.at(*iter)].getQuantity();
+		}
+		// add sc1 to the front of min_end_sc_iter
+		solution.routeVec[rin].serveClientList.insert(min_end_sc_iter, sc1);
+	}
+	// from iter->applierID to min_end_sc_iter, add new ServeClient to list
+	for (vector<ClientID>::iterator cid_iter = ++min_in_shortest_cid_vec.begin();
+		cid_iter != --min_in_shortest_cid_vec.end(); cid_iter++)
+	{
+		// skip the first and last element of the vector in for
+		list<ServeClient>::iterator prior_min_end_sc_iter = min_end_sc_iter;
+		prior_min_end_sc_iter--;
+		ServeClient sc1(*cid_iter, prior_min_end_sc_iter->currentQuantity);
+		solution.routeVec[rin].serveClientList.insert(min_end_sc_iter, sc1);
+	}
+	// from min_end_sc_iter to end_sc_iter, add the weight of the OM optional order iter
+	for (list<ServeClient>::iterator sc_iter = min_end_sc_iter; sc_iter != end_sc_iter; sc_iter++)
+	{
+		sc_iter->currentQuantity += vr.orderVec[vr.orderMap.at(*iter)].getQuantity();
+	}
+	end_sc_iter->unloadOrderID.push_back(*iter);
+	iter = solution.routeVec[rin].serveOrderList.erase(iter);
+}
+void Solver::insertOOOrderToRoute(const int &rin, list<OrderID>::iterator &iter)
+{
+	ClientID &start_cid = vr.orderVec[vr.orderMap.at(*iter)].getApplierID();
+	ClientID &end_cid = vr.orderVec[vr.clientMap.at(*iter)].getRequestID();
+	set<ClientID> route_cid_set;
+	for (list<ServeClient>::iterator iter = solution.routeVec[rin].serveClientList.begin();
+		iter != solution.routeVec[rin].serveClientList.end(); iter++)
+		route_cid_set.insert(iter->visitClientID);
+	ClientID sel_end_cid; DistanceType shortest_distance; vector<ClientID> shortest_cid_vec;
+}
 void Solver::findClientIDServeList(list<ServeClient> &sc_list, const ClientID &cid, list<ServeClient>::iterator &iter_cid)
 {
 	for (iter_cid = sc_list.begin(); iter_cid != sc_list.end(); iter_cid++)
@@ -347,16 +439,16 @@ void Solver::printRoute(const int &rin)const
 	for (list<ServeClient>::const_iterator iter = solution.routeVec[rin].serveClientList.begin();
 		iter != solution.routeVec[rin].serveClientList.end(); iter++)
 	{
-		cout << iter->visitClientID << ", quantity: " << (*iter).currentQuantity 
+		cout << iter->visitClientID << ", quantity: " << (*iter).currentQuantity
 			<< ", load:" << (*iter).loadOrderID.size() << ": ";
-		for (vector<OrderID>::const_iterator it = (*iter).loadOrderID.begin(); 
+		for (vector<OrderID>::const_iterator it = (*iter).loadOrderID.begin();
 			it != (*iter).loadOrderID.end(); it++)
 		{
 			//cout << *it << " ";
 			cout << *it << " (" << vr.orderVec[vr.orderMap.at(*it)] << ") ";
 		}
 		cout << "; unload: " << (*iter).unloadOrderID.size() << ":";
-		for (vector<OrderID>::const_iterator it = (*iter).unloadOrderID.begin(); 
+		for (vector<OrderID>::const_iterator it = (*iter).unloadOrderID.begin();
 			it != (*iter).unloadOrderID.end(); it++)
 		{
 			cout << *it << " ";

@@ -23,7 +23,7 @@ public:
 	DijkstraShortPath(const vector<Client> &, const vector<Edge> &);
 	// get the shortest path for a given pair of client id
 	void getShortPath(const ClientID &, const ClientID &, DistanceType &, vector<ClientID> &);
-	// get the shortest path for a given starting client id and a given vector of client id
+	// get the shortest path for a given starting client id and a given set of client id
 	void getShortPathClient(const ClientID &, const set<ClientID> &, ClientID &, DistanceType &, vector<ClientID> &);
 private:
 	const vector<Client> &clientVec;

@@ -9,6 +9,11 @@
 
 #include"VehicleRouting.h"
 
+// comment to the insertion of OM order to route
+#ifndef SOLVER_OM_ORDER_INSERT
+#define SOLVER_OM_ORDER_INSERT
+#endif
+
 class Solver
 {
 public:
@@ -20,8 +25,9 @@ public:
 	void modifyOrder();	// modify the order to accommodate the specific problem
 	void assign();		// assign orders to vehicles
 	void generateRoute(const int &);	// generate route according to route index
-	// insert optional order (OM, MO and OO) to a route
-	void insertOptionalOrderToRoute(const int&);	
+	void insertMOOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
+	void insertOMOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
+	void insertOOOrderToRoute(const int&, list<OrderID>::iterator&);
 	// find the least cost in mandatory order
 	OrderID findLeastCostOrder(const list<OrderID>&, const ClientID&);
 	// find the iterator of a client id in serve client id list
