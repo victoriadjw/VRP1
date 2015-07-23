@@ -25,6 +25,7 @@ public:
 	void modifyOrder();	// modify the order to accommodate the specific problem
 	void assign();		// assign orders to vehicles
 	void generateRoute(const int &);	// generate route according to route index
+	void insertMMOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &, list<ServeClient>::iterator &);
 	void insertMOOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
 	void insertOMOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
 	void insertOOOrderToRoute(const int&, list<OrderID>::iterator&);
