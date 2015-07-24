@@ -24,8 +24,12 @@ public:
 	// get the shortest path for a given pair of client id
 	void getShortPath(const ClientID &, const ClientID &, DistanceType &, vector<ClientID> &);
 	// get the shortest path for a given starting client id and a given set of client id
-	void getShortPathClient(const ClientID &, const set<ClientID> &, ClientID &, DistanceType &, vector<ClientID> &);
+	void getShortPathClientIDSet(const ClientID &, const set<ClientID> &, ClientID &, DistanceType &, vector<ClientID> &);
+	void getShortPathExcept(const ClientID &, const ClientID &, const set<ClientID>&, DistanceType &, vector<ClientID> &);
+	void getShortPathClientIDSetExcept(const ClientID &, const set<ClientID> &, ClientID &, DistanceType &, vector<ClientID> &);
 private:
+	void modifyGraph(const set<ClientID>&);
+	void resetGraph();
 	const vector<Client> &clientVec;
 	const vector<Edge> &edgeVec;
 	graph_t g;

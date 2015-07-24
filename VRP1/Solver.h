@@ -29,11 +29,14 @@ public:
 	void insertMOOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
 	void insertOMOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
 	void insertOOOrderToRoute(const int&, list<OrderID>::iterator&);
+	bool checkRoute(const int&)const;
+	bool checkClientInRoute(const int&,const vector<ClientID>&)const;
 	// find the least cost in mandatory order
 	OrderID findLeastCostOrder(const list<OrderID>&, const ClientID&);
 	// find the iterator of a client id in serve client id list
 	void findClientIDServeList( list<ServeClient> &, const ClientID &, list<ServeClient>::iterator &);
 	void printRoute(const int&)const;
+	void calculateObjValue(const int&);
 private:
 	const VehicleRouting &vr;
 	DijkstraShortPath *dsp;
