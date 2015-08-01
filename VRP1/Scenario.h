@@ -30,6 +30,7 @@ typedef int TimeDistanceType;
 typedef double ObjectType;
 typedef int CostType;
 typedef int TimeType;
+typedef string ClientNameType;
 
 enum OrderType{ Optional, Mandatory };
 
@@ -62,6 +63,7 @@ class Client
 	friend std::istream& operator>>(std::istream&, Client&);
 public:	
 	ClientID PriDCID;	// identity
+	ClientNameType clientName;	// client name
 	GeographyType longitude, latitude;	// longitude and latitude coordinates
 	string nameOfDeliveryCenter;	// name of the delivery center
 	string provinceAffiliated;		// affiliated province
@@ -102,6 +104,7 @@ public:
 	OrderType getOrderType()const{ return orderType; }
 	CostType getOrderValue()const{ return orderValue; }
 	void setApplierID(const ClientID &aid){ OrdSupDisCenter = aid; }
+	void setResquestID(const ClientID &rid){ OrdDemDisCenter = rid; }
 	void setOrderType(const OrderType &t){ orderType = t; }
 private:
 	OrderID OrdID;	// identity

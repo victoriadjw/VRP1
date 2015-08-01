@@ -2,8 +2,9 @@
 
 std::istream& operator>>(std::istream &is, Client &c)
 {
-	is >> c.PriDCID >> c.regionID >> c.timeWindow.first
-		>> c.timeWindow.second >> c.servTime;
+	is >> c.PriDCID >> c.clientName >> c.timeWindow.first
+		>> c.timeWindow.second >> c.servTime
+		>> c.longitude >> c.latitude;
 	return is;
 }
 std::ostream& operator<<(std::ostream &is, const Edge &e)

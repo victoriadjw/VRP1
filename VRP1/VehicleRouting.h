@@ -37,6 +37,7 @@ public:
 	map<CarrierID, int>carrierMap;
 	mutable map<OrderID, int>orderMap;
 	mutable map<VehicleID, int>vehicleMap;
+	mutable map<ClientNameType, ClientID>clientNameMap;
 	vector<vector<int>> orderEdge; 
 
 
@@ -62,7 +63,6 @@ public:
 	vector<int> getMandatoryOrderIndexVec()const;
 	vector<int> getOptionalOrderIndexVec()const;
 private:
-	void calculateDistance();	// calculate distance according to latitude and longitude
 	class CmpDistance;
 	string name;
 	int numClient,numOrder,numVehicle,numCarrier,numBilling,numRegion;

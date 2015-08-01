@@ -21,34 +21,24 @@ int VehicleRouting::getNumCarrier()const{ return numCarrier; }
 int VehicleRouting::getNumBilling()const{ return numBilling; }
 int VehicleRouting::getNumRegion()const{ return numRegion; }
 
-void VehicleRouting::calculateDistance()
-{
-	for (vector<Edge>::iterator iter = edgeVec.begin(); iter != edgeVec.end(); iter++)
-	{
-		(*iter).setDistance(getDistance(clientVec[clientMap[(*iter).getEdge().first]].latitude,
-			clientVec[clientMap[(*iter).getEdge().first]].longitude,
-			clientVec[clientMap[(*iter).getEdge().second]].latitude,
-			clientVec[clientMap[(*iter).getEdge().second]].longitude));
-	}
-}
 class VehicleRouting::CmpDistance{
 public:
 	CmpDistance(const vector<Edge> &_edgeVec, const vector<Order> &_orderVec,
-		map<ClientID, int> &_clientMap,
+		const map<ClientID, int> &_clientMap,
 		const vector<vector<int>> &_orderEdge)
 		:edgeVec(_edgeVec), orderVec(_orderVec),
-		clientMap(_clientMap),orderEdge(_orderEdge){}
+		clientMap(_clientMap), orderEdge(_orderEdge){}
 	// sort to (least...greatest)
 	bool operator()(const int &l, const int &r)
 	{
-		int le = orderEdge[clientMap[orderVec[l].getApplierID()]][clientMap[orderVec[l].getRequestID()]];
-		int re = orderEdge[clientMap[orderVec[r].getApplierID()]][clientMap[orderVec[r].getRequestID()]];
+		int le = orderEdge[clientMap.at(orderVec[l].getApplierID())][clientMap.at(orderVec[l].getRequestID())];
+		int re = orderEdge[clientMap.at(orderVec[r].getApplierID())][clientMap.at(orderVec[r].getRequestID())];
 		return edgeVec[le].getDistance()<edgeVec[re].getDistance();
 	}
 private:
 	const vector<Edge> &edgeVec;
 	const vector<Order> &orderVec;
-	map<ClientID, int> &clientMap;
+	const map<ClientID, int> &clientMap;
 	const vector<vector<int>> &orderEdge;
 };
 
@@ -56,21 +46,23 @@ void VehicleRouting::modifyOrder()
 {
 	for (vector<Order>::iterator iter = orderVec.begin(); iter != orderVec.end(); iter++)
 	{
-		if ((*iter).getOrderType() == OrderType::Optional)
+		if (rand() % 4 == 0) // change the order to mandatory with probability of 1/4
 		{
-			if (rand() % 4 == 0) // change the order to mandatory with probability of 1/6
-			{
-				(*iter).setOrderType(OrderType::Mandatory);
-			}
-			else
-			{
-				int vindex = rand() % clientVec.size();
-				while (vindex == 0 || clientVec[vindex].PriDCID == (*iter).getRequestID())
-					vindex = rand() % clientVec.size();
-				(*iter).setApplierID(clientVec[vindex].PriDCID);
-			}
+			(*iter).setOrderType(OrderType::Mandatory);
+			int rand_cid = rand() % clientVec.size() + 1;
+			iter->setApplierID(clientVec[0].PriDCID);
+			iter->setResquestID(clientVec[rand_cid].PriDCID);
 		}
-	//	cout << *iter << endl;
+		else
+		{
+			int index_aid = rand() % (clientVec.size() - 1) + 1;
+			int index_rid = rand() % (clientVec.size() - 1) + 1;
+			while (index_aid == index_rid) 
+				index_rid = rand() % (clientVec.size() - 1) + 1;
+			iter->setOrderType(OrderType::Optional);
+			iter->setApplierID(clientVec[index_aid].PriDCID);
+			iter->setResquestID(clientVec[index_rid].PriDCID);
+		}
 	}
 }
 
@@ -104,8 +96,8 @@ void VehicleRouting::setMandOptionOrder()
 			optionalOrderIndexVec.push_back(i);
 		}
 	}
-	std::sort(mandatoryOrderIndexVec.begin(), mandatoryOrderIndexVec.end(), CmpDistance(edgeVec, orderVec, clientMap, orderEdge));
-	sort(optionalOrderIndexVec.begin(), optionalOrderIndexVec.end(), CmpDistance(edgeVec, orderVec, clientMap, orderEdge));
+	//std::sort(mandatoryOrderIndexVec.begin(), mandatoryOrderIndexVec.end(), CmpDistance(edgeVec, orderVec, clientMap, orderEdge));
+	//sort(optionalOrderIndexVec.begin(), optionalOrderIndexVec.end(), CmpDistance(edgeVec, orderVec, clientMap, orderEdge));
 	//cout << "sorted mandatory order:" << mandatoryOrderIndexVec.size() << endl;
 	CmpDistance cd(edgeVec, orderVec, clientMap, orderEdge);
 	for (std::vector<int>::iterator iter = mandatoryOrderIndexVec.begin(); iter != mandatoryOrderIndexVec.end(); iter++)

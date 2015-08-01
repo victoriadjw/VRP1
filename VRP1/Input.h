@@ -13,6 +13,7 @@ public:
 private:
 	void errorLog(const string &msg);
 	void readDataSection(VehicleRouting &);
+	void readDataSectionProject(VehicleRouting &);
 	ifstream ifs;
 	ofstream ofs;
 	Timer currentTime;

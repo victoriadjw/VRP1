@@ -124,25 +124,30 @@ void Solver::generateRoute(const int &rin)
 		}
 		ServeClient sc1(sel_end_cid, solution.routeVec[rin].serveClientList.back().currentQuantity);
 		for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
-			iter!=solution.routeVec[rin].serveOrderList.end();)
+			iter != solution.routeVec[rin].serveOrderList.end();)
 		{
 			if (vr.orderVec[vr.orderMap.at(*iter)].getOrderType() == OrderType::Optional ||
 				vr.orderVec[vr.orderMap.at(*iter)].getRequestID() != sel_end_cid)
 			{
 				iter++;
-				continue; 
+				continue;
 			}
 			sc1.unloadOrderID.push_back(*iter);
 			sc1.currentQuantity -= vr.orderVec[vr.orderMap.at(*iter)].getQuantity();
 			iter = solution.routeVec[rin].serveOrderList.erase(iter);
 		}
 		solution.routeVec[rin].serveClientList.push_back(sc1);
-		//	cout << init_cid << "->";
 		init_cid = sel_end_cid;
 	}
 	// insert the last visiting client depot
-	ServeClient sc2(vr.clientVec[0].PriDCID, 0);
-	solution.routeVec[rin].serveClientList.push_back(sc2);
+	vector<ClientID> shortest_cid_vec;
+	DistanceType shortest_distance;
+	dsp->getShortPath(init_cid, vr.clientVec[0].PriDCID, shortest_distance, shortest_cid_vec);
+	for (vector<ClientID>::iterator iter = ++shortest_cid_vec.begin(); iter != shortest_cid_vec.end(); iter++)
+	{
+		ServeClient sc2(*iter, 0);
+		solution.routeVec[rin].serveClientList.push_back(sc2);
+	}
 	printRoute(rin);
 	checkRoute(rin);
 	// repair the mandatory order to adjust the MM optional order
@@ -639,7 +644,8 @@ void Solver::printRoute(const int &rin)const
 	for (list<ServeClient>::const_iterator iter = solution.routeVec[rin].serveClientList.begin();
 		iter != solution.routeVec[rin].serveClientList.end(); iter++)
 	{
-		cout << iter->visitClientID;
+		//cout << iter->visitClientID;
+		cout << vr.clientVec[vr.clientMap.at(iter->visitClientID)].clientName;
 		if (iter != --solution.routeVec[rin].serveClientList.end())
 			cout << " -> ";
 	}
@@ -647,7 +653,9 @@ void Solver::printRoute(const int &rin)const
 	for (list<ServeClient>::const_iterator iter = solution.routeVec[rin].serveClientList.begin();
 		iter != solution.routeVec[rin].serveClientList.end(); iter++)
 	{
-		cout << iter->visitClientID << ", quantity: " << (*iter).currentQuantity
+		cout << vr.clientVec[vr.clientMap.at(iter->visitClientID)].clientName 
+			<<"("<< iter->visitClientID 
+			<< "), quantity: " << (*iter).currentQuantity
 			<< ", load:" << (*iter).loadOrderID.size() << ": ";
 		for (vector<OrderID>::const_iterator it = (*iter).loadOrderID.begin();
 			it != (*iter).loadOrderID.end(); it++)

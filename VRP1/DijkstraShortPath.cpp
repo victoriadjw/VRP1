@@ -1,6 +1,7 @@
 #include"DijkstraShortPath.h"
 
-DijkstraShortPath::DijkstraShortPath(const vector<Client> &cv, const vector<Edge> &ev) :clientVec(cv), edgeVec(ev)
+DijkstraShortPath::DijkstraShortPath(const vector<Client> &cv, const vector<Edge> &ev, const map<ClientNameType, ClientID> &cnm)
+	:clientVec(cv), edgeVec(ev), clientNameMap(cnm)
 {
 	cid_map = get(vertex_name, g);
 	for (vector<Client>::const_iterator iter = clientVec.begin();
@@ -12,7 +13,8 @@ DijkstraShortPath::DijkstraShortPath(const vector<Client> &cv, const vector<Edge
 	for (vector<Edge>::const_iterator iter = edgeVec.begin();
 		iter != edgeVec.end(); iter++)
 	{
-		add_edge(vertex_map[iter->getEdge().first], vertex_map[iter->getEdge().second], iter->getDistance(), g);
+		add_edge(vertex_map.at(clientNameMap.at(iter->getEdge().first)), 
+			vertex_map.at(clientNameMap.at(iter->getEdge().second)), iter->getDistance(), g);
 	}
 	//print_graph(g, cid_map);
 	//print_graph(g, get(vertex_index,g));

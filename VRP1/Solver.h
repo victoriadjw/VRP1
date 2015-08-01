@@ -19,7 +19,7 @@ class Solver
 public:
 	Solver(const VehicleRouting &_vr) :vr(_vr)
 	{
-		dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec);
+		dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec, vr.clientNameMap);
 	}
 	~Solver(){ delete dsp; cout << "deconstruct Solver." << endl; }
 	void modifyOrder();	// modify the order to accommodate the specific problem

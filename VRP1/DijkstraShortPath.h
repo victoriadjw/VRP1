@@ -20,7 +20,7 @@ public:
 	typedef property<edge_weight_t, DistanceType> EdgeWeightProperty;
 	typedef adjacency_list < listS, vecS, directedS, VertexProperty, EdgeWeightProperty> graph_t;
 	typedef graph_traits < graph_t >::vertex_descriptor vertex_descriptor;
-	DijkstraShortPath(const vector<Client> &, const vector<Edge> &);
+	DijkstraShortPath(const vector<Client> &, const vector<Edge> &, const map<ClientNameType, ClientID> &);
 	// get the shortest path for a given pair of client id
 	void getShortPath(const ClientID &, const ClientID &, DistanceType &, vector<ClientID> &);
 	// get the shortest path for a given starting client id and a given set of client id
@@ -32,6 +32,7 @@ private:
 	void resetGraph();
 	const vector<Client> &clientVec;
 	const vector<Edge> &edgeVec;
+	const map<ClientNameType, ClientID> &clientNameMap;
 	graph_t g;
 	property_map<graph_t, vertex_name_t>::type cid_map;	// property accessor
 	std::map<ClientID, vertex_descriptor> vertex_map;

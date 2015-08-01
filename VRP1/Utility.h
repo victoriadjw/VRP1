@@ -106,7 +106,7 @@ static double rad(const double &d)
 	return (d * PI / 180.0);
 }
 
-static double getDistance(const double &lat1, const double &lng1, const double &lat2, const double &lng2)
+static double calculateDistance(const double &lat1, const double &lng1, const double &lat2, const double &lng2)
 {
 	double radLat1 = rad(lat1);
 	double radLat2 = rad(lat2);
@@ -114,7 +114,8 @@ static double getDistance(const double &lat1, const double &lng1, const double &
 	double b = rad(lng1) - rad(lng2);
 	double s = 2 * asin(sqrt(pow(sin(a / 2), 2) +
 		cos(radLat1)*cos(radLat2)*pow(sin(b / 2), 2)));
-	return (round(s * EARTH_RADIUS * 10000) / 10000);
+	//return (round(s * EARTH_RADIUS * 10000) / 10000);
+	return ((s * EARTH_RADIUS * 10000) / 10000);
 }
 
 // split a string according to a specific pattern

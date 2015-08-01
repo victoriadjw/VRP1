@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 	const int &rin2 = temp_i * 2;
 	cout << rin1 << " " << rin2 << endl;
 	VehicleRouting vr;
-	Input in("vrptwcdc//case1-A.vrp", "results//log.txt", vr);
+	Input in("vrptwcdc//case1-A-project.vrp", "results//log.txt", vr);
 	/*DijkstraShortPath dsp(vr.clientVec,vr.edgeVec);
 	DistanceType shortest_distance;
 	vector<ClientID> shortest_vid_vec;
