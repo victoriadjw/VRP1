@@ -145,6 +145,8 @@ public:
 	Timer beginTime, endTime;	// begin and end time of the route
 	DistanceType routeDistance; // total distance of the route
 	ObjectType routeObject;		// objective value of the route
+	ObjectType routeWeightDistance;	// objective value of weight multiply distance
+	ObjectType fullLoadRate;	// full load rate of the route
 	QuantityType mandaQuantity;	// quantity of mandatory order
 };
 // describe a carrier
