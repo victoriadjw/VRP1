@@ -2,8 +2,10 @@
 
 std::istream& operator>>(std::istream &is, Client &c)
 {
+	int temp;
 	is >> c.PriDCID >> c.clientName >> c.timeWindow.first
-		>> c.timeWindow.second >> c.servTime
+		//>> c.timeWindow.second >> c.servTime
+		>> c.timeWindow.second >> temp
 		>> c.longitude >> c.latitude;
 	return is;
 }
@@ -22,9 +24,10 @@ std::istream& operator>>(std::istream &is, Edge &e)
 
 std::istream& operator>>(std::istream &is, Order &o)
 {
-	int ot;
+	int ot,temp;
 	is >> o.OrdID >> o.OrdDemDisCenter >> o.OrdDemandAmount
-		>> ot >> o.readyTime >> o.OrdDeadline;
+		//>> ot >> o.readyTime >> o.OrdDeadline;
+		>> ot >> temp >> temp;
 	o.orderType = ot == 1 ? OrderType::Mandatory : OrderType::Optional;
 	o.orderValue = 300;
 	return is;

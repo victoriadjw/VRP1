@@ -49,7 +49,7 @@ void VehicleRouting::modifyOrder()
 		if (rand() % 4 == 0) // change the order to mandatory with probability of 1/4
 		{
 			(*iter).setOrderType(OrderType::Mandatory);
-			int rand_cid = rand() % clientVec.size() + 1;
+			int rand_cid = rand() % (clientVec.size() - 1) + 1;
 			iter->setApplierID(clientVec[0].PriDCID);
 			iter->setResquestID(clientVec[rand_cid].PriDCID);
 		}
@@ -63,6 +63,8 @@ void VehicleRouting::modifyOrder()
 			iter->setApplierID(clientVec[index_aid].PriDCID);
 			iter->setResquestID(clientVec[index_rid].PriDCID);
 		}
+		iter->setReadyTime(Timer());
+		iter->setDueTime(Timer(Timer::Duration(24 * 3), iter->getReadyTime().getCurrentTimePoint()));
 	}
 }
 

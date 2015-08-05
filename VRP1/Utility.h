@@ -30,7 +30,7 @@ class Timer
 {
 public:
 	typedef std::chrono::system_clock Clock;
-	typedef std::chrono::seconds Duration;
+	typedef std::chrono::hours Duration;
 	typedef std::chrono::system_clock::time_point TimePoint;
 	//std::chrono::system_clock::time_point
 	Timer()
@@ -69,22 +69,27 @@ public:
 		cout << "\nnow : " << std::put_time(now_tm, "%c") << endl;
 	}
 	Timer(Duration duration, TimePoint startTime = Clock::now())
-		: endTime(startTime + duration)
+		: currentTime(startTime + duration)
 	{
 	}
 
 	bool isTimeOut() const
 	{
-		return (Clock::now() >= endTime);
+		return (Clock::now() >= currentTime);
 	}
-	bool isTimeOut(TimePoint curTime)
+	bool isTimeOut(const TimePoint &cmpTimePoint)const
 	{
-		return (curTime>=endTime);
+		return (cmpTimePoint >= currentTime);
 	}
 	Duration restTime() const
 	{
 		return std::chrono::duration_cast<Duration>(
 			currentTime - Clock::now());
+	}
+	Duration restTime(const TimePoint &cmpTimePoint) const
+	{
+		return std::chrono::duration_cast<Duration>(
+			currentTime - cmpTimePoint);
 	}
 	static string getCurrentTime()
 	{
@@ -94,9 +99,9 @@ public:
 		strftime(timeBuf, 64, "%Y-%m-%d %a %H:%M:%S", date);
 		return std::string(timeBuf);
 	}
+	TimePoint getCurrentTimePoint()const{ return currentTime; }
 private:
 	TimePoint currentTime;	// current time
-	TimePoint endTime;
 };
 
 

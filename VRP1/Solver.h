@@ -20,26 +20,27 @@ public:
 	Solver(const VehicleRouting &_vr);
 	~Solver(){ delete dsp; cout << "deconstruct Solver." << endl; }
 	void modifyOrder();	// modify the order to accommodate the specific problem
-	void assign();		// assign orders to vehicles
-	void generateRoute(const int &);	// generate route according to route index
-	void generateRoute1(const int &);	// generate route for mandatory orders according to route index
-	void insertMMOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &, list<ServeClient>::iterator &);
-	void insertMMOrderToRoute1(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &, list<ServeClient>::iterator &);
-	void insertMOOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
-	void insertOMOrderToRoute(const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
-	void insertOOOrderToRoute(const int&, list<OrderID>::iterator&);
-	bool checkRoute(const int&)const;
-	bool checkClientInRoute(const int&,const vector<ClientID>&)const;
+	void initSolution(const int&);		// assign orders to vehicles
+	void generateRoute(Solution &, const int &);	// generate route according to route index
+	void generateRoute1(Solution &,const int &);	// generate route for mandatory orders according to route index
+	void insertMMOrderToRoute(Solution &solution, const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &, list<ServeClient>::iterator &);
+	void insertMMOrderToRoute1(Solution &solution, const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &, list<ServeClient>::iterator &);
+	void insertMOOrderToRoute(Solution &solution, const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
+	void insertOMOrderToRoute(Solution &solution, const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
+	void insertOOOrderToRoute(Solution &solution, const int&, list<OrderID>::iterator&);
+	bool checkRoute(const Solution &solution, const int&)const;
+	bool checkClientInRoute(const Solution &solution, const int&, const vector<ClientID>&)const;
 	// find the least cost in mandatory order
 	OrderID findLeastCostOrder(const list<OrderID>&, const ClientID&);
 	// find the iterator of a client id in serve client id list
 	void findClientIDServeList( list<ServeClient> &, const ClientID &, list<ServeClient>::iterator &);
-	void printRoute(const int&)const;
-	void calculateObjValue(const int&);
+	void printRoute(Solution &solution, const int&)const;
+	void calculateObjValue(Solution &solution, const int&);
+	void calculateTotalObjValue(Solution &solution);
 private:
 	const VehicleRouting &vr;
 	DijkstraShortPath *dsp;
-	Solution solution;
+	vector<Solution> solutionVec;
 	list<OrderID> mandatoryOrderList, optionalOrderList;
 };
 #endif

@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 {
 	//return run(argc, argv);
 	cout << "vehicle routing problem." << endl;
-
+	srand(time(NULL));
 	//run(argc, argv);
 	//int myints[] = { 10, 20, 30, 40, 50, 60, 70 };
 	std::vector<int> myints;
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 	vr.modifyOrder();
 	vr.setMandOptionOrder();
 	Solver solver(vr);
-	solver.assign();
+	solver.initSolution(5);
 	system("pause"); 
 }
 #endif

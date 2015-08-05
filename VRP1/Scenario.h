@@ -29,7 +29,7 @@ typedef double DistanceType;
 typedef int TimeDistanceType;
 typedef double ObjectType;
 typedef int CostType;
-typedef int TimeType;
+typedef Timer TimeType;
 typedef string ClientNameType;
 
 enum OrderType{ Optional, Mandatory };
@@ -106,13 +106,17 @@ public:
 	void setApplierID(const ClientID &aid){ OrdSupDisCenter = aid; }
 	void setResquestID(const ClientID &rid){ OrdDemDisCenter = rid; }
 	void setOrderType(const OrderType &t){ orderType = t; }
+	void setReadyTime(const TimeType &rt){ readyTime = rt; }
+	void setDueTime(const TimeType &dt){ dueTime = dt; }
+	TimeType getReadyTime()const{ return readyTime; }
+	TimeType getDueTime()const{ return dueTime; }
 private:
 	OrderID OrdID;	// identity
 	ClientID OrdSupDisCenter, OrdDemDisCenter;	// offer and request vertex of the order
 	GoodsID goodsID;	// requried goods ID of the order
 	QuantityType OrdDemandAmount;	// request quantity of the order
 	OrderType orderType;	// type of the order
-	TimeType readyTime, OrdDeadline;	// due time of the order
+	TimeType readyTime, dueTime;	// due time of the order
 	CostType orderValue;	// the value of the order
 };
 
@@ -169,9 +173,15 @@ private:
 class Solution
 {
 public:
+	Solution(DistanceType rd, ObjectType ro, ObjectType rwd, ObjectType fr) :
+		totalDistance(rd), totalObject(ro), totalWeightDistance(rwd), averagefullLoadRate(fr){}
 	vector<Route> routeVec;	// route list
-	ObjectType solutionObjective;	// objective value of the solution
 	int numMandatoryOrder, numOptimalOrder;	// number of mandatory and optimal order
+
+	DistanceType totalDistance; // total distance of the solution
+	ObjectType totalObject;		// objective value of the solution
+	ObjectType totalWeightDistance;	// objective value of weight multiply distance
+	ObjectType averagefullLoadRate;	// full load rate of the solution
 };
 
 
