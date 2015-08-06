@@ -46,6 +46,7 @@ void VehicleRouting::modifyOrder()
 {
 	for (vector<Order>::iterator iter = orderVec.begin(); iter != orderVec.end(); iter++)
 	{
+		cout << iter->getReadyTime() << "\t" << iter->getDueTime() << endl;
 		if (rand() % 4 == 0) // change the order to mandatory with probability of 1/4
 		{
 			(*iter).setOrderType(OrderType::Mandatory);
@@ -64,7 +65,7 @@ void VehicleRouting::modifyOrder()
 			iter->setResquestID(clientVec[index_rid].PriDCID);
 		}
 		iter->setReadyTime(Timer());
-		iter->setDueTime(Timer(Timer::Duration(24 * 3), iter->getReadyTime().getCurrentTimePoint()));
+		iter->setDueTime(Timer(Timer::Duration(24 * 3)+Timer::Duration(10), iter->getReadyTime().getCurrentTimePoint()));
 	}
 }
 

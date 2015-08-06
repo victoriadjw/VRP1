@@ -49,7 +49,7 @@ void Solver::initSolution(const int &sol_num)
 			for (list<OrderID>::iterator it = (*iter).serveOrderList.begin();
 				it != (*iter).serveOrderList.end(); it++)
 			{
-				cout << vr.orderVec[vr.orderMap[*it]] << "\t" << vr.getDistanceByOrderIndex(*it) << endl;
+				cout << vr.orderVec[vr.orderMap.at(*it)] << endl;
 			}
 		}
 		for (int i = 0; i < vr.vehicleVec.size(); i++)

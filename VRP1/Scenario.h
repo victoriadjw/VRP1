@@ -31,6 +31,7 @@ typedef double ObjectType;
 typedef int CostType;
 typedef Timer TimeType;
 typedef string ClientNameType;
+typedef double SpeedType;
 
 enum OrderType{ Optional, Mandatory };
 
@@ -89,6 +90,7 @@ public:
 	const CapacityType capacity;	// capacity of the vehicle
 	Client initPosition;	// initial position of the vehicle
 	const CostType cost;		// fixed cost
+	SpeedType speed;	// speed of the vehicle
 };
 
 class Order

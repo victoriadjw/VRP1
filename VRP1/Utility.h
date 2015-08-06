@@ -28,6 +28,18 @@ using namespace std;
 
 class Timer
 {
+	friend std::ostream& operator<<(std::ostream &os, const Timer& timer)
+	{
+		time_t now_c = Clock::to_time_t(timer.currentTime);
+		tm* now_tm = localtime(&now_c);
+		os << std::put_time(now_tm, "%c");
+		return os;
+	}
+	friend std::istream& operator>>(std::istream &is, Timer& timer)
+	{
+		timer.currentTime = Clock::now();
+		return is;
+	}
 public:
 	typedef std::chrono::system_clock Clock;
 	typedef std::chrono::hours Duration;
