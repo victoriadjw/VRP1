@@ -1,5 +1,6 @@
 #include "VehicleRouting.h"
 #include"Input.h"
+#include"Output.h"
 #include"Solver.h"
 using namespace std;
 
@@ -87,7 +88,9 @@ int main(int argc, char *argv[])
 {
 	//return run(argc, argv);
 	cout << "vehicle routing problem." << endl;
-	srand(time(NULL));
+	//int seed = time(NULL);
+	int seed = 1438913349;
+	srand(seed);
 	//run(argc, argv);
 	//int myints[] = { 10, 20, 30, 40, 50, 60, 70 };
 	std::vector<int> myints;
@@ -110,14 +113,12 @@ int main(int argc, char *argv[])
 	cout << rin1 << " " << rin2 << endl;
 	VehicleRouting vr;
 	Input in("vrptwcdc//case1-A-project.vrp", "results//log.txt", vr);
-	/*DijkstraShortPath dsp(vr.clientVec,vr.edgeVec);
-	DistanceType shortest_distance;
-	vector<ClientID> shortest_vid_vec;
-	dsp.GetShortPath(vr.clientVec[0].PriDCID, vr.clientVec[24].PriDCID, shortest_distance, shortest_vid_vec);*/
+	Output op("results//log.txt", vr);
+	op.ofs << seed << endl;
 	vr.modifyOrder();
 	vr.setMandOptionOrder();
 	Solver solver(vr);
-	solver.initSolution(5);
+	solver.initSolution(1);
 	system("pause"); 
 }
 #endif

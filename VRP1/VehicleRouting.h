@@ -62,6 +62,8 @@ public:
 	int getNumRegion()const;
 	vector<int> getMandatoryOrderIndexVec()const;
 	vector<int> getOptionalOrderIndexVec()const;
+
+	Timer::Duration serveTimeDuration;	// loading and unloading time
 private:
 	class CmpDistance;
 	string name;

@@ -41,14 +41,14 @@ cr2 b2 1 r23
 cr3 b3 12 r15 r24 r26 r32 r21 r23 r37 r39 r40 r42 r47 r55
 cr4 b4 0
 
-VEHICLES [vehicle_id][capacity][cost][carrier_id]:
-v1 50000 100 cr4
-v2 15000 300 cr2
-v3 15000 300 cr2
-v4 20000 500 cr2
-v5 25000 1000 cr2
-v6 15000 300 cr1
-v7 10000 100 cr3
+VEHICLES [vehicle_id][capacity][cost][carrier_id][vehicle_speed]:
+v1 50000 100 cr4	100
+v2 15000 300 cr2	120
+v3 16000 300 cr2	105
+v4 20000 500 cr2	110
+v5 25000 1000 cr2	108
+v6 14000 300 cr1	120
+v7 10000 100 cr3	115
 
 CLIENTS [client_id][region_id][ready_time][due_date][service_duration[min]]:
 c0	BaoTou    360 1020 0	109.83	40.65

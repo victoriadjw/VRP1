@@ -79,17 +79,20 @@ public:
 
 class Vehicle
 {
+	friend std::istream& operator>>(std::istream&, Vehicle&);
+	friend std::ostream& operator<<(std::ostream&, const Vehicle&);
 public:
+	Vehicle(){}
 	Vehicle(VehicleID _id, string _cid, CostType _cost, CapacityType _capacity) :VehID(_id),
 		carrierID(_cid), cost(_cost),capacity(_capacity){}
-	const VehicleID VehID;	// identity
+	VehicleID VehID;	// identity
 	string registrationNumber;	// registration number of the vehicle
 	string modelOfVehicle;	// model of the vehicle
-	const string carrierID;			// which carrier belongs to
+	string carrierID;			// which carrier belongs to
 	LengthType length, width, height;	// length, width, and height of the carriage of the vehicle
-	const CapacityType capacity;	// capacity of the vehicle
+	CapacityType capacity;	// capacity of the vehicle
 	Client initPosition;	// initial position of the vehicle
-	const CostType cost;		// fixed cost
+	CostType cost;		// fixed cost
 	SpeedType speed;	// speed of the vehicle
 };
 
@@ -127,7 +130,9 @@ class ServeClient
 {
 public:
 	ServeClient(const ClientID &vcd, const QuantityType &cq):
-	visitClientID(vcd),currentQuantity(cq){}
+		visitClientID(vcd), currentQuantity(cq){}
+	ServeClient(const ClientID &vcd, const QuantityType &cq,const Timer &at,const Timer &dt) :
+		visitClientID(vcd), currentQuantity(cq),arrivalTime(at),departureTime(dt){}
 	ClientID visitClientID;	// visit ClientID	// unique except depot
 	vector<OrderID> loadOrderID, unloadOrderID;	// load and unload goods ID
 	vector<QuantityType> loadQuantity, unloadQuantity;	// load and unload quantity
@@ -184,17 +189,6 @@ public:
 	ObjectType totalObject;		// objective value of the solution
 	ObjectType totalWeightDistance;	// objective value of weight multiply distance
 	ObjectType averagefullLoadRate;	// full load rate of the solution
-};
-
-
-
-class Output
-{
-public:
-	Output();
-	Timer currentTime;
-private:
-	//VehicleRouting vr;
 };
 
 #endif

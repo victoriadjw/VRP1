@@ -230,16 +230,11 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 	}
 	//VEHICLES
 	ifs >> temp >> temp;
-	string vid;
-	CapacityType cap;
-	CostType cost;
+	vr.vehicleVec.resize(vr.getNumVehicle());
 	for (int i = 0; i < vr.getNumVehicle(); i++)
 	{
-		ifs >> vid >> cap >> cost >> crid;
-		Vehicle ve(vid, crid, cost, cap);
-		vr.vehicleVec.push_back(ve);
-		vr.vehicleMap[vid] = i;
-		cout << vid << " " << cap << " " << cost << " " << crid << endl;
+		ifs >> vr.vehicleVec[i];
+		vr.vehicleMap[vr.vehicleVec[i].VehID] = i;
 	}
 	//CLIENTS
 	getline(ifs, temp);
@@ -288,6 +283,7 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 			[vr.clientMap.at(vr.clientNameMap.at(e.getEdge().second))] = vr.edgeVec.size() - 1;
 		//ifs >> temp;
 	}
+	vr.serveTimeDuration = Timer::Duration(2);	// 2 hours of service time
 	printGraph(vr);
 	//vr.dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec);
 }

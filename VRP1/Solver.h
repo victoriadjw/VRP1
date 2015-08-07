@@ -42,5 +42,6 @@ private:
 	DijkstraShortPath *dsp;
 	vector<Solution> solutionVec;
 	list<OrderID> mandatoryOrderList, optionalOrderList;
+	vector<VehicleID> assignIndicator;
 };
 #endif

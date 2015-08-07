@@ -33,6 +33,9 @@
     <ClInclude Include="Solver.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Output.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VehicleRouting.cpp">

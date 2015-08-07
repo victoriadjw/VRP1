@@ -82,6 +82,7 @@
   <ItemGroup>
     <ClInclude Include="DijkstraShortPath.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Output.h" />
     <ClInclude Include="Scenario.h" />
     <ClInclude Include="Solver.h" />
     <ClInclude Include="VehicleRouting.h" />

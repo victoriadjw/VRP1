@@ -84,14 +84,13 @@ public:
 		: currentTime(startTime + duration)
 	{
 	}
-
 	bool isTimeOut() const
 	{
 		return (Clock::now() >= currentTime);
 	}
-	bool isTimeOut(const TimePoint &cmpTimePoint)const
+	bool isAhead(const TimePoint &cmpTimePoint)const
 	{
-		return (cmpTimePoint >= currentTime);
+		return (currentTime <= cmpTimePoint);
 	}
 	Duration restTime() const
 	{
