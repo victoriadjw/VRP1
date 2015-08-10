@@ -37,6 +37,7 @@ public:
 	void printRoute(Solution &solution, const int&)const;
 	void calculateObjValue(Solution &solution, const int&);
 	void calculateTotalObjValue(Solution &solution);
+	void cancelOrder(Solution &solution, const int &rin, const OrderID &oid);
 private:
 	const VehicleRouting &vr;
 	DijkstraShortPath *dsp;

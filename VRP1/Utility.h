@@ -92,6 +92,10 @@ public:
 	{
 		return (currentTime <= cmpTimePoint);
 	}
+	bool isEqual(const TimePoint &cmpTimePoint)const
+	{
+		return (currentTime==cmpTimePoint);
+	}
 	Duration restTime() const
 	{
 		return std::chrono::duration_cast<Duration>(
@@ -101,6 +105,10 @@ public:
 	{
 		return std::chrono::duration_cast<Duration>(
 			currentTime - cmpTimePoint);
+	}
+	void addDuration(const Duration &dur)
+	{
+		currentTime += dur;
 	}
 	static string getCurrentTime()
 	{
