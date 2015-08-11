@@ -30,9 +30,12 @@ class Timer
 {
 	friend std::ostream& operator<<(std::ostream &os, const Timer& timer)
 	{
+		char timeBuf[64];
 		time_t now_c = Clock::to_time_t(timer.currentTime);
 		tm* now_tm = localtime(&now_c);
-		os << std::put_time(now_tm, "%c");
+		//os << std::put_time(now_tm, "%c");
+		strftime(timeBuf, 64, "%Y-%m-%d %H:%M:%S", now_tm);
+		os << timeBuf;
 		return os;
 	}
 	friend std::istream& operator>>(std::istream &is, Timer& timer)

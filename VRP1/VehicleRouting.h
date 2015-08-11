@@ -60,6 +60,8 @@ public:
 	int getNumCarrier()const;
 	int getNumBilling()const;
 	int getNumRegion()const;
+	int getNumMandaOrder()const;
+	int getNumOptionalOrder()const;
 	vector<int> getMandatoryOrderIndexVec()const;
 	vector<int> getOptionalOrderIndexVec()const;
 
@@ -70,5 +72,7 @@ private:
 	int numClient,numOrder,numVehicle,numCarrier,numBilling,numRegion;
 	pair<int, int>CyclePlan ;
 	vector<int> mandatoryOrderIndexVec, optionalOrderIndexVec;
+	int numMandaOrder;	// the number of served mandatory order
+	int numOptionalOrder;	// the number of served optional order
 };
 #endif

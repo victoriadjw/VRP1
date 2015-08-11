@@ -159,6 +159,8 @@ public:
 	ObjectType routeWeightDistance;	// objective value of weight multiply distance
 	ObjectType fullLoadRate;	// full load rate of the route
 	QuantityType mandaQuantity;	// quantity of mandatory order
+	int serveMandaOrderCnt;	// the number of served mandatory order
+	int servOptionalOrderCnt;	// the number of served optional order
 };
 // describe a carrier
 class Carrier {
@@ -180,8 +182,9 @@ private:
 class Solution
 {
 public:
-	Solution(DistanceType rd, ObjectType ro, ObjectType rwd, ObjectType fr) :
-		totalDistance(rd), totalObject(ro), totalWeightDistance(rwd), averagefullLoadRate(fr){}
+	Solution(DistanceType rd, ObjectType ro, ObjectType rwd, ObjectType fr, int m_cnt, int o_cnt) :
+		totalDistance(rd), totalObject(ro), totalWeightDistance(rwd), averagefullLoadRate(fr)
+		, serveMandaOrderCnt(m_cnt), servOptionalOrderCnt(o_cnt){}
 	vector<Route> routeVec;	// route list
 	int numMandatoryOrder, numOptimalOrder;	// number of mandatory and optimal order
 
@@ -189,6 +192,8 @@ public:
 	ObjectType totalObject;		// objective value of the solution
 	ObjectType totalWeightDistance;	// objective value of weight multiply distance
 	ObjectType averagefullLoadRate;	// full load rate of the solution
+	int serveMandaOrderCnt;	// the number of served mandatory order
+	int servOptionalOrderCnt;	// the number of served optional order
 };
 
 #endif

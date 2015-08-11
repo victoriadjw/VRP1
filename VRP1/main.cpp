@@ -88,29 +88,11 @@ int main(int argc, char *argv[])
 {
 	//return run(argc, argv);
 	cout << "vehicle routing problem." << endl;
-	//int seed = time(NULL);
-	int seed = 1439214820;
+	int seed = time(NULL);
+	//seed =1439298942 ;//1439298942 1439214820 1439255012 1439264888 1439277128
 	srand(seed);
 	//run(argc, argv);
-	//int myints[] = { 10, 20, 30, 40, 50, 60, 70 };
-	std::vector<int> myints;
-	for (int i = 0; i < 7; i++)
-		myints.push_back(i + 1);
-	std::vector<int> myvector(7);
-
-	std::copy(myints.begin(), myints.end(), myvector.begin());
-
-	Timer t(0, 31, 22);
-	std::chrono::seconds difft = t.restTime();
-	cout << difft.count() << endl;
-	int temp_i = 10;
-	const int &rin = temp_i;
-	cout << rin << endl;
-	temp_i -= 1;
-	cout << rin << endl;
-	const int &rin1 = 40;
-	const int &rin2 = temp_i * 2;
-	cout << rin1 << " " << rin2 << endl;
+	
 	VehicleRouting vr;
 	Input in("vrptwcdc//case1-A-project.vrp", "results//log.txt", vr);
 	Output op("results//log.txt", vr);
@@ -118,7 +100,7 @@ int main(int argc, char *argv[])
 	vr.modifyOrder();
 	vr.setMandOptionOrder();
 	Solver solver(vr);
-	solver.initSolution(1);
+	solver.initSolution(10);
 	system("pause"); 
 }
 #endif

@@ -38,6 +38,8 @@ public:
 	void calculateObjValue(Solution &solution, const int&);
 	void calculateTotalObjValue(Solution &solution);
 	void cancelOrder(Solution &solution, const int &rin, const OrderID &oid);
+	bool isFeasibleAddServeTime(Solution &solution, const int &rin, const list<ServeClient>::iterator &start_sc_iter,
+		const list<ServeClient>::iterator &end_sc_iter, const list<OrderID>::iterator &oid_iter);
 private:
 	const VehicleRouting &vr;
 	DijkstraShortPath *dsp;

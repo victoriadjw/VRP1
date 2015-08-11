@@ -45,7 +45,7 @@ std::istream& operator>>(std::istream &is, Order &o)
 std::ostream& operator<<(std::ostream &is, const Order &o)
 {
 	is << o.OrdID << " " << o.OrdSupDisCenter << " " << o.OrdDemDisCenter << " "
-		<< o.OrdDemandAmount << " " << o.orderType;
-		//<< o.readyTime << " " << o.dueTime;
+		<< o.OrdDemandAmount << " " << o.orderType<<" "
+		<< o.readyTime << " " << o.dueTime;
 	return is;
 }

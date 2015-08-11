@@ -20,6 +20,8 @@ int VehicleRouting::getNumVehicle()const{ return numVehicle; }
 int VehicleRouting::getNumCarrier()const{ return numCarrier; }
 int VehicleRouting::getNumBilling()const{ return numBilling; }
 int VehicleRouting::getNumRegion()const{ return numRegion; }
+int VehicleRouting::getNumMandaOrder()const{ return numMandaOrder; }
+int VehicleRouting::getNumOptionalOrder()const{ return numOptionalOrder; }
 
 class VehicleRouting::CmpDistance{
 public:
@@ -44,15 +46,16 @@ private:
 
 void VehicleRouting::modifyOrder()
 {
+	numMandaOrder = numOptionalOrder = 0;
 	for (vector<Order>::iterator iter = orderVec.begin(); iter != orderVec.end(); iter++)
 	{
-		cout << iter->getReadyTime() << "\t" << iter->getDueTime() << endl;
 		if (rand() % 4 == 0) // change the order to mandatory with probability of 1/4
 		{
 			(*iter).setOrderType(OrderType::Mandatory);
 			int rand_cid = rand() % (clientVec.size() - 1) + 1;
 			iter->setApplierID(clientVec[0].PriDCID);
 			iter->setResquestID(clientVec[rand_cid].PriDCID);
+			numMandaOrder += 1;
 		}
 		else
 		{
@@ -63,6 +66,7 @@ void VehicleRouting::modifyOrder()
 			iter->setOrderType(OrderType::Optional);
 			iter->setApplierID(clientVec[index_aid].PriDCID);
 			iter->setResquestID(clientVec[index_rid].PriDCID);
+			numOptionalOrder += 1;
 		}
 		iter->setReadyTime(Timer());
 		iter->setDueTime(Timer(Timer::Duration(24 * 3)+Timer::Duration(10), iter->getReadyTime().getCurrentTimePoint()));
