@@ -152,7 +152,7 @@ public:
 	//vector<QuantityType> quantityGoods;	// the quantity of goods in vehicle
 
 	list<ServeClient> serveClientList;	// served client list
-
+	set<ClientID> visitClientIDSet;	// the set of the visited client id of the route
 	Timer beginTime, endTime;	// begin and end time of the route
 	DistanceType routeDistance; // total distance of the route
 	ObjectType routeObject;		// objective value of the route

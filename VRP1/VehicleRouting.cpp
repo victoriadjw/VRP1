@@ -69,7 +69,7 @@ void VehicleRouting::modifyOrder()
 			numOptionalOrder += 1;
 		}
 		iter->setReadyTime(Timer());
-		iter->setDueTime(Timer(Timer::Duration(24 * 3)+Timer::Duration(10), iter->getReadyTime().getCurrentTimePoint()));
+		iter->setDueTime(Timer(Timer::Duration(24 * 3)+Timer::Duration(10), iter->getReadyTime()));
 	}
 }
 

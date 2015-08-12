@@ -83,21 +83,33 @@ public:
 		tm* now_tm = localtime(&now_c);
 		cout << "\nnow : " << std::put_time(now_tm, "%c") << endl;
 	}
-	Timer(Duration duration, TimePoint startTime = Clock::now())
+	/*Timer(Duration duration, TimePoint startTime = Clock::now())
 		: currentTime(startTime + duration)
+	{
+	}*/
+	Timer(const Duration duration, const Timer startTime = Timer())
+		: currentTime(startTime.currentTime + duration)
 	{
 	}
 	bool isTimeOut() const
 	{
 		return (Clock::now() >= currentTime);
 	}
-	bool isAhead(const TimePoint &cmpTimePoint)const
+	/*bool isAhead(const TimePoint &cmpTimePoint)const
 	{
 		return (currentTime <= cmpTimePoint);
+	}*/
+	bool isAhead(const Timer &cmpTimeer)const
+	{
+		return (currentTime <= cmpTimeer.currentTime);
 	}
-	bool isEqual(const TimePoint &cmpTimePoint)const
+	/*bool isEqual(const TimePoint &cmpTimePoint)const
 	{
 		return (currentTime==cmpTimePoint);
+	}*/
+	bool isEqual(const Timer &cmpTimer)const
+	{
+		return (currentTime == cmpTimer.currentTime);
 	}
 	Duration restTime() const
 	{

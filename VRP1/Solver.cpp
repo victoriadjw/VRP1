@@ -10,6 +10,7 @@ void Solver::initSolution(const int &sol_num)
 {
 	for (int i = 0; i < sol_num;i++)
 	{
+		int operate_mand_order_cnt = 0;
 		mandatoryOrderList.clear();
 		optionalOrderList.clear();
 		for (std::vector<Order>::const_iterator iter = vr.orderVec.begin();
@@ -62,28 +63,43 @@ void Solver::initSolution(const int &sol_num)
 			{
 				iter_route->mandaQuantity += iter->getQuantity();
 				iter_route->serveOrderList.push_back(iter->getID());
+				operate_mand_order_cnt += 1;
 			}
 			*iter_ind = iter_route->VehID;
-		}
-
-		// assign optional order to each route
-		vector<int> ooiv = vr.getOptionalOrderIndexVec();
-		for (vector<int>::iterator iter = ooiv.begin(); iter != ooiv.end(); iter++)
+		}				
+		for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
+			arrangeMandatoryOrder(solution, rin);
+		/*for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
 		{
-			solution.routeVec[rand() % solution.routeVec.size()].serveOrderList.push_back(vr.orderVec[*iter].getID());
-		}
-		for (vector<Route>::iterator iter = solution.routeVec.begin(); iter != solution.routeVec.end(); iter++)
-		{
-			cout << (*iter).VehID << ", " << (*iter).serveOrderList.size() << " : " << endl;;
-			for (list<OrderID>::iterator it = (*iter).serveOrderList.begin();
-				it != (*iter).serveOrderList.end(); it++)
+			for (list<OrderID>::iterator oid_iter = solution.routeVec[rin].serveOrderList.begin();
+				oid_iter != solution.routeVec[rin].serveOrderList.end(); )
 			{
-				cout << vr.orderVec[vr.orderMap.at(*it)] << endl;
+				bool is_inserted = false;
+				for (int rin_op = 0; rin_op < vr.vehicleVec.size();rin_op++)
+				{
+					if (rin_op == rin)
+						continue;
+					if (inserMandatoryOrder(solution, rin_op, *oid_iter))
+					{
+						oid_iter = solution.routeVec[rin].serveOrderList.erase(oid_iter);
+						is_inserted = true;
+						break;
+					}
+				}
+				if (!is_inserted)
+					oid_iter++;
 			}
+
+		}*/
+		for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
+		{
+			arrangeOptionalOrder(solution, rin);
+			printRoute(solution, rin);
+			calculateObjValue(solution, rin);
+			checkRoute(solution, rin);
 		}
-		for (int i = 0; i < vr.vehicleVec.size(); i++)
-			generateRoute1(solution, i);
 		calculateTotalObjValue(solution);
+		solution.numMandatoryOrder = operate_mand_order_cnt;
 		solutionVec.push_back(solution);
 	}
 	cout << "total information:" << vr.getNumMandaOrder() << "\t" << vr.getNumOptionalOrder() << endl;
@@ -92,7 +108,8 @@ void Solver::initSolution(const int &sol_num)
 		cout << iter->totalDistance << "\t" << iter->totalWeightDistance << "\t"
 			<< iter->totalObject << "\t" << iter->averagefullLoadRate << "\t"
 			<< iter->serveMandaOrderCnt << "\t" << iter->servOptionalOrderCnt << "\t"
-			<< iter->serveMandaOrderCnt + iter->servOptionalOrderCnt << endl;
+			<< iter->serveMandaOrderCnt + iter->servOptionalOrderCnt << "\t"
+			<<iter->numMandatoryOrder<< endl;
 	}
 }
 
@@ -326,14 +343,14 @@ bool Solver::isFeasibleAddServeTime(Solution &solution, const int &rin,  const l
 	/*if (rin == 6 && *oid_iter == "o149")
 		system("pause");*/
 	Timer::Duration start_end_dr(0), end_dr(0);
-	if (start_sc_iter->arrivalTime.isEqual(start_sc_iter->departureTime.getCurrentTimePoint()))
+	if (start_sc_iter->arrivalTime.isEqual(start_sc_iter->departureTime))
 		start_end_dr += vr.serveTimeDuration;
 	// if the arrival time exceeds the due time of the order, skip it
-	if (!Timer(start_end_dr, end_sc_iter->arrivalTime.getCurrentTimePoint()).isAhead(
-		vr.orderVec[vr.orderMap.at(*oid_iter)].getDueTime().getCurrentTimePoint()))
+	if (!Timer(start_end_dr, end_sc_iter->arrivalTime).isAhead(
+		vr.orderVec[vr.orderMap.at(*oid_iter)].getDueTime()))
 		return false;
 	end_dr += start_end_dr;
-	if (end_sc_iter->arrivalTime.isEqual(end_sc_iter->departureTime.getCurrentTimePoint()))
+	if (end_sc_iter->arrivalTime.isEqual(end_sc_iter->departureTime))
 		end_dr += vr.serveTimeDuration;
 	// check all the ServeClient to see whether it becomes tardy
 	for (list<ServeClient>::iterator sc_iter = start_sc_iter; 
@@ -346,8 +363,8 @@ bool Solver::isFeasibleAddServeTime(Solution &solution, const int &rin,  const l
 		for (vector<OrderID>::iterator oid_iter = sc_iter->unloadOrderID.begin();
 			oid_iter != sc_iter->unloadOrderID.end(); oid_iter++)
 		{
-			if (!Timer(start_end_dr, sc_iter->arrivalTime.getCurrentTimePoint()).isAhead(
-				vr.orderVec[vr.orderMap.at(*oid_iter)].getDueTime().getCurrentTimePoint()))
+			if (!Timer(start_end_dr, sc_iter->arrivalTime).isAhead(
+				vr.orderVec[vr.orderMap.at(*oid_iter)].getDueTime()))
 				return false;
 		}
 	}
@@ -358,7 +375,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 	// arrange the mandatory and MM optional orders
 	ClientID init_cid = vr.clientVec[0].PriDCID;
 	Timer now_time = Timer();
-	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time.getCurrentTimePoint()));
+	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time));
 	set<ClientID> MMOrderClientIDSet;	// the ClientID set of mandatory order
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
@@ -366,7 +383,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		if (vr.orderVec[vr.orderMap.at(*iter)].getOrderType() != OrderType::Mandatory)
 			continue;
 		// if the due time of the order  is ahead of the arrival time, skip this order
-		if (!sc.arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*iter)].getDueTime().getCurrentTimePoint()))
+		if (!sc.arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*iter)].getDueTime()))
 			continue;
 		MMOrderClientIDSet.insert(vr.orderVec[vr.orderMap.at(*iter)].getApplierID());
 		MMOrderClientIDSet.insert(vr.orderVec[vr.orderMap.at(*iter)].getRequestID());
@@ -375,7 +392,6 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 	}
 	solution.routeVec[rin].serveClientList.push_back(sc);
 	MMOrderClientIDSet.erase(vr.clientVec[0].PriDCID);
-	int add_mandatory_client_cnt = 0;
 	while (!MMOrderClientIDSet.empty())
 	{
 		ClientID sel_end_cid;
@@ -390,26 +406,17 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		}
 		// find all the order id corresponding to the same sel_end_cid
 		bool is_exist_one_feasible_order = false;
-		Timer::Duration tm_init_end = Timer::Duration((int)(shortest_distance / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+		Timer::Duration tm_init_end = Timer::Duration((int)ceil(shortest_distance / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
 		list<OrderID>::iterator iter_end_oid = solution.routeVec[rin].serveOrderList.begin();
 		for (; iter_end_oid != solution.routeVec[rin].serveOrderList.end();	)
 		{
 			if (vr.orderVec[vr.orderMap.at(*iter_end_oid)].getOrderType() == OrderType::Mandatory &&
 				vr.orderVec[vr.orderMap.at(*iter_end_oid)].getRequestID() == sel_end_cid)
 			{
-				//if (rin == 0 && sel_end_cid == "c9")
-				//{
-				//	Timer tt = Timer(tm_init_end + (solution.routeVec[rin].serveClientList.size() - add_mandatory_client_cnt
-				//		+ shortest_cid_vec.size() - 2)*vr.serveTimeDuration,	// time needed from inti client to end client
-				//		solution.routeVec[rin].serveClientList.back().departureTime.getCurrentTimePoint());
-				//	cout << tt << " ISAHEAD " << vr.orderVec[vr.orderMap.at(*iter_end_oid)].getDueTime() << endl;
-				//	system("pause");
-				//}
-				// if this order is tardy, cancel it
 				if (!Timer(tm_init_end + (/*solution.routeVec[rin].serveClientList.size() - add_mandatory_client_cnt +*/
 					shortest_cid_vec.size() - 2)*vr.serveTimeDuration,	// time needed from inti client to end client
-					solution.routeVec[rin].serveClientList.back().departureTime.getCurrentTimePoint()).isAhead(	// the departure time of previous client
-					vr.orderVec[vr.orderMap.at(*iter_end_oid)].getDueTime().getCurrentTimePoint()))	//	the due time of end client 
+					solution.routeVec[rin].serveClientList.back().departureTime).isAhead(	// the departure time of previous client
+					vr.orderVec[vr.orderMap.at(*iter_end_oid)].getDueTime()))	//	the due time of end client 
 				{
 					//  the arrival time is not ahead of the due time of the end client
 					cancelOrder(solution, rin, *iter_end_oid);
@@ -431,8 +438,8 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 			// insert the client between init_cid and sel_end_cid
 			DistanceType dis_temp = vr.edgeVec[vr.orderEdge[vr.clientMap.at(solution.routeVec[rin].serveClientList.back().visitClientID)]
 				[vr.clientMap.at(*iter)]].getDistance();
-			Timer::Duration dr_temp = Timer::Duration((int)(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
-			Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime.getCurrentTimePoint());
+			Timer::Duration dr_temp = Timer::Duration((int)ceil(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+			Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime);
 			/*ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity,
 				ar_tm_temp, Timer(vr.serveTimeDuration, ar_tm_temp.getCurrentTimePoint()));*/
 			ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity, ar_tm_temp, ar_tm_temp);
@@ -441,11 +448,11 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		// insert the sel_end_cid and corresponding mandatory order which has the same sel_end_cid
 		DistanceType dis = vr.edgeVec[vr.orderEdge[vr.clientMap.at(solution.routeVec[rin].serveClientList.back().visitClientID)]
 			[vr.clientMap.at(sel_end_cid)]].getDistance();
-		Timer::Duration dr = Timer::Duration((int)(dis / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
-		Timer ar_tm = Timer(dr, solution.routeVec[rin].serveClientList.back().departureTime.getCurrentTimePoint());
+		Timer::Duration dr = Timer::Duration((int)ceil(dis / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+		Timer ar_tm = Timer(dr, solution.routeVec[rin].serveClientList.back().departureTime);
 
 		ServeClient sc1(sel_end_cid, solution.routeVec[rin].serveClientList.back().currentQuantity,
-			ar_tm,Timer(vr.serveTimeDuration,ar_tm.getCurrentTimePoint()));
+			ar_tm, Timer(vr.serveTimeDuration, ar_tm));
 		for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 			iter != solution.routeVec[rin].serveOrderList.end();)
 		{
@@ -456,7 +463,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 				continue;
 			}
 			// if the departure time is not ahead of the due time of the order, abandon this mandatory order
-			if (!sc1.arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*iter)].getDueTime().getCurrentTimePoint()))
+			if (!sc1.arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*iter)].getDueTime()))
 			{
 				// cancel the tardy order
 				cancelOrder(solution, rin, *iter);
@@ -472,7 +479,6 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		}
 		solution.routeVec[rin].serveClientList.push_back(sc1);
 		init_cid = sel_end_cid;
-		add_mandatory_client_cnt += 1;
 	}
 	// insert the last visiting client depot
 	vector<ClientID> shortest_cid_vec;
@@ -484,8 +490,8 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		iter_prev--;
 		// insert the client between init_cid and the last visiting client depot
 		DistanceType dis_temp = vr.edgeVec[vr.orderEdge[vr.clientMap.at(*iter_prev)][vr.clientMap.at(*iter)]].getDistance();
-		Timer::Duration dr_temp = Timer::Duration((int)(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
-		Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime.getCurrentTimePoint());
+		Timer::Duration dr_temp = Timer::Duration((int)ceil(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+		Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime);
 		/*ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity,
 		ar_tm_temp, Timer(vr.serveTimeDuration, ar_tm_temp.getCurrentTimePoint()));*/
 		ServeClient sc1(*iter, 0, ar_tm_temp, ar_tm_temp);
@@ -520,38 +526,6 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 					break;
 				if (end_sc_iter->visitClientID != vr.orderVec[vr.orderMap.at(*iter)].getRequestID())
 					continue;
-			/*	Timer::Duration start_end_dur = Timer::Duration(0);
-				// the start ServeClient has nothing to load or unload, add this serve time duration
-				if (start_sc_iter->arrivalTime.isEqual(start_sc_iter->departureTime.getCurrentTimePoint()))
-				{
-					start_end_dur = vr.serveTimeDuration;
-					// check all the ServeClient to see whether it becomes tardy
-					bool is_become_tardy = false;
-					for (list<ServeClient>::iterator sc_iter = start_sc_iter; sc_iter != end_sc_iter; sc_iter++)
-					{
-						for (vector<OrderID>::iterator oid_iter = sc_iter->unloadOrderID.begin();
-							oid_iter != sc_iter->unloadOrderID.end(); oid_iter++)
-						{
-							if (!Timer(start_end_dur, sc_iter->arrivalTime.getCurrentTimePoint()).isAhead(
-								vr.orderVec[vr.orderMap.at(*oid_iter)].getDueTime().getCurrentTimePoint()))
-							{
-								is_become_tardy = true;
-								break;
-							}
-						}
-					}
-				}
-				if (rin == 0 && *iter == "o51")
-				{
-					Timer tm_temp = Timer(start_end_dur, end_sc_iter->arrivalTime.getCurrentTimePoint());
-					cout << tm_temp << "\t" << vr.orderVec[vr.orderMap.at(*iter)].getDueTime() << endl;
-
-				}				
-				// if the arrival time exceeds the due time of the order, skip it
-				if (!Timer(start_end_dur, end_sc_iter->arrivalTime.getCurrentTimePoint()).isAhead(
-					vr.orderVec[vr.orderMap.at(*iter)].getDueTime().getCurrentTimePoint()))
-					continue;*/
-
 				if (!isFeasibleAddServeTime(solution, rin, start_sc_iter, end_sc_iter, iter))
 					continue;
 				// pick up this order
@@ -562,7 +536,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 					sc_iter->currentQuantity += vr.orderVec[vr.orderMap[*iter]].getQuantity();
 				}
 				// the start ServeClient has nothing to load or unload, add this serve time duration
-				if (start_sc_iter->arrivalTime.isEqual(start_sc_iter->departureTime.getCurrentTimePoint()))
+				if (start_sc_iter->arrivalTime.isEqual(start_sc_iter->departureTime))
 				{
 					for (list<ServeClient>::iterator sc_iter = start_sc_iter;
 						sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
@@ -573,7 +547,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 					}
 				}
 				// the end ServeClient has nothing to load or unload, add this serve time duration
-				if (end_sc_iter->arrivalTime.isEqual(end_sc_iter->departureTime.getCurrentTimePoint()))
+				if (end_sc_iter->arrivalTime.isEqual(end_sc_iter->departureTime))
 				{
 					for (list<ServeClient>::iterator sc_iter = end_sc_iter;
 						sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
@@ -611,7 +585,301 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 	calculateObjValue(solution, rin);
 	checkRoute(solution, rin);
 }
+void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
+{
+	// arrange the mandatory and MM optional orders
+	ClientID init_cid = vr.clientVec[0].PriDCID;
+	Timer now_time = Timer();
+	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time));
+	set<ClientID> MMOrderClientIDSet;	// the ClientID set of mandatory order
+	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
+		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
+	{
+		if (vr.orderVec[vr.orderMap.at(*iter)].getOrderType() != OrderType::Mandatory)
+			continue;
+		// if the due time of the order  is ahead of the arrival time, skip this order
+		if (!sc.arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*iter)].getDueTime()))
+			continue;
+		MMOrderClientIDSet.insert(vr.orderVec[vr.orderMap.at(*iter)].getApplierID());
+		MMOrderClientIDSet.insert(vr.orderVec[vr.orderMap.at(*iter)].getRequestID());
+		sc.loadOrderID.push_back(*iter);
+		sc.currentQuantity += vr.orderVec[vr.orderMap.at(*iter)].getQuantity();
+	}
+	solution.routeVec[rin].serveClientList.push_back(sc);
+	solution.routeVec[rin].visitClientIDSet.insert(sc.visitClientID);
+	MMOrderClientIDSet.erase(vr.clientVec[0].PriDCID);
+	while (!MMOrderClientIDSet.empty())
+	{
+		ClientID sel_end_cid;
+		DistanceType shortest_distance;
+		vector<ClientID> shortest_cid_vec;
+		dsp->getShortPathClientIDSet(init_cid, MMOrderClientIDSet, sel_end_cid, shortest_distance, shortest_cid_vec);
+		MMOrderClientIDSet.erase(sel_end_cid);
+		if (sel_end_cid == "")
+		{
+			// no feasible path between init_cid to sel_end_cid
+			continue;
+		}
+		// find all the order id corresponding to the same sel_end_cid
+		bool is_exist_one_feasible_order = false;
+		Timer::Duration tm_init_end = Timer::Duration((int)ceil(shortest_distance / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+		list<OrderID>::iterator iter_end_oid = solution.routeVec[rin].serveOrderList.begin();
+		for (; iter_end_oid != solution.routeVec[rin].serveOrderList.end(); iter_end_oid++)
+		{
+			if (vr.orderVec[vr.orderMap.at(*iter_end_oid)].getOrderType() == OrderType::Mandatory &&
+				vr.orderVec[vr.orderMap.at(*iter_end_oid)].getRequestID() == sel_end_cid)
+			{
+				if (!Timer(tm_init_end + (/*solution.routeVec[rin].serveClientList.size() - add_mandatory_client_cnt +*/
+					shortest_cid_vec.size() - 2)*vr.serveTimeDuration,	// time needed from inti client to end client
+					solution.routeVec[rin].serveClientList.back().departureTime).isAhead(	// the departure time of previous client
+					vr.orderVec[vr.orderMap.at(*iter_end_oid)].getDueTime()))	//	the due time of end client 
+				{
+					//  the arrival time is not ahead of the due time of the end client
+					cancelOrder(solution, rin, *iter_end_oid);
+					//iter_end_oid = solution.routeVec[rin].serveOrderList.erase(iter_end_oid);
+				}
+				else
+					is_exist_one_feasible_order = true;				
+			}
+		}
+		// if all the orders which have the same sel_end_cid are tardy, skip it
+		if (!is_exist_one_feasible_order)
+			continue;
+		for (vector<ClientID>::iterator iter = ++shortest_cid_vec.begin(); iter != --shortest_cid_vec.end(); iter++)
+		{
+			// insert the client between init_cid and sel_end_cid
+			DistanceType dis_temp = vr.edgeVec[vr.orderEdge[vr.clientMap.at(solution.routeVec[rin].serveClientList.back().visitClientID)]
+				[vr.clientMap.at(*iter)]].getDistance();
+			Timer::Duration dr_temp = Timer::Duration((int)ceil(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+			Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime);
+			/*ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity,
+			ar_tm_temp, Timer(vr.serveTimeDuration, ar_tm_temp.getCurrentTimePoint()));*/
+			ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity, ar_tm_temp, ar_tm_temp);
+			solution.routeVec[rin].serveClientList.push_back(sc1);
+			solution.routeVec[rin].visitClientIDSet.insert(sc1.visitClientID);
+		}
+		// insert the sel_end_cid and corresponding mandatory order which has the same sel_end_cid
+		DistanceType dis = vr.edgeVec[vr.orderEdge[vr.clientMap.at(solution.routeVec[rin].serveClientList.back().visitClientID)]
+			[vr.clientMap.at(sel_end_cid)]].getDistance();
+		Timer::Duration dr = Timer::Duration((int)ceil(dis / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+		Timer ar_tm = Timer(dr, solution.routeVec[rin].serveClientList.back().departureTime);
 
+		ServeClient sc1(sel_end_cid, solution.routeVec[rin].serveClientList.back().currentQuantity,
+			ar_tm, Timer(vr.serveTimeDuration, ar_tm));
+		for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
+			iter != solution.routeVec[rin].serveOrderList.end();)
+		{
+			if (vr.orderVec[vr.orderMap.at(*iter)].getOrderType() == OrderType::Optional ||
+				vr.orderVec[vr.orderMap.at(*iter)].getRequestID() != sel_end_cid)
+			{
+				iter++;
+				continue;
+			}
+			// if the departure time is not ahead of the due time of the order, abandon this mandatory order
+			if (!sc1.arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*iter)].getDueTime()))
+			{
+				// cancel the tardy order
+				cancelOrder(solution, rin, *iter);
+				// substract the corresponding quantity from the already established sc1
+				sc1.currentQuantity -= vr.orderVec[vr.orderMap.at(*iter)].getQuantity();
+			}
+			else
+			{
+				sc1.unloadOrderID.push_back(*iter);
+				sc1.currentQuantity -= vr.orderVec[vr.orderMap.at(*iter)].getQuantity();
+			}
+			iter = solution.routeVec[rin].serveOrderList.erase(iter);
+		}
+		solution.routeVec[rin].serveClientList.push_back(sc1);
+		solution.routeVec[rin].visitClientIDSet.insert(sc1.visitClientID);
+		init_cid = sel_end_cid;
+	}
+	// insert the last visiting client depot
+	vector<ClientID> shortest_cid_vec;
+	DistanceType shortest_distance;
+	dsp->getShortPath(init_cid, vr.clientVec[0].PriDCID, shortest_distance, shortest_cid_vec);
+	for (vector<ClientID>::iterator iter = ++shortest_cid_vec.begin(); iter != shortest_cid_vec.end(); iter++)
+	{
+		vector<ClientID>::iterator iter_prev = iter;
+		iter_prev--;
+		// insert the client between init_cid and the last visiting client depot
+		DistanceType dis_temp = vr.edgeVec[vr.orderEdge[vr.clientMap.at(*iter_prev)][vr.clientMap.at(*iter)]].getDistance();
+		Timer::Duration dr_temp = Timer::Duration((int)ceil(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+		Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime);
+		ServeClient sc1(*iter, 0, ar_tm_temp, ar_tm_temp);
+		//ServeClient sc1(*iter, 0);
+		solution.routeVec[rin].serveClientList.push_back(sc1);
+		solution.routeVec[rin].visitClientIDSet.insert(sc1.visitClientID);
+	}
+	// if this route has on clients except the depot
+	if (solution.routeVec[rin].serveClientList.size() == 1)
+	{
+		solution.routeVec[rin].serveClientList.front().departureTime =
+			solution.routeVec[rin].serveClientList.front().arrivalTime;
+	}
+
+}
+void Solver::arrangeOptionalOrder(Solution &solution, const int &rin)
+{
+	// insert the mandatory optional order to the route
+	for (list<OrderID>::iterator iter = optionalOrderList.begin();
+		iter != optionalOrderList.end();)
+	{
+		list<ServeClient>::iterator start_sc_iter, end_sc_iter;
+		bool is_operated = false;
+		for (start_sc_iter = solution.routeVec[rin].serveClientList.begin();
+			start_sc_iter != solution.routeVec[rin].serveClientList.end(); start_sc_iter++)
+		{
+			if (start_sc_iter->visitClientID != vr.orderVec[vr.orderMap.at(*iter)].getApplierID())
+				continue;
+
+			for (end_sc_iter = start_sc_iter; end_sc_iter != solution.routeVec[rin].serveClientList.end(); end_sc_iter++)
+			{
+				// if adding the MM optional order exceeds the vehicle capacity, skip it
+				if (end_sc_iter->currentQuantity + vr.orderVec[vr.orderMap[*iter]].getQuantity() >
+					vr.vehicleVec[vr.vehicleMap[solution.routeVec[rin].VehID]].capacity)
+					break;
+				if (end_sc_iter->visitClientID != vr.orderVec[vr.orderMap.at(*iter)].getRequestID())
+					continue;
+				if (!isFeasibleAddServeTime(solution, rin, start_sc_iter, end_sc_iter, iter))
+					continue;
+				// pick up this order
+				start_sc_iter->loadOrderID.push_back(*iter);
+				end_sc_iter->unloadOrderID.push_back(*iter);
+				for (list<ServeClient>::iterator sc_iter = start_sc_iter; sc_iter != end_sc_iter; sc_iter++)
+				{
+					sc_iter->currentQuantity += vr.orderVec[vr.orderMap[*iter]].getQuantity();
+				}
+				// the start ServeClient has nothing to load or unload, add this serve time duration
+				if (start_sc_iter->arrivalTime.isEqual(start_sc_iter->departureTime))
+				{
+					for (list<ServeClient>::iterator sc_iter = start_sc_iter;
+						sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
+					{
+						if (sc_iter != start_sc_iter)
+							sc_iter->arrivalTime.addDuration(vr.serveTimeDuration);
+						sc_iter->departureTime.addDuration(vr.serveTimeDuration);
+					}
+				}
+				// the end ServeClient has nothing to load or unload, add this serve time duration
+				if (end_sc_iter->arrivalTime.isEqual(end_sc_iter->departureTime))
+				{
+					for (list<ServeClient>::iterator sc_iter = end_sc_iter;
+						sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
+					{
+						if (sc_iter != end_sc_iter)
+							sc_iter->arrivalTime.addDuration(vr.serveTimeDuration);
+						sc_iter->departureTime.addDuration(vr.serveTimeDuration);
+					}
+				}
+				// erase the inserted order id from optioanl order list
+				iter = optionalOrderList.erase(iter);
+				is_operated = true;
+				break;
+			}
+			if (is_operated)
+				break;
+		}
+		if (!is_operated)
+		{
+			vector<VehicleID>::iterator iter_ind = assignIndicator.begin();
+			for (vector<Order>::const_iterator iter_o = vr.orderVec.begin();
+				iter_o != vr.orderVec.end() && iter_ind != assignIndicator.end(); iter_o++, iter_ind++)
+			{
+				if (iter_o->getID() == *iter)
+				{
+					// reset the corresponding assignIndicator to null
+					*iter_ind = "";
+					break;
+				}
+			}
+			iter++;
+		}
+	}
+}
+
+bool Solver::inserMandatoryOrder(Solution &solution, const int &rin, const OrderID &oid)
+{
+	// the order exceeds the quantity of the vehicle
+	if (solution.routeVec[rin].serveClientList.front().currentQuantity + vr.orderVec[vr.orderMap.at(oid)].getQuantity() >
+		vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
+		return false;
+	DistanceType shortest_to_distance, shortest_back_distance;
+	vector<ClientID> shortests_to_cid_vec, shortests_back_cid_vec;
+	ClientID sel_cid;
+	dsp->getShortPathClientIDSet(vr.orderVec[vr.orderMap.at(oid)].getRequestID(), solution.routeVec[rin].visitClientIDSet,
+		sel_cid, shortest_to_distance, shortests_to_cid_vec);
+	std::reverse(shortests_to_cid_vec.begin(), shortests_to_cid_vec.end());
+	list<ServeClient>::iterator sel_sc_iter, sel_sc_iter_next;
+	for (sel_sc_iter = solution.routeVec[rin].serveClientList.begin();
+		sel_sc_iter != solution.routeVec[rin].serveClientList.end(); sel_sc_iter++)
+	{
+		if (sel_sc_iter->visitClientID == sel_cid)
+			break;
+	}
+	Timer::Duration extra_to_dr((int)ceil(shortest_to_distance / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+	// check if this order is tardy
+	if (!Timer(extra_to_dr, sel_sc_iter->departureTime).isAhead(vr.orderVec[vr.orderMap.at(oid)].getDueTime()))
+		return false;
+	sel_sc_iter_next = sel_sc_iter;
+	sel_sc_iter_next++;
+	dsp->getShortPath(vr.orderVec[vr.orderMap.at(oid)].getRequestID(), sel_sc_iter_next->visitClientID, shortest_back_distance, shortests_back_cid_vec);
+	Timer::Duration extra_back_dr((int)ceil(shortest_back_distance / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+	for (list<ServeClient>::iterator sc_iter = sel_sc_iter;
+		sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
+	{
+		for (vector<OrderID>::iterator oid_iter = sc_iter->unloadOrderID.begin();
+			oid_iter != sc_iter->unloadOrderID.end(); oid_iter++)
+		{
+			if (!Timer(extra_to_dr + extra_back_dr + vr.serveTimeDuration, sc_iter->arrivalTime).isAhead(
+				vr.orderVec[vr.orderMap.at(*oid_iter)].getDueTime()))
+				return false;
+		}
+	}
+	// insert this order to the route
+	// from the front of the route to sel_sc_iter_next
+	for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
+		sc_iter != sel_sc_iter_next; sc_iter++)
+	{
+		if (sc_iter == solution.routeVec[rin].serveClientList.begin())
+			sc_iter->loadOrderID.push_back(oid);
+		sc_iter->currentQuantity += vr.orderVec[vr.orderMap.at(oid)].getQuantity();
+	}
+	// from sel_sc_iter to oid
+	for (vector<ClientID>::iterator cid_iter = ++shortests_to_cid_vec.begin(); cid_iter != shortests_to_cid_vec.end(); cid_iter++)
+	{
+		vector<ClientID>::iterator cid_iter_prev = cid_iter;
+		cid_iter_prev--;
+		DistanceType dis_temp = vr.edgeVec[vr.orderEdge[vr.clientMap.at(*cid_iter_prev)][vr.clientMap.at(*cid_iter)]].getDistance();
+		Timer::Duration dr_temp((int)ceil(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+		list<ServeClient>::iterator sc_iter_next_prev = sel_sc_iter_next;
+		sc_iter_next_prev--;
+		Timer tm_temp = Timer(dr_temp, sc_iter_next_prev->departureTime);
+		ServeClient sc = ServeClient(*cid_iter, sel_sc_iter->currentQuantity, tm_temp, tm_temp);
+		// the last one in the vector
+		if (cid_iter == --shortests_to_cid_vec.end())
+		{
+			sc.unloadOrderID.push_back(oid);
+			sc.currentQuantity -= vr.orderVec[vr.orderMap.at(oid)].getQuantity();
+			sc.departureTime.addDuration(vr.serveTimeDuration);
+		}
+		solution.routeVec[rin].serveClientList.insert(sel_sc_iter_next, sc);
+	}
+	// from oid to sel_sc_iter_next
+	for (vector<ClientID>::iterator cid_iter = ++shortests_back_cid_vec.begin(); cid_iter != --shortests_back_cid_vec.end(); cid_iter++)
+	{
+		vector<ClientID>::iterator cid_iter_prev = cid_iter;
+		cid_iter_prev--;
+		DistanceType dis_temp = vr.edgeVec[vr.orderEdge[vr.clientMap.at(*cid_iter_prev)][vr.clientMap.at(*cid_iter)]].getDistance();
+		Timer::Duration dr_temp((int)ceil(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
+		list<ServeClient>::iterator sc_iter_next_prev = sel_sc_iter_next;
+		sc_iter_next_prev--;
+		Timer tm_temp = Timer(dr_temp, sc_iter_next_prev->departureTime);
+		ServeClient sc = ServeClient(*cid_iter, sel_sc_iter_next->currentQuantity);
+		solution.routeVec[rin].serveClientList.insert(sel_sc_iter_next, sc);
+	}
+	return true;
+}
 void Solver::insertMMOrderToRoute1(Solution &solution, const int &rin, list<OrderID>::iterator &iter,
 	list<ServeClient>::iterator &start_sc_iter, list<ServeClient>::iterator &end_sc_iter)
 {
@@ -1096,10 +1364,10 @@ bool Solver::checkRoute(const Solution &solution, const int &rin)const
 		{
 			list<ServeClient>::const_iterator iter_prev = iter;
 			iter_prev--;
-			real_cur_time.addDuration(Timer::Duration((int)(vr.edgeVec[vr.orderEdge[vr.clientMap.at(iter_prev->visitClientID)]
+			real_cur_time.addDuration(Timer::Duration((int)ceil(vr.edgeVec[vr.orderEdge[vr.clientMap.at(iter_prev->visitClientID)]
 				[vr.clientMap.at(iter->visitClientID)]].getDistance()/vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed)));
 		}
-		if (!real_cur_time.isEqual(iter->arrivalTime.getCurrentTimePoint()))
+		if (!real_cur_time.isEqual(iter->arrivalTime))
 		{
 			cout << "Check route " << rin << " " << iter->visitClientID << " arrival time WRONG: "
 				<< real_cur_time << "\t" << iter->arrivalTime << endl;
@@ -1108,7 +1376,7 @@ bool Solver::checkRoute(const Solution &solution, const int &rin)const
 		}
 		if (iter->loadOrderID.size() != 0 || iter->unloadOrderID.size() != 0)
 			real_cur_time.addDuration(vr.serveTimeDuration);
-		if (!real_cur_time.isEqual(iter->departureTime.getCurrentTimePoint()))
+		if (!real_cur_time.isEqual(iter->departureTime))
 		{
 			cout << "Check route " << rin << " " << iter->visitClientID << " departure time WRONG: "
 				<< real_cur_time << "\t" << iter->departureTime<< endl;
@@ -1120,7 +1388,7 @@ bool Solver::checkRoute(const Solution &solution, const int &rin)const
 		for (vector<OrderID>::const_iterator it = (*iter).loadOrderID.begin();
 			it != (*iter).loadOrderID.end(); it++)
 		{
-			if (!vr.orderVec[vr.orderMap.at(*it)].getReadyTime().isAhead(iter->departureTime.getCurrentTimePoint()))
+			if (!vr.orderVec[vr.orderMap.at(*it)].getReadyTime().isAhead(iter->departureTime))
 			{
 				cout << "Check route " << rin << " " << iter->visitClientID << " load time WRONG: "
 					<< *it << " (" << vr.orderVec[vr.orderMap.at(*it)]
@@ -1141,7 +1409,7 @@ bool Solver::checkRoute(const Solution &solution, const int &rin)const
 		for (vector<OrderID>::const_iterator it = (*iter).unloadOrderID.begin();
 			it != (*iter).unloadOrderID.end(); it++)
 		{
-			if (!iter->arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*it)].getDueTime().getCurrentTimePoint()))
+			if (!iter->arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*it)].getDueTime()))
 			{
 				cout << "Check route " << rin << " " << iter->visitClientID << " unload time WRONG: "
 					<< *it << " (" << vr.orderVec[vr.orderMap.at(*it)]
