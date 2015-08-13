@@ -62,6 +62,7 @@ private:
 class Client
 {
 	friend std::istream& operator>>(std::istream&, Client&);
+	friend std::ostream& operator<<(std::ostream&, const Client&);
 public:	
 	ClientID PriDCID;	// identity
 	ClientNameType clientName;	// client name
@@ -83,6 +84,8 @@ class Vehicle
 	friend std::ostream& operator<<(std::ostream&, const Vehicle&);
 public:
 	Vehicle(){}
+	Vehicle(VehicleID _id, CapacityType _capacity,SpeedType s) :VehID(_id),
+		speed(s), capacity(_capacity){}
 	Vehicle(VehicleID _id, string _cid, CostType _cost, CapacityType _capacity) :VehID(_id),
 		carrierID(_cid), cost(_cost),capacity(_capacity){}
 	VehicleID VehID;	// identity
@@ -102,6 +105,7 @@ class Order
 	friend std::ostream& operator<<(std::ostream&, const Order&);
 public:
 	Order(){};
+	Order(const OrderID &oid, const QuantityType &q) :OrdID(oid), OrdDemandAmount(q){}
 	OrderID getID()const{ return OrdID; }
 	ClientID getApplierID()const{ return OrdSupDisCenter; }
 	ClientID getRequestID()const{ return OrdDemDisCenter; }

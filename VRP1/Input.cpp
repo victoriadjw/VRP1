@@ -35,242 +35,43 @@ Input::Input(const string &inputFileName, const string &errorLogFileName, Vehicl
 		errorLog("fail to open file : " + inputFileName);
 		return;
 	}
-	string strTemp;
-	char buffer[BUFF_SIZE];
-	int num,num1;
-
-	ifs.getline(buffer, BUFF_SIZE, ':');
-	ifs >> strTemp;
-	vr.setName(strTemp);
-	getline(ifs, strTemp);
-
-	getline(ifs, strTemp);
-	getline(ifs, strTemp);
-
-	ifs.getline(buffer, BUFF_SIZE, ':');
-	ifs >> num;
-	vr.setNumClient(num);
-	getline(ifs, strTemp);
-
-	ifs.getline(buffer, BUFF_SIZE, ':');
-	ifs >> num;
-	vr.setNumOrder(num);
-	getline(ifs, strTemp);
-
-	ifs.getline(buffer, BUFF_SIZE, ':');
-	ifs >> num;
-	vr.setNumVehicle(num);
-	getline(ifs, strTemp);
-
-	ifs.getline(buffer, BUFF_SIZE, ':');
-	ifs >> num;
-	vr.setNumCarrier(num);
-	getline(ifs, strTemp);
-
-	ifs.getline(buffer, BUFF_SIZE, ':');
-	ifs >> num;
-	vr.setNumBilling(num);
-	getline(ifs, strTemp);
-
-	ifs.getline(buffer, BUFF_SIZE, ':');
-	ifs >> num;
-	vr.setNumRegion(num);
-	getline(ifs, strTemp);
-
-	getline(ifs, strTemp);  // EDGE_WEIGHT_TYPE
-	getline(ifs, strTemp);  // EDGE_WEIGHT_FORMAT
-
-	ifs.getline(buffer, BUFF_SIZE, ':');
-	ifs >> num >> strTemp >> num1;
-	vr.setPlanHorizon(num, num1);
-	getline(ifs, strTemp);
-	//readDataSection(vr);
 	readDataSectionProject(vr);
 
 }
 void Input::readDataSection(VehicleRouting &vr)
 {
-	string temp;
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	Client *vi=new Client;
-	vi->nameOfDeliveryCenter = temp;
-
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	// REGIONS
-	string pattern = " ";
-	vector<string> result = split(temp, pattern);
-	for (int i = 0; i < result.size(); i++)
-	{
-		cout << result[i] << ", ";
-		vi = new Client;
-		vi->nameOfDeliveryCenter = result[i];
-		vr.regionMap[result[i]] = i;
-	}
-	//BILLINGS
-	for (int i = 0; i < 18; i++)
-		getline(ifs, temp);
-	//CARRIERS
-	string crid, bid;
-	for (int i = 0; i < vr.getNumCarrier(); i++)
-	{
-		int numIncomRegion;
-		ifs >> crid >> bid >> numIncomRegion;
-		Carrier cr(crid, bid, numIncomRegion);
-		string regionID;
-		for (int j = 0; j < numIncomRegion; j++)
-		{
-			ifs >> regionID;
-			cr.addIncompatRegion(regionID);
-		}
-		vr.carrierVec.push_back(cr);
-		vr.carrierMap[crid] = i;
-	}
-	//VEHICLES
-	ifs >> temp >> temp;
-	string vid;
-	CapacityType cap;
-	CostType cost;
-	for (int i = 0; i < vr.getNumVehicle(); i++)
-	{
-		ifs >> vid >> cap >> cost >> crid;
-		Vehicle ve(vid, crid, cost, cap);
-		vr.vehicleVec.push_back(ve);
-		vr.vehicleMap[vid] = i;
-		cout << vid << " " << cap << " " << cost << " " << crid << endl;
-	}
-	//CLIENTS
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	vr.clientVec.resize(vr.getNumClient());
-	for (int i = 0; i < vr.getNumClient(); i++)
-	{
-		ifs >> vr.clientVec[i];
-		vr.clientMap[vr.clientVec[i].regionID] = i;
-		cout << vr.clientVec[i].PriDCID << endl;
-	}
-	//ORDERS
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	vr.orderVec.resize(vr.getNumOrder());
-	for (int i = 0; i < vr.getNumOrder(); i++)
-	{
-		ifs >> vr.orderVec[i];
-		vr.orderVec[i].setApplierID("c0");	// the applier id is depot c0
-		vr.orderMap[vr.orderVec[i].getID()] = i;
-		cout << vr.orderVec[i].getID() << endl;
-	}
-	//EDGES
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	vr.orderEdge.resize(vr.clientVec.size(), vector<int>(vr.clientVec.size(), -1));
-	while (getline(ifs, temp) && temp != "END")
-	{
-		Edge e;
-		ifs >> e;
-		vr.edgeVec.push_back(e);
-		// add the index of e in edgeVec to adjEdgeVec of clientVec
-		vr.clientVec[vr.clientMap[e.getEdge().first]].adjEdgeVec.push_back(vr.edgeVec.size() - 1);
-		vr.orderEdge[vr.clientMap[e.getEdge().first]][vr.clientMap[e.getEdge().second]] = vr.edgeVec.size() - 1;
-	}
-	printGraph(vr);
-	//vr.dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec);
 }
 
 void Input::readDataSectionProject(VehicleRouting &vr)
 {
-	string temp;
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	Client *vi = new Client;
-	vi->nameOfDeliveryCenter = temp;
-
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	// REGIONS
-	string pattern = " ";
-	vector<string> result = split(temp, pattern);
-	for (int i = 0; i < result.size(); i++)
-	{
-		cout << result[i] << ", ";
-		vi = new Client;
-		vi->nameOfDeliveryCenter = result[i];
-		vr.regionMap[result[i]] = i;
-	}
-	//BILLINGS
-	for (int i = 0; i < 18; i++)
-		getline(ifs, temp);
-	//CARRIERS
-	string crid, bid;
-	for (int i = 0; i < vr.getNumCarrier(); i++)
-	{
-		int numIncomRegion;
-		ifs >> crid >> bid >> numIncomRegion;
-		Carrier cr(crid, bid, numIncomRegion);
-		string regionID;
-		for (int j = 0; j < numIncomRegion; j++)
-		{
-			ifs >> regionID;
-			cr.addIncompatRegion(regionID);
-		}
-		vr.carrierVec.push_back(cr);
-		vr.carrierMap[crid] = i;
-	}
-	//VEHICLES
-	ifs >> temp >> temp;
-	vr.vehicleVec.resize(vr.getNumVehicle());
-	for (int i = 0; i < vr.getNumVehicle(); i++)
-	{
-		ifs >> vr.vehicleVec[i];
-		vr.vehicleMap[vr.vehicleVec[i].VehID] = i;
-	}
+	string line;
+	getline(ifs, line);
+	getline(ifs, line);
+	getline(ifs, line);
 	//CLIENTS
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
 	vr.clientVec.resize(vr.getNumClient());
-	for (int i = 0; i < vr.getNumClient(); i++)
+	for (int i = 0; getline(ifs, line) && line != "END"; i++)
 	{
-		ifs >> vr.clientVec[i];
-		vr.clientMap[vr.clientVec[i].PriDCID] = i;
-		vr.clientNameMap[vr.clientVec[i].clientName] = vr.clientVec[i].PriDCID;
-		cout << vr.clientVec[i].regionID << endl;
-	}
-	//ORDERS
-	getline(ifs, temp);
-	getline(ifs, temp);
-	getline(ifs, temp);
-	vr.orderVec.resize(vr.getNumOrder());
-	for (int i = 0; i < vr.getNumOrder(); i++)
-	{
-		ifs >> vr.orderVec[i];
-		vr.orderVec[i].setApplierID("c0");	// the applier id is depot c0
-		vr.orderMap[vr.orderVec[i].getID()] = i;
-		cout << vr.orderVec[i].getID() << endl;
-	}
+		cout << line << endl;
+		std::stringstream word(line);
+		Client c;
+		word >> c;
+		
+		vr.clientMap[c.PriDCID] = i;
+		vr.clientNameMap[c.clientName] = c.PriDCID;
+		vr.clientVec.push_back(c);
+		//cout << c<< endl;
+	}	
 	//EDGES
-	getline(ifs, temp);
-	getline(ifs, temp);
-	//getline(ifs, temp);
 	vr.orderEdge.resize(vr.clientVec.size(), vector<int>(vr.clientVec.size(), -1));
-	while (getline(ifs, temp) && temp != "END")
+	getline(ifs, line);
+	getline(ifs, line);
+	while (getline(ifs, line) && line != "END")
 	{
+		cout << line << endl;
+		std::stringstream word(line);
 		Edge e;
-		ifs >> e;
-		if (e.getEdge().first == "END")
-			break;
+		word >> e;
 		e.setDistance(calculateDistance(
 			vr.clientVec[vr.clientMap.at(vr.clientNameMap.at(e.getEdge().first))].latitude,
 			vr.clientVec[vr.clientMap.at(vr.clientNameMap.at(e.getEdge().first))].longitude,
@@ -283,7 +84,37 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 			[vr.clientMap.at(vr.clientNameMap.at(e.getEdge().second))] = vr.edgeVec.size() - 1;
 		//ifs >> temp;
 	}
+	
 	vr.serveTimeDuration = Timer::Duration(2);	// 2 hours of service time
+	vr.setNumClient(vr.clientVec.size());
+	int num_vehicle = 7;
+	int num_order = 240;
+	CapacityType cap_base = 10000;
+	SpeedType spe_base = 100;
+	QuantityType qua_base = 300;
+	vr.setNumVehicle(num_vehicle);
+	for (int i = 0; i < num_vehicle; i++)
+	{
+		stringstream ss;
+		ss << i;
+		string str_i = ss.str();
+		string vid = "v";
+		vid.append(str_i);
+		Vehicle v = Vehicle(vid, cap_base + rand() % 3000, spe_base + rand() % 20);
+		vr.vehicleVec.push_back(v);
+		vr.vehicleMap[v.VehID] = i;
+	}
+	for (int i = 0; i < num_order; i++)
+	{
+		stringstream ss;
+		ss << i;
+		string str_i = ss.str();
+		string oid = "v";
+		oid.append(str_i);
+		Order o = Order(oid, qua_base + rand() % 1000);
+		vr.orderVec.push_back(o);
+		vr.orderMap[o.getID()] = i;
+	}
 	printGraph(vr);
 	//vr.dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec);
 }

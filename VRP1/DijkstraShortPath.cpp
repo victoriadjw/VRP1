@@ -52,13 +52,18 @@ void DijkstraShortPath::getShortPath(const ClientID &start_cid, const ClientID &
 	dijkstra_shortest_paths(g, vertex_map[start_cid],
 		predecessor_map(boost::make_iterator_property_map(p.begin(), get(boost::vertex_index, g))).
 		distance_map(boost::make_iterator_property_map(d.begin(), get(boost::vertex_index, g))));
-	/*std::cout << "distances and partents: " << std::endl;
+	//std::cout << "distances and partents: " << std::endl;
 	graph_traits<graph_t>::vertex_iterator vi, vend;
 	for (boost::tie(vi, vend) = vertices(g); vi != vend; vi++)
 	{
-		std::cout << "distance(" << cid_map[*vi] << ")=" << d[*vi] << ",";
-		std::cout << "parent(" << cid_map[*vi] << ")=" << cid_map[p[*vi]] << std::endl;
-	}*/
+		//std::cout << "distance(" << cid_map[*vi] << ")=" << d[*vi] << ",";
+		//std::cout << "parent(" << cid_map[*vi] << ")=" << cid_map[p[*vi]] << std::endl;
+		if (cid_map(*vi) == end_cid)
+		{
+			shortest_distance = d[*vi];
+			break;
+		}
+	}
 	shortest_cid_vec.clear();
 	//cout << start_cid<<" " << vertex_map[start_cid] << ", "<<end_cid<<" " << vertex_map[end_cid] << endl;
 	vertex_descriptor vd;

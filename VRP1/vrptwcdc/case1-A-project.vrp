@@ -1,489 +1,274 @@
-NAME: case1-A
-TYPE: HVRPFDTW 
-COMMENT: original
-NUM_CLIENTS: 31
-NUM_ORDERS: 164
-NUM_VEHICLES: 7
-NUM_CARRIERS: 4
-NUM_BILLINGS: 6
-NUM_REGIONS: 19
-EDGE_WEIGHT_TYPE: EXPLICIT
-EDGE_WEIGHT_FORMAT: FULL_MATRIX
-PLAN_HORIZON: 1 - 3;
+MAP INFORMATION
 
-DATA_SECTION
+CLIENTS [client_id][client_name][longitude][latitude]:
+c0	BaoTou 109.83	40.65
+c1	BeiJing 116.4	39.9
+c2	HaErBin	126.53	45.8
+c3	ChangChun	125.32	43.9
+c4	ShenYang	123.43	41.8
+c5	ShiJiaZhuang	114.52	38.05
+c6	TaiYuan	117.2	39.12
+c7	JiNan	116.98	36.67
+c8	ZhengZhou	113.62	34.75
+c9	XiAn	108.93	34.27
+c10	HeFei	117.25	31.83
+c11	NanJing	118.78	32.07
+c12	ShangHai	121.47	31.23
+c13	HangZhou	120.15	30.28
+c14	ChengDu	104.07	30.67
+c15	ChongQing	106.55	29.57
+c16	ChangSha	112.93	28.23
+c17	NanChang	115.85	28.68
+c18	GuiYang	106.63	26.65
+c19	FuZhou	119.3	26.08
+c20	XiaMen	118.08	24.48
+c21	GuangZhou	113.27	23.13
+c22	NanNing	108.37	22.82
+c23 YinChuan	106.28	38.47
+c24 LanZhou	103.82	36.07
+c25 HuHeHaoTe	111.73	40.83
+c26 JiLin	126.55	43.83
+c27 TianJin	117.2	39.12
+C28 XiNing	101.78	36.62
+c29 WuHan	114.3	30.6
+c30 KunMing	102.72	25.05
+END
 
-DEPOT_SECTION [depot_id]: 
-BaoTou
-
-REGIONS [region_id]: 
-r7 r9 r13 r14 r15 r24 r26 r32 r21 r23 r37 r39 r40 r42 r45 r47 r49 r54 r55
-
-BILLINGS_DATA:
-b1 bt1 [dist_cost_coeff]:
-0.732 
-b1x bt1 [dist_cost_coeff]:
-0.685 
-b2 bt2 [dist_cost_coeff][percentage_value] [number_of_load bands][load_cost_coeff]:
-0.88 0.9 1
-0.026 0.026 0.026 0.026 0.03 2.85 4.07 3.7 3.9 0 0.03 3.25 4.07 3.7 2.85 3.25 0.026 2.85 0.03
-b3 bt3 [number of load bands][value_load_band]:	
-2 8000
-0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026; 0.031 0.026;
-b4 bt4 [load_cost_coeff]
-0.031 0.031 0.031 0.031 0.043 3.5 4.8 0.043 0.043 0.04 0.04 0.043 4.8 0.043 3.3 0.04 0.031 3.3 0.043
-b5 bt5 [load_cost_coeff]
-0.031 0.031 0.031 0.031 0.043 3.5 4.8 0.043 0.043 0.04 0.04 0.043 4.8 0.043 3.3 0.04 0.031 3.3 0.043
-
-CARRIERS [carrier_id][billing_id][num_incompatible_regions][list_incompatible_regions]:
-cr1 b1 0 
-cr2 b2 1 r23
-cr3 b3 12 r15 r24 r26 r32 r21 r23 r37 r39 r40 r42 r47 r55
-cr4 b4 0
-
-VEHICLES [vehicle_id][capacity][cost][carrier_id][vehicle_speed]:
-v1 50000 100 cr4	100
-v2 15000 300 cr2	120
-v3 16000 300 cr2	105
-v4 20000 500 cr2	110
-v5 25000 1000 cr2	108
-v6 14000 300 cr1	120
-v7 10000 100 cr3	115
-
-CLIENTS [client_id][region_id][ready_time][due_date][service_duration[min]]:
-c0	BaoTou    360 1020 0	109.83	40.65
-c1	BeiJing   420 1020 60	116.4	39.9
-c2	HaErBin   420 1020 60	126.53	45.8
-c3	ChangChun   420 1020 60	125.32	43.9
-c4	ShenYang   420 1020 60	123.43	41.8
-c5	ShiJiaZhuang  420 1020 60	114.52	38.05
-c6	TaiYuan  420 1020 60	117.2	39.12
-c7	JiNan  420 1020 60	116.98	36.67
-c8	ZhengZhou  420 1020 60	113.62	34.75
-c9	XiAn  420 1020 60	108.93	34.27
-c10	HeFei  420 1020 60	117.25	31.83
-c11	NanJing  420 1020 60	118.78	32.07
-c12	ShangHai  420 1020 60	121.47	31.23
-c13	HangZhou  420 1020 60	120.15	30.28
-c14	ChengDu  420 1020 60	104.07	30.67
-c15	ChongQing  420 1020 60	106.55	29.57
-c16	ChangSha  420 1020 60	112.93	28.23
-c17	NanChang  420 1020 60	115.85	28.68
-c18	GuiYang  420 1020 60	106.63	26.65
-c19	FuZhou  420 1020 60	119.3	26.08
-c20	XiaMen  420 1020 60	118.08	24.48
-c21	GuangZhou  420 1020 60	113.27	23.13
-c22	NanNing  420 1020 60	108.37	22.82
-c23 YinChuan	 420 1020 60	106.28	38.47
-c24 LanZhou	420 1020 60	103.82	36.07
-c25 HuHeHaoTe	420 1020 60	111.73	40.83
-c26 JiLin	420 1020 60	126.55	43.83
-c27 TianJin	420 1020 60	117.2	39.12
-C28 XiNing	420 1020 60	101.78	36.62
-c29 WuHan	420 1020 60	114.3	30.6
-c30 KunMing	420 1020 60	102.72	25.05
-
-ORDERS [order_id][client_id][quantity][mandatory][ready_date][due_date]:
-o0     c56  2109 0 3 3  
-o1    c768   281 0 1 1  
-o2    c481  1909 0 3 3
-o3    c301  2324 0 1 1
-o4    c683   226 1 3 3
-o5     c97   391 0 1 1
-o6     c60  2872 0 3 3
-o7    c516   347 0 1 1
-o8    c516   235 0 3 3
-o9    c516   162 0 1 1
-o10   c272   118 0 3 3
-o11   c961   149 0 1 1
-o12   c304   139 0 3 3
-o13   c304   897 0 1 1
-o14   c855 24214 1 3 3
-o15   c188  1569 0 1 1
-o16   c738   483 0 3 3
-o17   c819  1264 0 1 1
-o18   c438   149 0 3 3
-o19   c304  1015 1 1 1
-o20   c304   336 0 3 3
-o21   c304   155 0 1 1
-o22   c751   875 0 3 3
-o23    c39   714 0 1 1
-o24    c56  2399 0 3 3
-o25   c304    79 0 1 1
-o26  c1034   709 0 3 3
-o27  c1000  2519 1 1 1
-o28   c854   230 0 3 3
-o29   c837   328 0 1 1
-o30    c50   411 0 3 3
-o31   c516   719 0 1 1
-o32   c683   720 0 3 3
-o33   c516   488 0 1 1
-o34   c516   520 0 3 3
-o35   c516   136 0 1 1
-o36    c51   846 1 3 3
-o37    c51   634 0 1 1
-o38   c768  1099 0 3 3
-o39   c357   450 0 1 1
-o40   c357   251 0 3 3
-o41   c357   194 0 1 1
-o42    c56   282 0 3 3
-o43   c872   330 0 1 1
-o44   c703   188 0 3 3
-o45   c703   245 0 1 1
-o46   c703   539 0 3 3
-o47   c703   790 1 1 1
-o48   c703   802 0 3 3
-o49   c703   207 0 1 1
-o50   c703   227 0 3 3
-o51   c371   646 0 1 1
-o52   c710  1615 0 3 3
-o53   c710  1615 0 1 1
-o54   c683   431 0 3 3
-o55   c837  2424 0 1 1
-o56    c75   391 1 3 3
-o57   c403   738 0 1 1
-o58   c403   428 0 3 3
-o59   c403   176 0 1 1
-o60   c272   400 0 3 3
-o61   c314   135 0 1 1
-o62    c51   301 0 3 3
-o63   c876   248 1 1 1
-o64   c683   529 1 3 3
-o65   c397   314 0 1 1
-o66   c683  1466 0 3 3
-o67   c516    87 0 1 1
-o68   c516   225 0 3 3
-o69   c518 13568 0 1 1
-o70   c518  5102 0 3 3
-o71   c518 13431 0 1 1
-o72  c1000  2202 0 2 2
-o73   c516   213 1 2 2
-o74    c83   454 0 3 3
-o75    c83   132 0 2 2
-o76    c83   346 0 2 2
-o77   c683   116 0 3 3
-o78   c683   625 0 2 2
-o79   c683   246 0 2 2
-o80   c683   292 1 3 3
-o81   c683   503 0 2 2
-o82   c683   222 0 2 2
-o83   c942  1906 0 3 3
-o84   c748  2478 0 2 2
-o85   c748  3530 0 2 2
-o86   c751   576 1 3 3
-o87   c683   598 0 2 2
-o88   c684   890 0 2 2
-o89   c684   251 0 3 3
-o90   c700   206 0 2 2
-o91   c876   267 0 2 2
-o92   c687  1239 0 3 3
-o93   c751   484 0 2 2
-o94   c742   375 0 2 2
-o95   c304   665 1 3 3
-o96   c304   522 0 3 3
-o97   c114    99 0 3 3
-o98   c114   883 0 2 2
-o99   c114  1004 0 3 3
-o100  c114  1724 0 2 2
-o101  c114   952 0 3 3
-o102  c683   349 0 2 2
-o103  c683   260 0 3 3
-o104  c683   126 0 2 2
-o105  c683   139 1 3 3
-o106  c683   342 0 2 2
-o107  c961   394 0 2 2
-o108  c961   387 0 2 2
-o109  c551  2165 0 2 2
-o110  c739   286 0 2 2
-o111  c739   742 0 2 2
-o112  c739   715 0 2 2
-o113  c574  4672 0 2 2
-o114  c961   387 0 2 2
-o115  c961   259 0 2 2
-o116  c818   459 0 2 2
-o117  c692   201 1 2 2
-o118   c83    88 0 2 2
-o119   c83   143 0 2 2
-o120   c83   129 0 2 2
-o121   c83   114 0 2 2
-o122   c83   172 0 2 2
-o123  c301  3153 0 2 2
-o124 c1000  2056 0 2 2
-o125 c1000   437 0 2 2
-o126 c1000  3598 0 2 2
-o127  c710  1146 0 2 2
-o128  c710  1368 0 3 3
-o129  c710  1678 0 2 2
-o130  c710  1226 0 2 2
-o131  c481  3654 0 2 2
-o132  c231  1085 0 2 2
-o133  c588   270 0 2 2
-o134  c683  1005 0 2 2
-o135  c683   472 1 2 2
-o136  c683   571 0 2 2
-o137  c683   313 0 2 2
-o138  c683   792 0 2 2
-o139  c683   720 0 2 2
-o140  c683   208 0 2 2
-o141  c683   370 0 2 2
-o142  c683   669 0 2 2
-o143 c1000  9156 0 2 2
-o144  c516   107 1 2 2
-o145  c516   202 0 2 2
-o146  c913  1205 0 2 2
-o147  c913  1215 0 2 2
-o148  c913  1205 0 2 2
-o149  c751  1064 0 2 2
-o150  c751   421 0 2 2
-o151  c751   490 0 2 2
-o152  c751   223 0 2 2
-o153  c319  3432 0 2 2
-o154  c768   578 0 2 2
-o155  c327   225 1 2 2
-o156  c327   277 0 2 2
-o157  c327   167 0 2 2
-o158  c327  1005 0 2 2
-o159  c327   979 0 3 3
-o160  c327   264 0 3 3
-o161  c248  1560 0 2 2
-o162  c855 24214 1 2 2
-o163  c327   504 0 2 2
-
-EDGE_WEIGHT_SECTION [client1_id][client2_id][distance[km]][time_distance[sec]]:
-BeiJing BaoTou 213.688 7358
-BeiJing ShenYang 140.397 9995
-BeiJing TaiYuan 156.686 6312
-BeiJing ShiJiaZhuang 143.451 6093
-BeiJing YinChuan 242.361 10031
-BeiJing TianJin 242.361 10031
-BeiJing JiNan 242.361 10031
-BaoTou BeiJing	227.787 9379
-BaoTou HuHeHaoTe 251.384 10150
-BaoTou ShiJiaZhuang 237.815 10163
-BaoTou TaiYuan 263.805 12067
-BaoTou YinChuan 149.872 6776
-BaoTou XiAn 149.872 6776
-HuHeHaoTe BaoTou 143.907 9485
-HuHeHaoTe BeiJing 143.006 6431
-HuHeHaoTe YinChuan 14.213 788
-HuHeHaoTe TaiYuan 10.196 797
-HuHeHaoTe ShiJiaZhuang 264.444 15620
-ShenYang BeiJing 90.3 6035
-ShenYang ChangChun 228.402 12592
-ShenYang JiLin 208.069 10613
-ChangChun ShenYang 109.33 6030
-ChangChun JiLin 384.955 16392
-ChangChun HaErBin 381.823 15594
-JiLin ShenYang 373.825 19492
-JiLin ChangChun 33.015 2286
-HaErBin	ChangChun 23.597 1334
-TianJin BeiJing 36.575 2501
-TianJin ShiJiaZhuang 33.344 2073
-TianJin JiNan 133.363 9238
-TianJin ZhengZhou 133.363 9238
-ShiJiaZhuang HuHeHaoTe 120.813 5209
-ShiJiaZhuang BeiJing 271.275 12907
-ShiJiaZhuang TaiYuan 14.004 945
-ShiJiaZhuang TianJin 10.22 567
-ShiJiaZhuang JiNan 11.299 761
-ShiJiaZhuang ZhengZhou 11.299 761
-ShiJiaZhuang BaoTou 11.299 761
-ShiJiaZhuang XiAn 11.299 761
-ShiJiaZhuang HeFei 11.299 761
-TaiYuan ShiJiaZhuang 61.692 3718
-TaiYuan BeiJing 58.843 3503
-TaiYuan HuHeHaoTe 72.104 4090
-TaiYuan BaoTou 63.161 2697
-TaiYuan YinChuan 47.438 2670
-TaiYuan XiAn 47.438 2670
-TaiYuan ZhengZhou 83.31 3195
-YinChuan BaoTou 83.025 3395
-YinChuan HuHeHaoTe 67.408 3063
-YinChuan TaiYuan 268.128 15720
-YinChuan BeiJing 217.88 11303
-YinChuan XiNing 232.26 13118
-YinChuan XiAn 213.688 7358
-YinChuan LanZhou 0 0
-YinChuan ZhengZhou 195.292 9790
-JiNan TianJin 66.689 3541
-JiNan BeiJing 89.775 3937
-JiNan TaiYuan 29.468 2435
-JiNan ShiJiaZhuang 40.377 3121
-JiNan HeFei 50.865 4137
-JiNan NanJing 47.439 3918
-JiNan ZhengZhou 70.883 4929
-JiNan ShangHai 70.883 4929
-XiNing YinChuan 108.539 5174
-XiNing LanZhou 143.39 7434
-LanZhou YinChuan 106.818 5073
-LanZhou XiAn 204.054 7322
-LanZhou XiNing 143.39 7434
-XiAn ChangSha 208.674 8023
-XiAn WuHan 403.454 26729
-XiAn HeFei 288.87 13882
-XiAn ZhengZhou 309.323 20523
-XiAn ShiJiaZhuang 286.158 17688
-XiAn TaiYuan 167.439 9430
-XiAn HuHeHaoTe 199.043 9666
-XiAn BaoTou 184.621 8018
-XiAn YinChuan 176.668 8562
-XiAn LanZhou 242.044 10573
-XiAn ChengDu 219.836 9099
-XiAn ChongQing 241.444 10703
-NanJing JiNan 212.098 8789
-NanJing ZhengZhou 330.86 17316
-NanJing HeFei 324.808 16291
-NanJing HangZhou 60.54 5149
-NanJing ShangHai 226.41 8502
-NanJing FuZhou 226.41 8502
-ShangHai JiNan 219.553 8820
-ShangHai ZhengZhou 222.297 7956
-ShangHai NanJing 200.32 8163
-ShangHai HeFei 197.309 7936
-ShangHai WuHan 200.633 8412
-ShangHai HangZhou 184.034 7570
-HeFei ShangHai 188.102 7357
-HeFei NanJing 135.616 5875
-HeFei JiNan 136.055 5915
-HeFei ShiJiaZhuang 161.925 6390
-HeFei ZhengZhou 408.038 26944
-HeFei XiAn 312.3 21800
-HeFei ChengDu 313.954 20983
-HeFei ChongQing 195.292 9790
-HeFei WuHan 140.397 9995
-HeFei NanChang 0 0
-HeFei HangZhou 137.652 7671
-HeFei ChangSha 110.506 7653
-HeFei FuZhou 215.813 9492
-HeFei XiaMen 176.377 7626
-ChengDu XiAn 192.901 7589
-ChengDu LanZhou 176.624 6652
-ChengDu WuHan 197.405 7795
-ChengDu ChongQing 87.097 6222
-ChengDu KunMing 58.805 4790
-ChengDu GuiYang 93.129 5020
-ChengDu HeFei 139.861 10306
-ChengDu ZhengZhou 139.861 10306
-ZhengZhou JiNan 130.106 9643
-ZhengZhou TianJin 214.569 16263
-ZhengZhou ShiJiaZhuang 228.826 14950
-ZhengZhou TaiYuan 123.871 8650
-ZhengZhou YinChuan 103.602 6234
-ZhengZhou XiAn 161.77 6876
-ZhengZhou ChengDu 289.432 11578
-ZhengZhou ChongQing 302.471 12159
-ZhengZhou WuHan 281.171 10313
-ZhengZhou HeFei 169.809 11636
-ZhengZhou NanJing 158.987 12532
-ZhengZhou ShangHai 175.957 12408
-ZhengZhou ChangSha 175.957 12408
-ZhengZhou GuiYang 175.957 12408
-ChongQing ChengDu 161.853 11018
-ChongQing XiAn 268.914 16819
-ChongQing ZhengZhou 255.721 14950
-ChongQing HeFei 217.422 10085
-ChongQing WuHan 153.177 11391
-ChongQing ChangSha 150.454 11056
-ChongQing NanChang 148.454 9684
-ChongQing GuiYang 149.95 10389
-ChongQing KunMing 147.183 10187
-ChongQing GuangZhou 153.624 9914
-WuHan XiAn 135.208 8657
-WuHan ZhengZhou 137.857 9586
-WuHan JiNan 104.001 4374
-WuHan HeFei 104.44 4414
-WuHan ShangHai 119.262 7667
-WuHan HangZhou 218.837 16346
-WuHan NanChang 125.909 7357
-WuHan GuangZhou 127.793 8739
-WuHan ChangSha 156.686 6312
-WuHan GuiYang 66.689 3541
-WuHan ChongQing 137.652 7671
-WuHan ChengDu 0 0
-WuHan GuiYang 0 0
-HangZhou ShangHai 33.285 2265
-HangZhou NanJing 95.282 6216
-HangZhou HeFei 82.372 5643
-HangZhou WuHan 104.417 4475
-HangZhou NanChang 92.4 6427
-HangZhou FuZhou 118.39 8331
-HangZhou XiaMen 53.351 3418
-HangZhou GuangZhou 87.647 6057
-HangZhou ChangSha 87.647 6057
-NanChang HangZhou 147.359 6351
-NanChang ShangHai 151.979 7052
-NanChang HeFei 346.964 25057
-NanChang NanJing 232.175 12911
-NanChang WuHan 256.655 18180
-NanChang ChangSha 232.819 15274
-NanChang ChongQing 104.747 6933
-NanChang NanNing 249.114 17870
-NanChang GuangZhou 235.165 8652
-NanChang XiaMen 227.212 9196
-NanChang FuZhou 185.349 9602
-ChangSha ZhengZhou 163.141 8128
-ChangSha WuHan 184.442 9657
-ChangSha HeFei 155.403 7818
-ChangSha NanJing 274.165 16345
-ChangSha NanChang 268.113 15320
-ChangSha HangZhou 124.308 7232
-ChangSha FuZhou 169.715 7531
-ChangSha XiaMen 162.858 7849
-ChangSha GuangZhou 165.295 6910
-ChangSha NanNing 143.318 7117
-ChangSha GuiYang 140.614 6965
-ChangSha ChongQing 141.829 8698
-ChangSha XiAn 127.339 6599
-GuiYang KunMing 131.407 6386
-GuiYang ChengDu 78.921 4904
-GuiYang ChongQing 79.36 4944
-GuiYang ZhengZhou 105.23 5419
-GuiYang WuHan 351.137 25249
-GuiYang ChangSha 258.789 13514
-GuiYang FuZhou 260.615 18569
-GuiYang XiaMen 143.451 6093
-GuiYang GuangZhou 89.775 3937
-GuiYang NanNing 110.506 7653
-FuZhou KunMing 33.285 2265
-FuZhou GuiYang 0 0
-FuZhou ChangSha 118.342 6839
-FuZhou NanChang 95.219 5244
-FuZhou HeFei 119.767 6867
-FuZhou NanJing 103.744 6059
-FuZhou HangZhou 128.951 7997
-FuZhou XiaMen 23.397 1413
-FuZhou GuangZhou 57.155 3585
-FuZhou NanNing 20.506 1248
-KunMing ChengDu 133.595 6257
-KunMing ChongQing 138.215 6958
-KunMing GuiYang 321.676 23145
-KunMing FuZhou 218.411 12817
-KunMing NanNing 226.701 16175
-KunMing XiaMen 202.949 13197
-KunMing GuangZhou 104.45 5729
-NanNing KunMing 249.826 11827
-NanNing GuiYang 249.16 11866
-NanNing ChangSha 240.532 15478
-NanNing NanChang 171.585 9508
-NanNing FuZhou 149.377 8034
-NanNing GuangZhou 171.207 9438
-GuangZhou NanNing 141.639 7724
-GuangZhou KunMing 260.401 16251
-GuangZhou GuiYang 254.349 15226
-GuangZhou ChongQing 142.771 9601
-GuangZhou ChangSha 155.951 7437
-GuangZhou WuHan 149.094 7755
-GuangZhou NanChang 152.06 6691
-GuangZhou HangZhou 130.083 6898
-GuangZhou FuZhou 126.85 6871
-GuangZhou XiaMen 130.174 7347
-XiaMen GuangZhou 113.575 6505
-XiaMen KunMing 117.643 6292
-XiaMen ChongQing 65.48 4472
-XiaMen GuiYang 65.919 4512
-XiaMen ChangSha 91.466 5325
-XiaMen NanChang	325.822 23123
-XiaMen HeFei 229.091 17309
-XiaMen HangZhou 230.745 16492
-XiaMen FuZhou 242.361 10031
+EDGE_WEIGHT_SECTION [client_name1][client_name2]
+BeiJing BaoTou
+BeiJing ShenYang
+BeiJing TaiYuan
+BeiJing ShiJiaZhuang
+BeiJing YinChuan
+BeiJing TianJin
+BeiJing JiNan 
+BaoTou BeiJing
+BaoTou HuHeHaoTe
+BaoTou ShiJiaZhuang
+BaoTou TaiYuan
+BaoTou YinChuan
+BaoTou XiAn 
+HuHeHaoTe BaoTou
+HuHeHaoTe BeiJing
+HuHeHaoTe YinChuan
+HuHeHaoTe TaiYuan 
+HuHeHaoTe ShiJiaZhuang
+ShenYang BeiJing 
+ShenYang ChangChun
+ShenYang JiLin 
+ChangChun ShenYang
+ChangChun JiLin
+ChangChun HaErBin
+JiLin ShenYang 
+JiLin ChangChun
+HaErBin	ChangChun
+TianJin BeiJing
+TianJin ShiJiaZhuang
+TianJin JiNan
+TianJin ZhengZhou
+ShiJiaZhuang HuHeHaoTe
+ShiJiaZhuang BeiJing
+ShiJiaZhuang TaiYuan
+ShiJiaZhuang TianJin
+ShiJiaZhuang JiNan
+ShiJiaZhuang ZhengZhou
+ShiJiaZhuang BaoTou
+ShiJiaZhuang XiAn
+ShiJiaZhuang HeFei
+TaiYuan ShiJiaZhuang
+TaiYuan BeiJing
+TaiYuan HuHeHaoTe
+TaiYuan BaoTou
+TaiYuan YinChuan
+TaiYuan XiAn
+TaiYuan ZhengZhou
+YinChuan BaoTou
+YinChuan HuHeHaoTe
+YinChuan TaiYuan
+YinChuan BeiJing
+YinChuan XiNing
+YinChuan XiAn
+YinChuan LanZhou
+YinChuan ZhengZhou
+JiNan TianJin 
+JiNan BeiJing
+JiNan TaiYuan 
+JiNan ShiJiaZhuang 
+JiNan HeFei 
+JiNan NanJing 
+JiNan ZhengZhou 
+JiNan ShangHai 
+XiNing YinChuan 
+XiNing LanZhou 
+LanZhou YinChuan 
+LanZhou XiAn 
+LanZhou XiNing 
+XiAn ChangSha 
+XiAn WuHan 
+XiAn HeFei
+XiAn ZhengZhou 
+XiAn ShiJiaZhuang 
+XiAn TaiYuan 
+XiAn HuHeHaoTe 
+XiAn BaoTou 
+XiAn YinChuan 
+XiAn LanZhou 
+XiAn ChengDu 
+XiAn ChongQing 
+NanJing JiNan
+NanJing ZhengZhou
+NanJing HeFei 
+NanJing HangZhou 
+NanJing ShangHai 
+NanJing FuZhou
+ShangHai JiNan 
+ShangHai ZhengZhou
+ShangHai NanJing
+ShangHai HeFei
+ShangHai WuHan 
+ShangHai HangZhou 
+HeFei ShangHai
+HeFei NanJing
+HeFei JiNan 
+HeFei ShiJiaZhuang 
+HeFei ZhengZhou 
+HeFei XiAn
+HeFei ChengDu 
+HeFei ChongQing 
+HeFei WuHan 
+HeFei NanChang
+HeFei HangZhou 
+HeFei ChangSha 
+HeFei FuZhou 
+HeFei XiaMen 
+ChengDu XiAn
+ChengDu LanZhou 
+ChengDu WuHan 
+ChengDu ChongQing 
+ChengDu KunMing 
+ChengDu GuiYang 
+ChengDu HeFei
+ChengDu ZhengZhou 
+ZhengZhou JiNan 
+ZhengZhou TianJin 
+ZhengZhou ShiJiaZhuang 
+ZhengZhou TaiYuan 
+ZhengZhou YinChuan
+ZhengZhou XiAn 
+ZhengZhou ChengDu 
+ZhengZhou ChongQing 
+ZhengZhou WuHan 
+ZhengZhou HeFei 
+ZhengZhou NanJing 
+ZhengZhou ShangHai
+ZhengZhou ChangSha
+ZhengZhou GuiYang 
+ChongQing ChengDu 
+ChongQing XiAn 
+ChongQing ZhengZhou
+ChongQing HeFei 
+ChongQing WuHan 
+ChongQing ChangSha
+ChongQing NanChang
+ChongQing GuiYang 
+ChongQing KunMing 
+ChongQing GuangZhou
+WuHan XiAn 
+WuHan ZhengZhou
+WuHan JiNan 
+WuHan HeFei 
+WuHan ShangHai 
+WuHan HangZhou 
+WuHan NanChang 
+WuHan GuangZhou
+WuHan ChangSha
+WuHan GuiYang 
+WuHan ChongQing
+WuHan ChengDu 
+WuHan GuiYang 
+HangZhou ShangHai
+HangZhou NanJing
+HangZhou HeFei 
+HangZhou WuHan 
+HangZhou NanChang
+HangZhou FuZhou 
+HangZhou XiaMen 
+HangZhou GuangZhou
+HangZhou ChangSha 
+NanChang HangZhou 
+NanChang ShangHai 
+NanChang HeFei 
+NanChang NanJing 
+NanChang WuHan 
+NanChang ChangSha 
+NanChang ChongQing
+NanChang NanNing 
+NanChang GuangZhou
+NanChang XiaMen 
+NanChang FuZhou 
+ChangSha ZhengZhou
+ChangSha WuHan 
+ChangSha HeFei 
+ChangSha NanJing 
+ChangSha NanChang
+ChangSha HangZhou
+ChangSha FuZhou 
+ChangSha XiaMen 
+ChangSha GuangZhou
+ChangSha NanNing 
+ChangSha GuiYang 
+ChangSha ChongQing
+ChangSha XiAn 
+GuiYang KunMing 
+GuiYang ChengDu 
+GuiYang ChongQing
+GuiYang ZhengZhou
+GuiYang WuHan 
+GuiYang ChangSha
+GuiYang FuZhou 
+GuiYang XiaMen 
+GuiYang GuangZhou
+GuiYang NanNing
+FuZhou KunMing 
+FuZhou GuiYang 
+FuZhou ChangSha
+FuZhou NanChang
+FuZhou HeFei 
+FuZhou NanJing 
+FuZhou HangZhou
+FuZhou XiaMen 
+FuZhou GuangZhou
+FuZhou NanNing 
+KunMing ChengDu 
+KunMing ChongQing
+KunMing GuiYang
+KunMing FuZhou 
+KunMing NanNing
+KunMing XiaMen 
+KunMing GuangZhou
+NanNing KunMing 
+NanNing GuiYang 
+NanNing ChangSha 
+NanNing NanChang 
+NanNing FuZhou 
+NanNing GuangZhou 
+GuangZhou NanNing 
+GuangZhou KunMing 
+GuangZhou GuiYang 
+GuangZhou ChongQing 
+GuangZhou ChangSha 
+GuangZhou WuHan 
+GuangZhou NanChang 
+GuangZhou HangZhou 
+GuangZhou FuZhou 
+GuangZhou XiaMen 
+XiaMen GuangZhou 
+XiaMen KunMing 
+XiaMen ChongQing 
+XiaMen GuiYang 
+XiaMen ChangSha 
+XiaMen NanChang	
+XiaMen HeFei 
+XiaMen HangZhou 
+XiaMen FuZhou 
 END

@@ -2,12 +2,15 @@
 
 std::istream& operator>>(std::istream &is, Client &c)
 {
-	int temp;
-	is >> c.PriDCID >> c.clientName >> c.timeWindow.first
-		//>> c.timeWindow.second >> c.servTime
-		>> c.timeWindow.second >> temp
+	is >> c.PriDCID >> c.clientName 
 		>> c.longitude >> c.latitude;
 	return is;
+}
+std::ostream& operator<<(std::ostream &os, const Client &c)
+{
+	os << c.PriDCID << "\t" << c.clientName << "\t"
+		<< c.longitude << "\t" << c.latitude;
+	return os;
 }
 std::ostream& operator<<(std::ostream &is, const Edge &e)
 {
