@@ -84,10 +84,10 @@ void Solver::initSolution(const int &sol_num)
 						continue;
 					if (inserMandatoryOrder(solution, rin_op, *oid_iter))
 					{
+						//checkRoute(solution, rin_op);
 						oid_iter = solution.routeVec[rin].serveOrderList.erase(oid_iter);
 						is_inserted = true;
 						break;
-						//checkRoute(solution, rin_op);
 					}
 				}
 				if (!is_inserted)
@@ -810,7 +810,35 @@ bool Solver::inserMandatoryOrder(Solution &solution, const int &rin, const Order
 		return false;
 	// this client id has already existed in this route
 	if (solution.routeVec[rin].visitClientIDSet.count(vr.orderVec[vr.orderMap.at(oid)].getRequestID()) == 1)
-	{
+	{		
+		// check if the order in the back is tardy
+		for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
+			sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
+		{
+			if (sc_iter->visitClientID == vr.orderVec[vr.orderMap.at(oid)].getRequestID())
+			{
+				// check if this order oid is tardy
+				if (!sc_iter->arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(oid)].getDueTime()))
+					return false;
+				if (sc_iter->loadOrderID.size() == 0 && sc_iter->unloadOrderID.size() == 0)
+				{
+					for (list<ServeClient>::iterator sc_add_iter = sc_iter;
+						sc_add_iter != solution.routeVec[rin].serveClientList.end(); sc_add_iter++)
+					{
+						for (vector<OrderID>::iterator oid_iter = sc_add_iter->unloadOrderID.begin();
+							oid_iter != sc_add_iter->unloadOrderID.end(); oid_iter++)
+						{
+							if (!Timer(vr.serveTimeDuration, sc_add_iter->arrivalTime).isAhead(vr.orderVec[vr.orderMap.at(*oid_iter)].getDueTime()))
+							{
+								return false;
+							}
+						}
+					}
+				}
+				else
+					break;
+			}
+		}
 		for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
 			sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
 		{

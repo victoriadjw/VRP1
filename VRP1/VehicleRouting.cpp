@@ -49,7 +49,7 @@ void VehicleRouting::modifyOrder()
 	numMandaOrder = numOptionalOrder = 0;
 	for (vector<Order>::iterator iter = orderVec.begin(); iter != orderVec.end(); iter++)
 	{
-		if (rand() % 4 == 0) // change the order to mandatory with probability of 1/4
+		if (rand() % 6 == 0) // change the order to mandatory with probability of 1/6
 		{
 			(*iter).setOrderType(OrderType::Mandatory);
 			int rand_cid = rand() % (clientVec.size() - 1) + 1;
