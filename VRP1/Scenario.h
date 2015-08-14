@@ -112,6 +112,7 @@ public:
 	QuantityType getQuantity()const{ return OrdDemandAmount; }
 	OrderType getOrderType()const{ return orderType; }
 	CostType getOrderValue()const{ return orderValue; }
+	void setOrderValue(const CostType &ov){ orderValue = ov; }
 	void setApplierID(const ClientID &aid){ OrdSupDisCenter = aid; }
 	void setResquestID(const ClientID &rid){ OrdDemDisCenter = rid; }
 	void setOrderType(const OrderType &t){ orderType = t; }

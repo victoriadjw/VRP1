@@ -42,7 +42,6 @@ std::istream& operator>>(std::istream &is, Order &o)
 	is >> o.OrdID >> o.OrdDemDisCenter >> o.OrdDemandAmount
 		>> ot >> temp >> temp >> o.readyTime >> o.dueTime;
 	o.orderType = ot == 1 ? OrderType::Mandatory : OrderType::Optional;
-	o.orderValue = 300;
 	return is;
 }
 std::ostream& operator<<(std::ostream &is, const Order &o)

@@ -109,9 +109,10 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 		stringstream ss;
 		ss << i;
 		string str_i = ss.str();
-		string oid = "v";
+		string oid = "o";
 		oid.append(str_i);
 		Order o = Order(oid, qua_base + rand() % 1000);
+		o.setOrderValue(300 + rand() % 500);
 		vr.orderVec.push_back(o);
 		vr.orderMap[o.getID()] = i;
 	}
