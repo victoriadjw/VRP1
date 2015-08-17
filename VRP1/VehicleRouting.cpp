@@ -1,18 +1,20 @@
 #include "VehicleRouting.h"
 #include<algorithm>
 
-void VehicleRouting::setName(const string &_name){ name = _name; }
-void VehicleRouting::setNumBilling(const int &_numBilling){	numBilling = _numBilling;}
-void VehicleRouting::setNumCarrier(const int &_numCarrier){	numCarrier = _numCarrier;}
-void VehicleRouting::setNumClient(const int &_numClient){ numClient = _numClient;}
-void VehicleRouting::setNumOrder(const int &_numOrder){	numOrder = _numOrder;}
-void VehicleRouting::setNumVehicle(const int &_numVehicle){	numVehicle = _numVehicle;}
-void VehicleRouting::setNumRegion(const int &_numRegion){ numRegion = _numRegion;}
-void VehicleRouting::setPlanHorizon(const int &start, const int &end)
+void VehicleRouting::setName(const string _name){ name = _name; }
+void VehicleRouting::setNumBilling(const int _numBilling){	numBilling = _numBilling;}
+void VehicleRouting::setNumCarrier(const int _numCarrier){	numCarrier = _numCarrier;}
+void VehicleRouting::setNumClient(const int _numClient){ numClient = _numClient;}
+void VehicleRouting::setNumOrder(const int _numOrder){	numOrder = _numOrder;}
+void VehicleRouting::setNumVehicle(const int _numVehicle){	numVehicle = _numVehicle;}
+void VehicleRouting::setNumRegion(const int _numRegion){ numRegion = _numRegion;}
+void VehicleRouting::setPlanHorizon(const int start, const int end)
 {
 	CyclePlan .first = start;
 	CyclePlan .second = end;
 }
+void VehicleRouting::setNumMandaOrder(const int nm){ numMandaOrder = nm; }
+void VehicleRouting::setNumOptionalOrder(const int no){ numOptionalOrder = no; }
 
 int VehicleRouting::getNumClient()const{ return numClient; }
 int VehicleRouting::getNumOrder()const{ return numOrder; }
@@ -126,4 +128,35 @@ vector<int> VehicleRouting::getMandatoryOrderIndexVec()const
 vector<int> VehicleRouting::getOptionalOrderIndexVec()const
 {
 	return optionalOrderIndexVec;
+}
+void VehicleRouting::printVehicleRouting(std::ostream &os)
+{
+	os << Timer() << endl
+		<< "vertexNum: " << clientVec.size() << ", edgeNum: " << edgeVec.size() << endl;
+	os << "numClient:" << numClient << ", numOrder:" << numOrder << ", numVehicle:" << numVehicle
+		<< ", numMandaOrder:" << numMandaOrder << ", numOptionalOrder: " << numOptionalOrder << endl;
+	os << "depot:" << clientVec[depot] << endl;
+	for (vector<Client>::const_iterator iter = clientVec.begin(); iter != clientVec.end(); iter++)
+	{
+		os << "\nNode: " << (*iter).PriDCID << " " << iter->clientName << " map:" 
+			<<clientMap[iter->PriDCID]<<" adj:"<< (*iter).adjEdgeVec.size() << endl;
+		for (vector<int>::const_iterator iter_e = (*iter).adjEdgeVec.begin();
+			iter_e != (*iter).adjEdgeVec.end(); iter_e++)
+		{
+			os << edgeVec[*iter_e].getEdge().second << " "
+				<< edgeVec[*iter_e].getDistance() << "\t";
+		}
+	}
+	os << "\nVehicle:" << vehicleVec.size() << endl;
+	for (vector<Vehicle>::iterator v_iter = vehicleVec.begin(); v_iter != vehicleVec.end(); v_iter++)
+	{
+		os << *v_iter << "\t" << vehicleMap.at(v_iter->VehID) << endl;
+	}
+	
+	os << "\nOrder:" << orderVec.size() << endl;
+	for (vector<Order>::iterator o_iter = orderVec.begin(); o_iter != orderVec.end(); o_iter++)
+	{
+		os << *o_iter << "\t" << orderMap.at(o_iter->getID()) << endl;
+	}
+
 }

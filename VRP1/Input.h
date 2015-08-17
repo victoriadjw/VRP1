@@ -9,7 +9,8 @@ public:
 	Input(const string &_inputFileName, const string &_errorLogFileName, VehicleRouting &vr);
 	~Input();
 	bool readGraph();
-	void printGraph(const VehicleRouting &);
+	void printGraph(const VehicleRouting &, std::ostream&);
+	ofstream & getOfstream(){ return ofs; }
 private:
 	void errorLog(const string &msg);
 	void readDataSection(VehicleRouting &);

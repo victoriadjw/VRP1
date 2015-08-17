@@ -95,10 +95,9 @@ int main(int argc, char *argv[])
 	
 	VehicleRouting vr;
 	Input in("vrptwcdc//case1-A-project.vrp", "results//log.txt", vr);
-	Output op("results//log.txt", vr);
-	op.ofs << seed << endl;
+	in.getOfstream() <<"rand seed:"<< seed << endl;
 	vr.modifyOrder();
-	vr.setMandOptionOrder();
+	vr.printVehicleRouting(in.getOfstream());
 	Solver solver(vr);
 	solver.initSolution(3);
 	system("pause"); 

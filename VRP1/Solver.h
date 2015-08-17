@@ -43,7 +43,7 @@ public:
 	void arrangeMandatoryOrder(Solution &, const int &);
 	void arrangeOptionalOrder(Solution &, const int &);
 	bool insertMandatoryOrder(Solution &solution, const int &, const OrderID &);
-	bool removeMandatoryOrder(Solution &solution, const int &, const OrderID &);
+	bool removeMandatoryOrder(Solution &solution, const int &, const ClientID &);
 private:
 	const VehicleRouting &vr;
 	DijkstraShortPath *dsp;

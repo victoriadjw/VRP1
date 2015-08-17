@@ -22,7 +22,10 @@ public:
 	typedef int IterCount;	// iteration count for meta-heuristic solver
 	typedef int ObjValue;	// unit for objective value
 
-	VehicleRouting(){ }
+	VehicleRouting()
+	{
+		numClient = numOrder = numVehicle = numMandaOrder = numOptionalOrder = 0;
+	}
 
 	Timer t;
 
@@ -46,14 +49,16 @@ public:
 	void setMandOptionOrder();
 	DistanceType getDistanceByOrderIndex(const OrderID &)const;
 
-	void setName(const string &);
-	void setNumClient(const int &);
-	void setNumOrder(const int &);
-	void setNumVehicle(const int &);
-	void setNumCarrier(const int &);
-	void setNumBilling(const int &);
-	void setNumRegion(const int &);
-	void setPlanHorizon(const int &, const int &);
+	void setName(const string );
+	void setNumClient(const int );
+	void setNumOrder(const int );
+	void setNumVehicle(const int );
+	void setNumCarrier(const int );
+	void setNumBilling(const int );
+	void setNumRegion(const int );
+	void setPlanHorizon(const int , const int );
+	void setNumMandaOrder(const int);
+	void setNumOptionalOrder(const int);
 
 	int getNumClient()const;
 	int getNumOrder()const;
@@ -65,7 +70,7 @@ public:
 	int getNumOptionalOrder()const;
 	vector<int> getMandatoryOrderIndexVec()const;
 	vector<int> getOptionalOrderIndexVec()const;
-
+	void printVehicleRouting(std::ostream &os);
 	Timer::Duration serveTimeDuration;	// loading and unloading time
 private:
 	class CmpDistance;

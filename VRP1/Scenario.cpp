@@ -14,8 +14,8 @@ std::ostream& operator<<(std::ostream &os, const Client &c)
 }
 std::ostream& operator<<(std::ostream &is, const Edge &e)
 {
-	is << e.edge.first << "\t" << e.edge.second << "\t" 
-		<< e.distance << "\t" << e.timeDistance;
+	is << e.edge.first << "\t" << e.edge.second << "\t"
+		<< e.distance;// << "\t" << e.timeDistance;
 	return is;
 }
 
@@ -26,8 +26,8 @@ std::istream& operator>>(std::istream &is, Vehicle &v)
 }
 std::ostream& operator<<(std::ostream &os, const Vehicle &v)
 {
-	os << v.VehID << "\t" << v.capacity << "\t" << v.cost
-		<< "\t" << v.carrierID << "\t" << v.speed;
+	os << v.VehID << "\t" << v.capacity << "\t" /*<< v.cost
+		<< "\t" << v.carrierID << "\t" */<< v.speed;
 	return os;
 }
 std::istream& operator>>(std::istream &is, Edge &e)

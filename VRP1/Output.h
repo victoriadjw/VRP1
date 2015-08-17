@@ -4,13 +4,14 @@
 class Output
 {
 public:
-	Output(const string &opf,const VehicleRouting &_vr):vr(_vr)
+	
+	Output(ostream &opf, const VehicleRouting &_vr) :ofs(opf), vr(_vr)
 	{
-		ofs.open(opf, ios::app);
 	}
-	~Output(){ ofs.close();}
-	ofstream ofs;
+	~Output(){ /*ofs.close();*/}
+	
 private:
+	ostream &ofs;
 	const VehicleRouting &vr;
 };
 #endif

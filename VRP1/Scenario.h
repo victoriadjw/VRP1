@@ -13,7 +13,7 @@
 #include"Utility.h"
 
 typedef double GeographyType;
-typedef int CapacityType;
+typedef double CapacityType;
 typedef int UnitVolumeType;
 typedef int UnitWeightType;
 typedef double LengthType;
@@ -24,7 +24,7 @@ typedef string OrderID;
 typedef string ClientID;
 typedef string RegionID;
 typedef string CarrierID;
-typedef int QuantityType;
+typedef double QuantityType;
 typedef double DistanceType;
 typedef int TimeDistanceType;
 typedef double ObjectType;
@@ -105,7 +105,7 @@ class Order
 	friend std::ostream& operator<<(std::ostream&, const Order&);
 public:
 	Order(){};
-	Order(const OrderID &oid, const QuantityType &q) :OrdID(oid), OrdDemandAmount(q){}
+	Order(const OrderID oid, const QuantityType q) :OrdID(oid), OrdDemandAmount(q){}
 	OrderID getID()const{ return OrdID; }
 	ClientID getApplierID()const{ return OrdSupDisCenter; }
 	ClientID getRequestID()const{ return OrdDemDisCenter; }

@@ -801,9 +801,49 @@ void Solver::arrangeOptionalOrder(Solution &solution, const int &rin)
 	}
 }
 
-bool Solver::removeMandatoryOrder(Solution &solution, const int &rin, const OrderID &oid)
+bool Solver::removeMandatoryOrder(Solution &solution, const int &rin, const ClientID &cid)
 {
-
+	DistanceType dis;
+	vector<ClientID> cid_vec;
+	list<ServeClient>::iterator sc_iter_prev, sc_iter_next;
+	for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
+		sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
+	{
+		if (sc_iter->visitClientID == cid)
+		{
+			sc_iter_prev = sc_iter_next = sc_iter;
+			sc_iter_prev--;
+			sc_iter_next++;
+			dsp->getShortPath(sc_iter_prev->visitClientID, sc_iter_next->visitClientID, dis, cid_vec);
+			// if the client needed to be removed is in the route from prev to next, do not remove it
+			for (vector<ClientID>::iterator cid_iter = cid_vec.begin(); cid_iter != cid_vec.end(); cid_iter++)
+				if (*cid_iter == cid)
+					return false;
+		}
+	}
+	for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
+		sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
+	{
+		if (sc_iter->visitClientID == cid)
+		{
+			for (vector<OrderID>::iterator oid_load_iter = sc_iter->loadOrderID.begin();
+				oid_load_iter != sc_iter->loadOrderID.end(); oid_load_iter++)
+			{
+				if (vr.orderVec[vr.orderMap.at(*oid_load_iter)].getOrderType() == OrderType::Mandatory)
+					solution.routeVec[rin].serveOrderList.push_back(*oid_load_iter);
+				else
+					optionalOrderList.push_back(*oid_load_iter);
+			}
+			for (vector<OrderID>::iterator oid_unload_iter = sc_iter->unloadOrderID.begin();
+				oid_unload_iter != sc_iter->unloadOrderID.end(); oid_unload_iter++)
+			{
+				if (vr.orderVec[vr.orderMap.at(*oid_unload_iter)].getOrderType() == OrderType::Mandatory)
+					solution.routeVec[rin].serveOrderList.push_back(*oid_unload_iter);
+				else
+					optionalOrderList.push_back(*oid_unload_iter);
+			}
+		}
+	}
 	return true;
 }
 bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const OrderID &oid)

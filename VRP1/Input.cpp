@@ -1,18 +1,20 @@
 #include"Input.h"
 
-void Input::printGraph(const VehicleRouting &vr)
+void Input::printGraph(const VehicleRouting &vr,std::ostream &os)
 {
-	cout << endl << "vertexNum: " << vr.clientVec.size()<< ", edgeNum: " << vr.edgeVec.size() << endl;
+	os << Timer() << endl 
+		<< "vertexNum: " << vr.clientVec.size() << ", edgeNum: " << vr.edgeVec.size() << endl;
 	for (vector<Client>::const_iterator iter = vr.clientVec.begin(); iter != vr.clientVec.end(); iter++)
 	{
-		cout << "the adjacent vertex of node " << (*iter).PriDCID << ":" << (*iter).adjEdgeVec.size() << endl;
+		os << "\nNode: " << (*iter).PriDCID << " " << iter->clientName << ":" << (*iter).adjEdgeVec.size() << endl;
 		for (vector<int>::const_iterator iter_e = (*iter).adjEdgeVec.begin();
 			iter_e != (*iter).adjEdgeVec.end(); iter_e++)
 		{
-			cout << " -> " << vr.edgeVec[*iter_e] << endl;
+			os << vr.edgeVec[*iter_e].getEdge().second << " "
+				<<vr.edgeVec[*iter_e].getDistance()<<"\t";
 		}
-		cout << endl;
 	}
+	os << endl;
 }
 
 
@@ -23,7 +25,7 @@ void Input::errorLog(const string &msg)
 
 Input::Input(const string &inputFileName, const string &errorLogFileName, VehicleRouting &vr)
 {
-	ofs.open(errorLogFileName, std::ofstream::out | std::ofstream::app);
+	ofs.open(errorLogFileName, std::ofstream::out /*| std::ofstream::app*/);
 	if (!ofs.is_open())
 	{
 		cerr << "fail to open file : " + errorLogFileName;
@@ -117,7 +119,7 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 		vr.orderVec.push_back(o);
 		vr.orderMap[o.getID()] = i;
 	}
-	//printGraph(vr);
+	//vr.printVehicleRouting(cout);
 }
 Input::~Input()
 {
