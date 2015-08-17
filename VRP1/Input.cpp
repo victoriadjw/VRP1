@@ -52,7 +52,7 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 	vr.clientVec.resize(vr.getNumClient());
 	for (int i = 0; getline(ifs, line) && line != "END"; i++)
 	{
-		cout << line << endl;
+		//cout << line << endl;
 		std::stringstream word(line);
 		Client c;
 		word >> c;
@@ -62,13 +62,14 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 		vr.clientVec.push_back(c);
 		//cout << c<< endl;
 	}	
+	vr.depot = 1;	// assign the index of the depot
 	//EDGES
 	vr.orderEdge.resize(vr.clientVec.size(), vector<int>(vr.clientVec.size(), -1));
 	getline(ifs, line);
 	getline(ifs, line);
 	while (getline(ifs, line) && line != "END")
 	{
-		cout << line << endl;
+		//cout << line << endl;
 		std::stringstream word(line);
 		Edge e;
 		word >> e;
@@ -116,8 +117,7 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 		vr.orderVec.push_back(o);
 		vr.orderMap[o.getID()] = i;
 	}
-	printGraph(vr);
-	//vr.dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec);
+	//printGraph(vr);
 }
 Input::~Input()
 {

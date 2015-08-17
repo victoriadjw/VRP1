@@ -149,7 +149,7 @@ public:
 class Route
 {
 public:
-	Route(){ mandaQuantity = 0; cout << "route constructed." << endl; }
+	Route(){ mandaQuantity = 0; }
 	VehicleID VehID;	// corresponding vehicle
 	list<OrderID> serveOrderList;	// load information
 	//vector<vector<OrderID>> arrangedOrderVec;	// the sequence of served OrderID

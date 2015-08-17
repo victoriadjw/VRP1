@@ -42,7 +42,8 @@ public:
 		const list<ServeClient>::iterator &end_sc_iter, const list<OrderID>::iterator &oid_iter);
 	void arrangeMandatoryOrder(Solution &, const int &);
 	void arrangeOptionalOrder(Solution &, const int &);
-	bool inserMandatoryOrder(Solution &solution, const int &, const OrderID &);
+	bool insertMandatoryOrder(Solution &solution, const int &, const OrderID &);
+	bool removeMandatoryOrder(Solution &solution, const int &, const OrderID &);
 private:
 	const VehicleRouting &vr;
 	DijkstraShortPath *dsp;

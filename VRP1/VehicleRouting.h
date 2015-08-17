@@ -40,6 +40,7 @@ public:
 	mutable map<ClientNameType, ClientID>clientNameMap;
 	vector<vector<int>> orderEdge; 
 
+	int depot;	// the index of the depot in clientVec
 
 	void modifyOrder();
 	void setMandOptionOrder();

@@ -185,9 +185,6 @@ public:
 	MyVector(int size):vector<T>(size){	}
 
 	MyVector(int size, const T &value) :vector<T>(size, value){}
-
-
-	// TODO[0]: iii
 	int find(const T &value)const{
 		return (std::find(this->begin(), this->end, value) - this->begin());
 	}

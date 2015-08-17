@@ -3,7 +3,6 @@
 Solver::Solver(const VehicleRouting &_vr) :vr(_vr)
 {
 	dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec, vr.clientNameMap);
-	
 }
 
 void Solver::initSolution(const int &sol_num)
@@ -82,7 +81,7 @@ void Solver::initSolution(const int &sol_num)
 				{
 					if (rin_op == rin)
 						continue;
-					if (inserMandatoryOrder(solution, rin_op, *oid_iter))
+					if (insertMandatoryOrder(solution, rin_op, *oid_iter))
 					{
 						//checkRoute(solution, rin_op);
 						oid_iter = solution.routeVec[rin].serveOrderList.erase(oid_iter);
@@ -171,7 +170,7 @@ void Solver::generateRoute(Solution &solution, const int &rin)
 	}
 	// arrange the mandatory and MM optional orders
 	//cout << "arrange the order sequence: " << endl;
-	ClientID init_cid = vr.clientVec[0].PriDCID;
+	ClientID init_cid = vr.clientVec[vr.depot].PriDCID;
 	ServeClient sc(init_cid, 0);
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
@@ -183,7 +182,7 @@ void Solver::generateRoute(Solution &solution, const int &rin)
 		}
 	}
 	solution.routeVec[rin].serveClientList.push_back(sc);
-	MMOrderClientIDSet.erase(vr.clientVec[0].PriDCID);
+	MMOrderClientIDSet.erase(vr.clientVec[vr.depot].PriDCID);
 	while (!MMOrderClientIDSet.empty())
 	{
 		ClientID sel_end_cid;
@@ -217,7 +216,7 @@ void Solver::generateRoute(Solution &solution, const int &rin)
 	// insert the last visiting client depot
 	vector<ClientID> shortest_cid_vec;
 	DistanceType shortest_distance;
-	dsp->getShortPath(init_cid, vr.clientVec[0].PriDCID, shortest_distance, shortest_cid_vec);
+	dsp->getShortPath(init_cid, vr.clientVec[vr.depot].PriDCID, shortest_distance, shortest_cid_vec);
 	for (vector<ClientID>::iterator iter = ++shortest_cid_vec.begin(); iter != shortest_cid_vec.end(); iter++)
 	{
 		ServeClient sc2(*iter, 0);
@@ -377,7 +376,7 @@ bool Solver::isFeasibleAddServeTime(Solution &solution, const int &rin,  const l
 void Solver::generateRoute1(Solution &solution,const int &rin)
 {
 	// arrange the mandatory and MM optional orders
-	ClientID init_cid = vr.clientVec[0].PriDCID;
+	ClientID init_cid = vr.clientVec[vr.depot].PriDCID;
 	Timer now_time = Timer();
 	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time));
 	set<ClientID> MMOrderClientIDSet;	// the ClientID set of mandatory order
@@ -395,7 +394,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		sc.currentQuantity += vr.orderVec[vr.orderMap.at(*iter)].getQuantity();
 	}
 	solution.routeVec[rin].serveClientList.push_back(sc);
-	MMOrderClientIDSet.erase(vr.clientVec[0].PriDCID);
+	MMOrderClientIDSet.erase(vr.clientVec[vr.depot].PriDCID);
 	while (!MMOrderClientIDSet.empty())
 	{
 		ClientID sel_end_cid;
@@ -487,7 +486,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 	// insert the last visiting client depot
 	vector<ClientID> shortest_cid_vec;
 	DistanceType shortest_distance;
-	dsp->getShortPath(init_cid, vr.clientVec[0].PriDCID, shortest_distance, shortest_cid_vec);
+	dsp->getShortPath(init_cid, vr.clientVec[vr.depot].PriDCID, shortest_distance, shortest_cid_vec);
 	for (vector<ClientID>::iterator iter = ++shortest_cid_vec.begin(); iter != shortest_cid_vec.end(); iter++)
 	{
 		vector<ClientID>::iterator iter_prev = iter;
@@ -592,7 +591,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 {
 	// arrange the mandatory and MM optional orders
-	ClientID init_cid = vr.clientVec[0].PriDCID;
+	ClientID init_cid = vr.clientVec[vr.depot].PriDCID;
 	Timer now_time = Timer();
 	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time));
 	set<ClientID> MMOrderClientIDSet;	// the ClientID set of mandatory order
@@ -611,7 +610,7 @@ void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 	}
 	solution.routeVec[rin].serveClientList.push_back(sc);
 	solution.routeVec[rin].visitClientIDSet.insert(sc.visitClientID);
-	MMOrderClientIDSet.erase(vr.clientVec[0].PriDCID);
+	MMOrderClientIDSet.erase(vr.clientVec[vr.depot].PriDCID);
 	while (!MMOrderClientIDSet.empty())
 	{
 		ClientID sel_end_cid;
@@ -701,7 +700,7 @@ void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 	// insert the last visiting client depot
 	vector<ClientID> shortest_cid_vec;
 	DistanceType shortest_distance;
-	dsp->getShortPath(init_cid, vr.clientVec[0].PriDCID, shortest_distance, shortest_cid_vec);
+	dsp->getShortPath(init_cid, vr.clientVec[vr.depot].PriDCID, shortest_distance, shortest_cid_vec);
 	for (vector<ClientID>::iterator iter = ++shortest_cid_vec.begin(); iter != shortest_cid_vec.end(); iter++)
 	{
 		vector<ClientID>::iterator iter_prev = iter;
@@ -802,7 +801,12 @@ void Solver::arrangeOptionalOrder(Solution &solution, const int &rin)
 	}
 }
 
-bool Solver::inserMandatoryOrder(Solution &solution, const int &rin, const OrderID &oid)
+bool Solver::removeMandatoryOrder(Solution &solution, const int &rin, const OrderID &oid)
+{
+
+	return true;
+}
+bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const OrderID &oid)
 {
 	// the order exceeds the quantity of the vehicle
 	if (solution.routeVec[rin].serveClientList.front().currentQuantity + vr.orderVec[vr.orderMap.at(oid)].getQuantity() >
@@ -1592,7 +1596,7 @@ void Solver::calculateTotalObjValue(Solution &solution)
 		solution.totalObject += iter->routeObject;
 		solution.averagefullLoadRate += iter->fullLoadRate;
 		solution.serveMandaOrderCnt += iter->serveMandaOrderCnt;
-		solution.servOptionalOrderCnt = iter->servOptionalOrderCnt;
+		solution.servOptionalOrderCnt += iter->servOptionalOrderCnt;
 	}
 	solution.averagefullLoadRate /= solution.routeVec.size();
 }
