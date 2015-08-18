@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 	vr.modifyOrder();
 	vr.printVehicleRouting(in.getOfstream());
 	Solver solver(vr);
-	solver.initSolution(3);
+	solver.initSolution(1);
 	system("pause"); 
 }
 #endif

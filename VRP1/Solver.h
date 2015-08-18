@@ -19,6 +19,7 @@ class Solver
 public:
 	Solver(const VehicleRouting &_vr);
 	~Solver(){ delete dsp; cout << "deconstruct Solver." << endl; }
+	const vector<Solution>& getSolutionVec()const { return solutionVec; }
 	void modifyOrder();	// modify the order to accommodate the specific problem
 	void initSolution(const int&);		// assign orders to vehicles
 	void generateRoute(Solution &, const int &);	// generate route according to route index

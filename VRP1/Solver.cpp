@@ -805,22 +805,22 @@ bool Solver::removeMandatoryOrder(Solution &solution, const int &rin, const Clie
 {
 	DistanceType dis;
 	vector<ClientID> cid_vec;
-	list<ServeClient>::iterator sc_iter_prev, sc_iter_next;
-	for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
+	list<ServeClient>::iterator sc_iter_prev, sc_iter_next, sc_iter;
+	for (sc_iter = solution.routeVec[rin].serveClientList.begin();
 		sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
 	{
 		if (sc_iter->visitClientID == cid)
-		{
-			sc_iter_prev = sc_iter_next = sc_iter;
-			sc_iter_prev--;
-			sc_iter_next++;
-			dsp->getShortPath(sc_iter_prev->visitClientID, sc_iter_next->visitClientID, dis, cid_vec);
-			// if the client needed to be removed is in the route from prev to next, do not remove it
-			for (vector<ClientID>::iterator cid_iter = cid_vec.begin(); cid_iter != cid_vec.end(); cid_iter++)
-				if (*cid_iter == cid)
-					return false;
-		}
+			break;
 	}
+	//for (list<ServeClient>::iterator sc_itr = sc_iter; sc_itr != solution.routeVec[rin].serveClientList.rbegin();)
+	sc_iter_prev--;
+	sc_iter_next++;
+	dsp->getShortPath(sc_iter_prev->visitClientID, sc_iter_next->visitClientID, dis, cid_vec);
+	// if the client needed to be removed is in the route from prev to next, do not remove it
+	for (vector<ClientID>::iterator cid_iter = cid_vec.begin(); cid_iter != cid_vec.end(); cid_iter++)
+		if (*cid_iter == cid)
+			return false;
+
 	for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
 		sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
 	{
