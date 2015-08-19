@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	//return run(argc, argv);
 	cout << "vehicle routing problem." << endl;
 	int seed = time(NULL);
-	//seed =1439903615 ;//1439536367 1439214820
+	//seed =1439969575 ;//1439536367 1439214820
 	srand(seed);
 	//run(argc, argv);
 	

@@ -143,7 +143,7 @@ public:
 	vector<QuantityType> loadQuantity, unloadQuantity;	// load and unload quantity
 	QuantityType currentQuantity;	// current quantity of goods
 	Timer arrivalTime, departureTime;	// arrival and departureTime of the vertex
-	DistanceType driveDistance;		//  already drived distance
+	DistanceType alreadyDriveDistance;		//  already drived distance
 };
 // describe a route corresponding to a vehicle
 class Route

@@ -125,10 +125,11 @@ public:
 	{
 		currentTime += dur;
 	}
-	static string getCurrentTime()
+	static string getCurrentTime(Timer tr=Timer())
 	{
 		char timeBuf[64];
-		time_t t = time(NULL);
+		//time_t t = time(NULL);
+		time_t t = std::chrono::system_clock::to_time_t(tr.getCurrentTimePoint());
 		tm *date = localtime(&t);
 		strftime(timeBuf, 64, "%Y-%m-%d %a %H:%M:%S", date);
 		return std::string(timeBuf);

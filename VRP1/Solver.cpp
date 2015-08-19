@@ -78,8 +78,8 @@ void Solver::initSolution(const int &sol_num)
 		for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
 		{
 			arrangeOptionalOrder(solution, rin);
-			printRoute(solution, rin);
 			calculateObjValue(solution, rin);
+			printRoute(solution, rin);
 			checkRoute(solution, rin);
 		}
 		calculateTotalObjValue(solution);
@@ -143,11 +143,18 @@ void Solver::localSearch(const int &sol_num,const int &iteration)
 	}
 	for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
 	{
+		calculateObjValue(solutionVec[best_sol_index], rin);
+		printRoute(solutionVec[best_sol_index], rin);
 		checkRoute(solutionVec[best_sol_index], rin);
 	}
 }
 void Solver::makeMove(Solution &solution,int &rin1,int &rin2)
 {
+	/*for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
+	{
+		printRoute(solution, rin);
+		checkRoute(solution, rin);
+	}*/
 	rin1 = rand() % solution.routeVec.size();
 	while (solution.routeVec[rin1].serveClientList.size() == 1)
 		rin1 = rand() % solution.routeVec.size();
@@ -233,6 +240,12 @@ void Solver::makeMove(Solution &solution,int &rin1,int &rin2)
 	//printRoute(solution, rin2);
 	calculateObjValue(solution, rin2);
 	//checkRoute(solution, rin2);
+
+	/*for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
+	{
+		printRoute(solution, rin);
+		checkRoute(solution, rin);
+	}*/
 }
 void Solver::generateRoute(Solution &solution, const int &rin)
 {
@@ -340,8 +353,8 @@ void Solver::generateRoute(Solution &solution, const int &rin)
 		ServeClient sc2(*iter, 0);
 		solution.routeVec[rin].serveClientList.push_back(sc2);
 	}
-	printRoute(solution,rin);
 	calculateObjValue(solution, rin);
+	printRoute(solution, rin);
 	checkRoute(solution, rin);
 	// repair the mandatory order to adjust the MM optional order
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
@@ -366,8 +379,8 @@ void Solver::generateRoute(Solution &solution, const int &rin)
 		else
 			iter++;
 	}
-	printRoute(solution, rin);
 	calculateObjValue(solution, rin);
+	printRoute(solution, rin);
 	checkRoute(solution, rin);
 	// insert the MO and OM optional order to the already arranged orders
 	int serve_order_cnt = solution.routeVec[rin].serveOrderList.size() + 1;
@@ -402,8 +415,8 @@ void Solver::generateRoute(Solution &solution, const int &rin)
 				iter++;
 		}
 	}
-	printRoute(solution, rin);
 	calculateObjValue(solution, rin);
+	printRoute(solution, rin);
 	checkRoute(solution, rin);
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 		iter != solution.routeVec[rin].serveOrderList.end();)
@@ -427,8 +440,8 @@ void Solver::generateRoute(Solution &solution, const int &rin)
 		else
 			iter++;
 	}
-	printRoute(solution, rin);
 	calculateObjValue(solution, rin);
+	printRoute(solution, rin);
 	checkRoute(solution, rin);
 }
 void Solver::cancelOrder(Solution &solution, const int &rin, const OrderID &oid)
@@ -613,8 +626,8 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		solution.routeVec[rin].serveClientList.front().departureTime =
 			solution.routeVec[rin].serveClientList.front().arrivalTime;
 	}
-	printRoute(solution, rin);
 	calculateObjValue(solution, rin);
+	printRoute(solution, rin);
 	checkRoute(solution, rin);
 	// insert the mandatory optional order to the route
 	for (list<OrderID>::iterator iter = optionalOrderList.begin();
@@ -680,8 +693,8 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 			iter++;
 		}
 	}
-	printRoute(solution, rin);
 	calculateObjValue(solution, rin);
+	printRoute(solution, rin);
 	checkRoute(solution, rin);
 }
 void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
@@ -694,18 +707,29 @@ void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time));
 	set<ClientID> MMOrderClientIDSet;	// the ClientID set of mandatory order
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
-		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
+		iter != solution.routeVec[rin].serveOrderList.end(); )
 	{
+		/*if (rin == 4 && *iter == "o401")
+		{
+			system("pause");
+		}*/
 		if (sc.currentQuantity + vr.orderVec[vr.orderMap.at(*iter)].getQuantity()>
 			vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
+		{
+			iter = solution.routeVec[rin].serveOrderList.erase(iter);
 			continue;
+		}
 		// if the due time of the order  is ahead of the arrival time, skip this order
 		if (!sc.arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*iter)].getDueTime()))
+		{
+			iter = solution.routeVec[rin].serveOrderList.erase(iter);
 			continue;
+		}
 		MMOrderClientIDSet.insert(vr.orderVec[vr.orderMap.at(*iter)].getApplierID());
 		MMOrderClientIDSet.insert(vr.orderVec[vr.orderMap.at(*iter)].getRequestID());
 		sc.loadOrderID.push_back(*iter);
 		sc.currentQuantity += vr.orderVec[vr.orderMap.at(*iter)].getQuantity();
+		iter++;
 	}
 	solution.routeVec[rin].serveClientList.push_back(sc);
 	solution.routeVec[rin].visitClientIDSet.insert(sc.visitClientID);
@@ -936,7 +960,7 @@ bool Solver::removeMandatoryOrder(Solution &solution, const int &rin, const Clie
 }
 bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const OrderID &oid)
 {
-	// the order exceeds the quantity of the vehicle
+	// the order exceeds the quantity of the vehicle, from request and suplier client id of the oid
 	if (solution.routeVec[rin].serveClientList.front().currentQuantity + vr.orderVec[vr.orderMap.at(oid)].getQuantity() >
 		vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
 		return false;
@@ -947,6 +971,10 @@ bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const Orde
 		for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
 			sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
 		{
+			// the order exceeds the quantity of the vehicle, from request and suplier client id of the oid
+			if (sc_iter->currentQuantity + vr.orderVec[vr.orderMap.at(oid)].getQuantity() >
+				vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
+				return false;
 			if (sc_iter->visitClientID == vr.orderVec[vr.orderMap.at(oid)].getRequestID())
 			{
 				// check if this order oid is tardy
@@ -1550,7 +1578,8 @@ void Solver::printRoute(Solution &solution, const int &rin)const
 		os << vr.clientVec[vr.clientMap.at(iter->visitClientID)].clientName 
 			<< "(" << iter->visitClientID << "),"
 			<< iter->arrivalTime << ","<<iter->departureTime
-			<< "quantity: " << (*iter).currentQuantity
+			<< ", already driven distance: "<<iter->alreadyDriveDistance
+			<< ", quantity: " << (*iter).currentQuantity
 			<< ", load:" << (*iter).loadOrderID.size() << ": ";
 		for (vector<OrderID>::const_iterator it = (*iter).loadOrderID.begin();
 			it != (*iter).loadOrderID.end(); it++)
@@ -1686,7 +1715,8 @@ void Solver::calculateObjValue(Solution &solution, const int &rin)
 	solution.routeVec[rin].routeWeightDistance = 0;
 	solution.routeVec[rin].serveMandaOrderCnt = 0;
 	solution.routeVec[rin].servOptionalOrderCnt = 0;
-	for (list<ServeClient>::const_iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
+	// change const iterator to iterator
+	for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
 		sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
 	{
 		for (vector<OrderID>::const_iterator oid_unload_iter = sc_iter->unloadOrderID.begin();
@@ -1705,6 +1735,7 @@ void Solver::calculateObjValue(Solution &solution, const int &rin)
 			DistanceType temp_dis = vr.edgeVec[vr.orderEdge[vr.clientMap.at(prior_iter->visitClientID)]
 				[vr.clientMap.at(sc_iter->visitClientID)]].getDistance();
 			solution.routeVec[rin].routeDistance += temp_dis;
+			sc_iter->alreadyDriveDistance = solution.routeVec[rin].routeDistance;	// in order to set value to dis
 			solution.routeVec[rin].routeWeightDistance += prior_iter->currentQuantity * temp_dis;
 		}
 	}
@@ -1713,9 +1744,9 @@ void Solver::calculateObjValue(Solution &solution, const int &rin)
 	else
 		solution.routeVec[rin].fullLoadRate = solution.routeVec[rin].routeWeightDistance / (solution.routeVec[rin].routeDistance *
 		vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity);
-	/*os << "route " << rin << " obj: "
+	os << "route " << rin << " obj: "
 		<< solution.routeVec[rin].routeObject << "\t" << solution.routeVec[rin].routeDistance << "\t"
-		<< solution.routeVec[rin].routeWeightDistance << "\t" << solution.routeVec[rin].fullLoadRate << endl;*/
+		<< solution.routeVec[rin].routeWeightDistance << "\t" << solution.routeVec[rin].fullLoadRate << endl;
 }
 void Solver::calculateTotalObjValue(Solution &solution)
 {
