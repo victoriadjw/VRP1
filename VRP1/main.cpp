@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	//return run(argc, argv);
 	cout << "vehicle routing problem." << endl;
 	int seed = time(NULL);
-	//seed =1439536367 ;//1439536367 1439214820
+	//seed =1439903615 ;//1439536367 1439214820
 	srand(seed);
 	//run(argc, argv);
 	
@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
 	in.getOfstream() <<"rand seed:"<< seed << endl;
 	vr.modifyOrder();
 	vr.printVehicleRouting(in.getOfstream());
-	Solver solver(vr);
-	solver.initSolution(1);
+	Solver solver(vr,in.getOfstream());
+	solver.localSearch(3,50);
 	system("pause"); 
 }
 #endif

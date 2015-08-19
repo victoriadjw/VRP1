@@ -151,10 +151,8 @@ class Route
 public:
 	Route(){ mandaQuantity = 0; }
 	VehicleID VehID;	// corresponding vehicle
-	list<OrderID> serveOrderList;	// load information
-	//vector<vector<OrderID>> arrangedOrderVec;	// the sequence of served OrderID
-	//vector<ClientID> servedClientIDVec;	// the served ClientID sequence
-	//vector<QuantityType> quantityGoods;	// the quantity of goods in vehicle
+	list<OrderID> serveOrderList;	// the list of order needed to serve
+	list<OrderID> serveOrderListBackup;	// a backup of the serveOrderList
 
 	list<ServeClient> serveClientList;	// served client list
 	set<ClientID> visitClientIDSet;	// the set of the visited client id of the route

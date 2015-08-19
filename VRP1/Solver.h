@@ -17,7 +17,7 @@
 class Solver
 {
 public:
-	Solver(const VehicleRouting &_vr);
+	Solver(const VehicleRouting &_vr, ostream &_os);
 	~Solver(){ delete dsp; cout << "deconstruct Solver." << endl; }
 	const vector<Solution>& getSolutionVec()const { return solutionVec; }
 	void modifyOrder();	// modify the order to accommodate the specific problem
@@ -45,11 +45,13 @@ public:
 	void arrangeOptionalOrder(Solution &, const int &);
 	bool insertMandatoryOrder(Solution &solution, const int &, const OrderID &);
 	bool removeMandatoryOrder(Solution &solution, const int &, const ClientID &);
+	void localSearch(const int&, const int &iteration);
+	void makeMove(Solution &,int &,int &);
 private:
 	const VehicleRouting &vr;
+	ostream &os;
 	DijkstraShortPath *dsp;
 	vector<Solution> solutionVec;
 	list<OrderID> mandatoryOrderList, optionalOrderList;
-	vector<VehicleID> assignIndicator;
 };
 #endif
