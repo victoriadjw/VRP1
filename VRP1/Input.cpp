@@ -64,7 +64,7 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 		vr.clientVec.push_back(c);
 		//cout << c<< endl;
 	}	
-	vr.depot = 1;	// assign the index of the depot
+	vr.depot = 0;	// assign the index of the depot
 	//EDGES
 	vr.orderEdge.resize(vr.clientVec.size(), vector<int>(vr.clientVec.size(), -1));
 	getline(ifs, line);
@@ -90,10 +90,10 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 	
 	vr.serveTimeDuration = Timer::Duration(2);	// 2 hours of service time
 	vr.setNumClient(vr.clientVec.size());
-	int num_vehicle = 7;
-	int num_order = 240;
+	int num_vehicle = 6;
+	int num_order = 204;
 	CapacityType cap_base = 10000;
-	SpeedType spe_base = 100;
+	SpeedType spe_base = 120;
 	QuantityType qua_base = 300;
 	vr.setNumVehicle(num_vehicle);
 	for (int i = 0; i < num_vehicle; i++)
@@ -103,7 +103,7 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 		string str_i = ss.str();
 		string vid = "v";
 		vid.append(str_i);
-		Vehicle v = Vehicle(vid, cap_base + rand() % 3000, spe_base + rand() % 20);
+		Vehicle v = Vehicle(vid, cap_base + rand() % 3000, spe_base + rand() % 20);//3000 20
 		vr.vehicleVec.push_back(v);
 		vr.vehicleMap[v.VehID] = i;
 	}
@@ -114,7 +114,7 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 		string str_i = ss.str();
 		string oid = "o";
 		oid.append(str_i);
-		Order o = Order(oid, qua_base + rand() % 1000);
+		Order o = Order(oid, qua_base + rand() % 1000);//1000
 		o.setOrderValue(300 + rand() % 500);
 		vr.orderVec.push_back(o);
 		vr.orderMap[o.getID()] = i;

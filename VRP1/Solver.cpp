@@ -102,7 +102,7 @@ void Solver::localSearch(const int &sol_num,const int &iteration)
 	int max_rate_index;
 	for (int i = 0; i < sol_num; i++)
 	{
-		if (solutionVec[i].averagefullLoadRate > max_rate)
+		if (solutionVec[i].averagefullLoadRate >= max_rate)
 		{
 			max_rate = solutionVec[i].averagefullLoadRate;
 			max_rate_index = i;
@@ -121,6 +121,18 @@ void Solver::localSearch(const int &sol_num,const int &iteration)
 	int rin1, rin2;
 	for (int i = 0; i<iteration; i++)
 	{
+		if (solutionVec[current_sol_index].routeVec.size() == 1)
+			continue;
+		int more_than_two_route_cnt = 0;
+		for (vector < Route > ::iterator r_iter = solutionVec[current_sol_index].routeVec.begin();
+			r_iter != solutionVec[current_sol_index].routeVec.end(); r_iter++)
+		{
+			if (r_iter->serveClientList.size() > 1)
+				more_than_two_route_cnt += 1;
+		}
+		if (more_than_two_route_cnt <= 1)
+			continue;
+
 		makeMove(solutionVec[current_sol_index], rin1, rin2);
 		if (solutionVec[current_sol_index].routeVec[rin1].fullLoadRate + solutionVec[current_sol_index].routeVec[rin2].fullLoadRate >
 			solutionVec[best_sol_index].routeVec[rin1].fullLoadRate + solutionVec[best_sol_index].routeVec[rin2].fullLoadRate)
@@ -150,11 +162,6 @@ void Solver::localSearch(const int &sol_num,const int &iteration)
 }
 void Solver::makeMove(Solution &solution,int &rin1,int &rin2)
 {
-	/*for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
-	{
-		printRoute(solution, rin);
-		checkRoute(solution, rin);
-	}*/
 	rin1 = rand() % solution.routeVec.size();
 	while (solution.routeVec[rin1].serveClientList.size() == 1)
 		rin1 = rand() % solution.routeVec.size();
