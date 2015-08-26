@@ -91,7 +91,7 @@ void Input::readDataSectionProject(VehicleRouting &vr)
 	vr.serveTimeDuration = Timer::Duration(2);	// 2 hours of service time
 	vr.setNumClient(vr.clientVec.size());
 	int num_vehicle = 6;
-	int num_order = 204;
+	int num_order = 200;
 	CapacityType cap_base = 10000;
 	SpeedType spe_base = 120;
 	QuantityType qua_base = 300;

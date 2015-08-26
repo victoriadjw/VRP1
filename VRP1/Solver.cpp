@@ -65,6 +65,7 @@ void Solver::initSolution(const int &sol_num)
 					if (insertMandatoryOrder(solution, rin_op, *oid_iter))
 					{
 						//checkRoute(solution, rin_op);
+						calculateObjValue(solution, rin_op);
 						oid_iter = solution.routeVec[rin].serveOrderList.erase(oid_iter);
 						is_inserted = true;
 						break;
@@ -77,7 +78,7 @@ void Solver::initSolution(const int &sol_num)
 		}
 		for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
 		{
-			arrangeOptionalOrder(solution, rin);
+			//arrangeOptionalOrder(solution, rin);
 			calculateObjValue(solution, rin);
 			printRoute(solution, rin);
 			checkRoute(solution, rin);
@@ -134,8 +135,17 @@ void Solver::localSearch(const int &sol_num,const int &iteration)
 			continue;
 
 		makeMove(solutionVec[current_sol_index], rin1, rin2);
-		if (solutionVec[current_sol_index].routeVec[rin1].fullLoadRate + solutionVec[current_sol_index].routeVec[rin2].fullLoadRate >
-			solutionVec[best_sol_index].routeVec[rin1].fullLoadRate + solutionVec[best_sol_index].routeVec[rin2].fullLoadRate)
+		for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
+		{
+			calculateObjValue(solutionVec[current_sol_index], rin);
+			//printRoute(solutionVec[best_sol_index], rin);
+			//checkRoute(solutionVec[best_sol_index], rin);
+		}
+
+		calculateTotalObjValue(solutionVec[current_sol_index]);
+
+		if (solutionVec[current_sol_index].averagefullLoadRate>
+			solutionVec[best_sol_index].averagefullLoadRate)
 		{
 			solutionVec[best_sol_index] = solutionVec[current_sol_index];
 			os << "refine" << endl;
@@ -145,7 +155,6 @@ void Solver::localSearch(const int &sol_num,const int &iteration)
 			solutionVec[current_sol_index] = solutionVec[best_sol_index];
 			os << "not improved" << endl;
 		}
-		calculateTotalObjValue(solutionVec[best_sol_index]);
 		os << "total information:" << vr.getNumMandaOrder() << "\t" << vr.getNumOptionalOrder() << endl;		
 		os << solutionVec[best_sol_index].totalDistance << "\t" << solutionVec[best_sol_index].totalWeightDistance << "\t"
 			<< solutionVec[best_sol_index].totalObject << "\t" << solutionVec[best_sol_index].averagefullLoadRate << "\t"
@@ -242,10 +251,10 @@ void Solver::makeMove(Solution &solution,int &rin1,int &rin2)
 	arrangeOptionalOrder(solution, rin1);
 	arrangeOptionalOrder(solution, rin2);
 	//printRoute(solution, rin1);
-	calculateObjValue(solution, rin1);
+	//calculateObjValue(solution, rin1);
 	//checkRoute(solution, rin1);
 	//printRoute(solution, rin2);
-	calculateObjValue(solution, rin2);
+	//calculateObjValue(solution, rin2);
 	//checkRoute(solution, rin2);
 
 	/*for (int rin = 0; rin < vr.vehicleVec.size(); rin++)
@@ -505,7 +514,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 	// arrange the mandatory and MM optional orders
 	ClientID init_cid = vr.clientVec[vr.depot].PriDCID;
 	Timer now_time = Timer();
-	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time));
+	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time),0);
 	set<ClientID> MMOrderClientIDSet;	// the ClientID set of mandatory order
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 		iter != solution.routeVec[rin].serveOrderList.end(); iter++)
@@ -572,7 +581,8 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 			Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime);
 			/*ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity,
 				ar_tm_temp, Timer(vr.serveTimeDuration, ar_tm_temp.getCurrentTimePoint()));*/
-			ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity, ar_tm_temp, ar_tm_temp);
+			ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity, ar_tm_temp, ar_tm_temp,
+				solution.routeVec[rin].serveClientList.back().alreadyDriveDistance + dis_temp);
 			solution.routeVec[rin].serveClientList.push_back(sc1);
 		}
 		// insert the sel_end_cid and corresponding mandatory order which has the same sel_end_cid
@@ -582,7 +592,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		Timer ar_tm = Timer(dr, solution.routeVec[rin].serveClientList.back().departureTime);
 
 		ServeClient sc1(sel_end_cid, solution.routeVec[rin].serveClientList.back().currentQuantity,
-			ar_tm, Timer(vr.serveTimeDuration, ar_tm));
+			ar_tm, Timer(vr.serveTimeDuration, ar_tm), solution.routeVec[rin].serveClientList.back().alreadyDriveDistance + dis);
 		for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 			iter != solution.routeVec[rin].serveOrderList.end();)
 		{
@@ -624,7 +634,7 @@ void Solver::generateRoute1(Solution &solution,const int &rin)
 		Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime);
 		/*ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity,
 		ar_tm_temp, Timer(vr.serveTimeDuration, ar_tm_temp.getCurrentTimePoint()));*/
-		ServeClient sc1(*iter, 0, ar_tm_temp, ar_tm_temp);
+		ServeClient sc1(*iter, 0, ar_tm_temp, ar_tm_temp, solution.routeVec[rin].serveClientList.back().alreadyDriveDistance + dis_temp);
 		//ServeClient sc1(*iter, 0);
 		solution.routeVec[rin].serveClientList.push_back(sc1);
 	}
@@ -711,15 +721,11 @@ void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 	// arrange the mandatory and MM optional orders
 	ClientID init_cid = vr.clientVec[vr.depot].PriDCID;
 	Timer now_time = Timer();
-	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time));
+	ServeClient sc(init_cid, 0, now_time, Timer(vr.serveTimeDuration, now_time), 0);
 	set<ClientID> MMOrderClientIDSet;	// the ClientID set of mandatory order
 	for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 		iter != solution.routeVec[rin].serveOrderList.end(); )
 	{
-		/*if (rin == 4 && *iter == "o401")
-		{
-			system("pause");
-		}*/
 		if (sc.currentQuantity + vr.orderVec[vr.orderMap.at(*iter)].getQuantity()>
 			vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
 		{
@@ -787,7 +793,8 @@ void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 			Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime);
 			/*ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity,
 			ar_tm_temp, Timer(vr.serveTimeDuration, ar_tm_temp.getCurrentTimePoint()));*/
-			ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity, ar_tm_temp, ar_tm_temp);
+			ServeClient sc1(*iter, solution.routeVec[rin].serveClientList.back().currentQuantity, ar_tm_temp, ar_tm_temp,
+				solution.routeVec[rin].serveClientList.back().alreadyDriveDistance + dis_temp);
 			solution.routeVec[rin].serveClientList.push_back(sc1);
 			solution.routeVec[rin].visitClientIDSet.insert(sc1.visitClientID);
 		}
@@ -798,7 +805,7 @@ void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 		Timer ar_tm = Timer(dr, solution.routeVec[rin].serveClientList.back().departureTime);
 
 		ServeClient sc1(sel_end_cid, solution.routeVec[rin].serveClientList.back().currentQuantity,
-			ar_tm, Timer(vr.serveTimeDuration, ar_tm));
+			ar_tm, Timer(vr.serveTimeDuration, ar_tm), solution.routeVec[rin].serveClientList.back().alreadyDriveDistance + dis);
 		for (list<OrderID>::iterator iter = solution.routeVec[rin].serveOrderList.begin();
 			iter != solution.routeVec[rin].serveOrderList.end();)
 		{
@@ -839,7 +846,7 @@ void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 		DistanceType dis_temp = vr.edgeVec[vr.orderEdge[vr.clientMap.at(*iter_prev)][vr.clientMap.at(*iter)]].getDistance();
 		Timer::Duration dr_temp = Timer::Duration((int)ceil(dis_temp / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
 		Timer ar_tm_temp = Timer(dr_temp, solution.routeVec[rin].serveClientList.back().departureTime);
-		ServeClient sc1(*iter, 0, ar_tm_temp, ar_tm_temp);
+		ServeClient sc1(*iter, 0, ar_tm_temp, ar_tm_temp, solution.routeVec[rin].serveClientList.back().alreadyDriveDistance + dis_temp);
 		//ServeClient sc1(*iter, 0);
 		solution.routeVec[rin].serveClientList.push_back(sc1);
 		solution.routeVec[rin].visitClientIDSet.insert(sc1.visitClientID);
@@ -1044,11 +1051,14 @@ bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const Orde
 	}
 	//Timer::Duration extra_to_dr((int)ceil(shortest_to_distance / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
 	Timer::Duration extra_to_dr(0);
+	DistanceType extra_to_dis(0);
 	for (vector<ClientID>::iterator cid_iter = shortest_to_cid_vec.begin();
 		cid_iter != --shortest_to_cid_vec.end(); cid_iter++)
 	{
 		vector<ClientID>::iterator cid_iter_next = cid_iter;
 		cid_iter_next++;
+		extra_to_dis += vr.edgeVec[vr.orderEdge[vr.clientMap.at(*cid_iter)]
+			[vr.clientMap.at(*cid_iter_next)]].getDistance();
 		extra_to_dr += Timer::Duration((int)ceil(vr.edgeVec[vr.orderEdge[vr.clientMap.at(*cid_iter)]
 			[vr.clientMap.at(*cid_iter_next)]].getDistance() / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
 	}
@@ -1060,11 +1070,14 @@ bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const Orde
 	dsp->getShortPath(vr.orderVec[vr.orderMap.at(oid)].getRequestID(), sel_sc_iter_next->visitClientID, shortest_back_distance, shortest_back_cid_vec);
 	//Timer::Duration extra_back_dr((int)ceil(shortest_back_distance / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
 	Timer::Duration extra_back_dr(0);
+	DistanceType extra_back_dis(0);
 	for (vector<ClientID>::iterator cid_iter = shortest_back_cid_vec.begin();
 		cid_iter != --shortest_back_cid_vec.end(); cid_iter++)
 	{
 		vector<ClientID>::iterator cid_iter_next = cid_iter;
 		cid_iter_next++;
+		extra_back_dis += vr.edgeVec[vr.orderEdge[vr.clientMap.at(*cid_iter)]
+			[vr.clientMap.at(*cid_iter_next)]].getDistance();
 		extra_back_dr += Timer::Duration((int)ceil(vr.edgeVec[vr.orderEdge[vr.clientMap.at(*cid_iter)]
 			[vr.clientMap.at(*cid_iter_next)]].getDistance() / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
 	}
@@ -1098,7 +1111,8 @@ bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const Orde
 		list<ServeClient>::iterator sc_iter_next_prev = sel_sc_iter_next;
 		sc_iter_next_prev--;
 		Timer tm_temp = Timer(dr_temp, sc_iter_next_prev->departureTime);
-		ServeClient sc = ServeClient(*cid_iter, sel_sc_iter->currentQuantity, tm_temp, tm_temp);
+		ServeClient sc = ServeClient(*cid_iter, sel_sc_iter->currentQuantity, tm_temp, tm_temp,
+			sc_iter_next_prev->alreadyDriveDistance + dis_temp);
 		// the last one in the vector
 		if (cid_iter == --shortest_to_cid_vec.end())
 		{
@@ -1119,11 +1133,12 @@ bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const Orde
 		list<ServeClient>::iterator sc_iter_next_prev = sel_sc_iter_next;
 		sc_iter_next_prev--;
 		Timer tm_temp = Timer(dr_temp, sc_iter_next_prev->departureTime);
-		ServeClient sc = ServeClient(*cid_iter, sc_iter_next_prev->currentQuantity, tm_temp, tm_temp);
+		ServeClient sc = ServeClient(*cid_iter, sc_iter_next_prev->currentQuantity, tm_temp, tm_temp,
+			sc_iter_next_prev->alreadyDriveDistance + dis_temp);
 		solution.routeVec[rin].serveClientList.insert(sel_sc_iter_next, sc);
 		solution.routeVec[rin].visitClientIDSet.insert(*cid_iter);
 	}
-	// from sel_sc_iter_next to the end of the route, add time
+	// from sel_sc_iter_next to the end of the route, add time and distance
 	DistanceType dis_prev = vr.edgeVec[vr.orderEdge[vr.clientMap.at(sel_sc_iter->visitClientID)]
 		[vr.clientMap.at(sel_sc_iter_next->visitClientID)]].getDistance();
 	Timer::Duration dr_prev((int)ceil(dis_prev / vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed));
@@ -1132,6 +1147,7 @@ bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const Orde
 	{
 		sc_iter->arrivalTime.addDuration(extra_to_dr + extra_back_dr - dr_prev + vr.serveTimeDuration);
 		sc_iter->departureTime.addDuration(extra_to_dr + extra_back_dr - dr_prev + vr.serveTimeDuration);
+		sc_iter->alreadyDriveDistance += extra_back_dis + extra_to_dis - dis_prev;
 	}	
 	return true;
 }
@@ -1611,6 +1627,7 @@ bool Solver::checkRoute(const Solution &solution, const int &rin)const
 {
 	set<ClientID> visit_cid_set;
 	QuantityType real_cur_quantity = 0;
+	DistanceType already_drive_dis = 0;
 	Timer real_cur_time = solution.routeVec[rin].serveClientList.front().arrivalTime;
 	for (list<ServeClient>::const_iterator iter = solution.routeVec[rin].serveClientList.begin();
 		iter != solution.routeVec[rin].serveClientList.end(); iter++)
@@ -1622,6 +1639,15 @@ bool Solver::checkRoute(const Solution &solution, const int &rin)const
 			iter_prev--;
 			real_cur_time.addDuration(Timer::Duration((int)ceil(vr.edgeVec[vr.orderEdge[vr.clientMap.at(iter_prev->visitClientID)]
 				[vr.clientMap.at(iter->visitClientID)]].getDistance()/vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].speed)));
+			already_drive_dis += vr.edgeVec[vr.orderEdge[vr.clientMap.at(iter_prev->visitClientID)]
+				[vr.clientMap.at(iter->visitClientID)]].getDistance();
+		}
+		if (abs(iter->alreadyDriveDistance - already_drive_dis) > ABS_EQUAL_DEV)
+		{
+			os << "Check route " << rin << " " << iter->visitClientID << " already drived distance WRONG: "
+				<< already_drive_dis << "\t" << iter->alreadyDriveDistance << endl;
+			system("pause");
+			return false;
 		}
 		if (!real_cur_time.isEqual(iter->arrivalTime))
 		{
@@ -1718,12 +1744,11 @@ bool Solver::checkClientInRoute(const Solution &solution, const int &rin, const 
 void Solver::calculateObjValue(Solution &solution, const int &rin)
 {
 	solution.routeVec[rin].routeObject = 0;
-	solution.routeVec[rin].routeDistance = 0;
 	solution.routeVec[rin].routeWeightDistance = 0;
 	solution.routeVec[rin].serveMandaOrderCnt = 0;
 	solution.routeVec[rin].servOptionalOrderCnt = 0;
-	// change const iterator to iterator
-	for (list<ServeClient>::iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
+	solution.routeVec[rin].routeDistance = solution.routeVec[rin].serveClientList.back().alreadyDriveDistance;
+	for (list<ServeClient>::const_iterator sc_iter = solution.routeVec[rin].serveClientList.begin();
 		sc_iter != solution.routeVec[rin].serveClientList.end(); sc_iter++)
 	{
 		for (vector<OrderID>::const_iterator oid_unload_iter = sc_iter->unloadOrderID.begin();
@@ -1741,8 +1766,7 @@ void Solver::calculateObjValue(Solution &solution, const int &rin)
 			prior_iter--;
 			DistanceType temp_dis = vr.edgeVec[vr.orderEdge[vr.clientMap.at(prior_iter->visitClientID)]
 				[vr.clientMap.at(sc_iter->visitClientID)]].getDistance();
-			solution.routeVec[rin].routeDistance += temp_dis;
-			sc_iter->alreadyDriveDistance = solution.routeVec[rin].routeDistance;	// in order to set value to dis
+			//solution.routeVec[rin].routeDistance += temp_dis;			
 			solution.routeVec[rin].routeWeightDistance += prior_iter->currentQuantity * temp_dis;
 		}
 	}

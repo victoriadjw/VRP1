@@ -136,8 +136,8 @@ class ServeClient
 public:
 	ServeClient(const ClientID &vcd, const QuantityType &cq):
 		visitClientID(vcd), currentQuantity(cq){}
-	ServeClient(const ClientID &vcd, const QuantityType &cq,const Timer &at,const Timer &dt) :
-		visitClientID(vcd), currentQuantity(cq),arrivalTime(at),departureTime(dt){}
+	ServeClient(const ClientID &vcd, const QuantityType &cq,const Timer &at,const Timer &dt,const DistanceType &add) :
+		visitClientID(vcd), currentQuantity(cq),arrivalTime(at),departureTime(dt),alreadyDriveDistance(add){}
 	ClientID visitClientID;	// visit ClientID	// unique except depot
 	vector<OrderID> loadOrderID, unloadOrderID;	// load and unload goods ID
 	vector<QuantityType> loadQuantity, unloadQuantity;	// load and unload quantity

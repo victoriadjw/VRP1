@@ -25,6 +25,7 @@ using namespace std;
 #define PI  3.1415926
 #define EARTH_RADIUS  6378.137// earth radius
 #define BUFF_SIZE 1000
+#define ABS_EQUAL_DEV 0.01
 
 class Timer
 {
