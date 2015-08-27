@@ -40,7 +40,7 @@ public:
 	void calculateTotalObjValue(Solution &solution);
 	void cancelOrder(Solution &solution, const int &rin, const OrderID &oid);
 	bool isFeasibleAddServeTime(Solution &solution, const int &rin, const list<ServeClient>::iterator &start_sc_iter,
-		const list<ServeClient>::iterator &end_sc_iter, const list<OrderID>::iterator &oid_iter);
+		const list<ServeClient>::iterator &end_sc_iter, const set<OrderID>::iterator &oid_iter);
 	void arrangeMandatoryOrder(Solution &, const int &);
 	void arrangeOptionalOrder(Solution &, const int &);
 	bool insertMandatoryOrder(Solution &solution, const int &, const OrderID &);
@@ -52,6 +52,5 @@ private:
 	ostream &os;
 	DijkstraShortPath *dsp;
 	vector<Solution> solutionVec;
-	list<OrderID> mandatoryOrderList, optionalOrderList;
 };
 #endif

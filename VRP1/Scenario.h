@@ -197,6 +197,7 @@ public:
 	ObjectType averagefullLoadRate;	// full load rate of the solution
 	int serveMandaOrderCnt;	// the number of served mandatory order
 	int servOptionalOrderCnt;	// the number of served optional order
+	set<OrderID> optionalOrderIDSet, mandatoryOrderIDSet;	// the left order id set needed to be executed
 };
 
 #endif
