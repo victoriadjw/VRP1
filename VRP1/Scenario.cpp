@@ -51,3 +51,12 @@ std::ostream& operator<<(std::ostream &is, const Order &o)
 		<< o.readyTime << " " << o.dueTime;
 	return is;
 }
+void Solution::reset()
+{
+	totalDistance = 0; // total distance of the solution
+	totalObject = 0;		// objective value of the solution
+	totalWeightDistance = 0;	// objective value of weight multiply distance
+	averagefullLoadRate = 0;	// full load rate of the solution
+	serveMandaOrderCnt = 0;	// the number of served mandatory order
+	servOptionalOrderCnt = 0;	// the number of served optional order
+}

@@ -63,7 +63,7 @@ void Solver::initSolution(const int &sol_num)
 					if (insertMandatoryOrder(solution, rin_op, *oid_iter))
 					{
 						//checkRoute(solution, rin_op);
-						calculateObjValue(solution, rin_op);
+						//calculateObjValue(solution, rin_op);
 						oid_iter = solution.routeVec[rin].serveOrderList.erase(oid_iter);
 						is_inserted = true;
 						break;
@@ -74,16 +74,12 @@ void Solver::initSolution(const int &sol_num)
 			}
 
 		}
-		bool is_all_arranged = true;
+		int arranged_mand_order_cnt = 0;
 		for (int rin = 0; rin < solution.routeVec.size(); rin++)
 		{
-			if (solution.routeVec[rin].serveOrderList.size() > 0)
-			{
-				is_all_arranged = false;
-				break;
-			}
+			arranged_mand_order_cnt += solution.routeVec[rin].serveClientList.front().loadOrderID.size();
 		}
-		if (is_all_arranged)
+		if (arranged_mand_order_cnt==vr.getNumMandaOrder())
 			break;
 	}
 
@@ -142,7 +138,7 @@ void Solver::initSolution(const int &sol_num)
 					if (insertMandatoryOrder(solution, rin_op, *oid_iter))
 					{
 						//checkRoute(solution, rin_op);
-						calculateObjValue(solution, rin_op);
+						//calculateObjValue(solution, rin_op);
 						oid_iter = solution.routeVec[rin].serveOrderList.erase(oid_iter);
 						is_inserted = true;
 						break;
@@ -155,7 +151,7 @@ void Solver::initSolution(const int &sol_num)
 		}
 		for (int rin = 0; rin < solution.routeVec.size(); rin++)
 		{
-			//arrangeOptionalOrder(solution, rin);
+			arrangeOptionalOrder(solution, rin);
 			calculateObjValue(solution, rin);
 			printRoute(solution, rin);
 			checkRoute(solution, rin);
@@ -163,7 +159,6 @@ void Solver::initSolution(const int &sol_num)
 		calculateTotalObjValue(solution);
 		solutionVec.push_back(solution);	
 	}
-	os << "total information:" << vr.getNumMandaOrder() << "\t" << vr.getNumOptionalOrder() << endl;
 	for (vector<Solution>::iterator iter = solutionVec.begin(); iter != solutionVec.end(); iter++)
 	{
 		os << iter->totalDistance << "\t" << iter->totalWeightDistance << "\t"
@@ -227,14 +222,14 @@ void Solver::localSearch(const int &sol_num,const int &iteration)
 			solutionVec[best_sol_index].averagefullLoadRate)
 		{
 			solutionVec[best_sol_index] = solutionVec[current_sol_index];
-			os << "refine" << endl;
+			os << "refine " << solutionVec[best_sol_index].serveMandaOrderCnt << endl;
 		}
 		else
 		{
 			solutionVec[current_sol_index] = solutionVec[best_sol_index];
-			os << "not improved" << endl;
+			os << "not improved " << solutionVec[best_sol_index].serveMandaOrderCnt << endl;
 		}
-		os << "total information:" << vr.getNumMandaOrder() << "\t" << vr.getNumOptionalOrder() << endl;		
+		os <<"solution "<<best_sol_index<< ", total information:" << vr.getNumMandaOrder() << "\t" << vr.getNumOptionalOrder() << endl;		
 		os << solutionVec[best_sol_index].totalDistance << "\t" << solutionVec[best_sol_index].totalWeightDistance << "\t"
 			<< solutionVec[best_sol_index].totalObject << "\t" << solutionVec[best_sol_index].averagefullLoadRate << "\t"
 			<< solutionVec[best_sol_index].serveMandaOrderCnt << "\t" << solutionVec[best_sol_index].servOptionalOrderCnt << "\t"
@@ -809,12 +804,14 @@ void Solver::arrangeMandatoryOrder(Solution &solution, const int &rin)
 			vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
 		{
 			iter = solution.routeVec[rin].serveOrderList.erase(iter);
+			//iter++;
 			continue;
 		}
 		// if the due time of the order  is ahead of the arrival time, skip this order
 		if (!sc.arrivalTime.isAhead(vr.orderVec[vr.orderMap.at(*iter)].getDueTime()))
 		{
 			iter = solution.routeVec[rin].serveOrderList.erase(iter);
+			//iter++;
 			continue;
 		}
 		MMOrderClientIDSet.insert(vr.orderVec[vr.orderMap.at(*iter)].getApplierID());
@@ -1864,6 +1861,7 @@ void Solver::calculateObjValue(Solution &solution, const int &rin)
 }
 void Solver::calculateTotalObjValue(Solution &solution)
 {
+	solution.reset();
 	for (vector<Route>::iterator iter = solution.routeVec.begin();
 		iter != solution.routeVec.end();iter++)
 	{

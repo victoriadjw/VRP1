@@ -188,8 +188,8 @@ public:
 	Solution(DistanceType rd, ObjectType ro, ObjectType rwd, ObjectType fr, int m_cnt, int o_cnt) :
 		totalDistance(rd), totalObject(ro), totalWeightDistance(rwd), averagefullLoadRate(fr)
 		, serveMandaOrderCnt(m_cnt), servOptionalOrderCnt(o_cnt){}
+	void reset();
 	vector<Route> routeVec;	// route list
-	int numMandatoryOrder, numOptimalOrder;	// number of mandatory and optimal order
 
 	DistanceType totalDistance; // total distance of the solution
 	ObjectType totalObject;		// objective value of the solution
