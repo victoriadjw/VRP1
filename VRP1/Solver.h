@@ -35,7 +35,7 @@ public:
 	OrderID findLeastCostOrder(const list<OrderID>&, const ClientID&);
 	// find the iterator of a client id in serve client id list
 	void findClientIDServeList( list<ServeClient> &, const ClientID &, list<ServeClient>::iterator &);
-	void printRoute(Solution &solution, const int&)const;
+	void printRoute(const Solution &solution, const int&)const;
 	void calculateObjValue(Solution &solution, const int&);
 	void calculateTotalObjValue(Solution &solution);
 	void cancelOrder(Solution &solution, const int &rin, const OrderID &oid);
