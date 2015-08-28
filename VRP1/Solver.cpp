@@ -5,7 +5,7 @@ Solver::Solver(const VehicleRouting &_vr, ostream &_os) :vr(_vr), os(_os)
 	dsp = new DijkstraShortPath(vr.clientVec, vr.edgeVec, vr.clientNameMap);
 }
 
-void Solver::initSolution(const int &sol_num)
+bool Solver::initSolution(const int &sol_num)
 {
 	// try to find the least number of vehicle required to complete the delivery
 	
@@ -79,9 +79,8 @@ void Solver::initSolution(const int &sol_num)
 		{
 			arranged_mand_order_cnt += solution.routeVec[rin].serveClientList.front().loadOrderID.size();
 		}
-		if (arranged_mand_order_cnt == vr.getNumMandaOrder())
+		if (arranged_mand_order_cnt == vr.getNumMandaOrder() || least_num_vehi == vr.vehicleVec.size())
 		{
-
 			for (int rin = 0; rin < solution.routeVec.size(); rin++)
 			{
 				arrangeOptionalOrder(solution, rin);
@@ -93,62 +92,74 @@ void Solver::initSolution(const int &sol_num)
 			solutionVec.push_back(solution);
 			Solution solution1(0, 0, 0, 0, 0, 0);
 			solutionVec.push_back(solution1);
-			return;
+			if (arranged_mand_order_cnt == vr.getNumMandaOrder())
+				return true;
+			else
+				return false;
 		}
 	}
-
 }
 void Solver::localSearch(const int &sol_num,const int &iteration)
 {
 	os <<"STARTING SCHEDULING, num of mandatory order: "<< vr.getNumMandaOrder()
 		<<", num of optional order: "<< vr.getNumOptionalOrder() << endl;
-	initSolution(sol_num);
+	bool manage_all_mandatory_order = initSolution(sol_num);
 	
 	int best_sol_index = 0, current_sol_index = 1;
 	solutionVec[current_sol_index] = solutionVec[best_sol_index];
-	
-	int rin1, rin2;
-	for (int i = 0; i<iteration; i++)
+
+	bool need_local_search_iterate = true;
+	if (solutionVec[current_sol_index].routeVec.size() == 1)
+		need_local_search_iterate = false;
+	int more_than_two_route_cnt = 0;
+	for (vector < Route > ::iterator r_iter = solutionVec[current_sol_index].routeVec.begin();
+		r_iter != solutionVec[current_sol_index].routeVec.end(); r_iter++)
 	{
-		if (solutionVec[current_sol_index].routeVec.size() == 1)
-			continue;
-		int more_than_two_route_cnt = 0;
-		for (vector < Route > ::iterator r_iter = solutionVec[current_sol_index].routeVec.begin();
-			r_iter != solutionVec[current_sol_index].routeVec.end(); r_iter++)
+		if (r_iter->serveClientList.size() > 1)
+			more_than_two_route_cnt += 1;
+	}
+	if (more_than_two_route_cnt <= 1)
+		need_local_search_iterate = false;
+	if (need_local_search_iterate)
+	{
+		for (int i = 0; i < iteration; i++)
 		{
-			if (r_iter->serveClientList.size() > 1)
-				more_than_two_route_cnt += 1;
-		}
-		if (more_than_two_route_cnt <= 1)
-			continue;
+			int rin1, rin2;
+			makeMove(solutionVec[current_sol_index], rin1, rin2);
+			for (int rin = 0; rin < solutionVec[current_sol_index].routeVec.size(); rin++)
+			{
+				calculateObjValue(solutionVec[current_sol_index], rin);
+				//printRoute(solutionVec[best_sol_index], rin);
+				//checkRoute(solutionVec[best_sol_index], rin);
+			}
 
-		makeMove(solutionVec[current_sol_index], rin1, rin2);
-		for (int rin = 0; rin < solutionVec[current_sol_index].routeVec.size(); rin++)
-		{
-			calculateObjValue(solutionVec[current_sol_index], rin);
-			//printRoute(solutionVec[best_sol_index], rin);
-			//checkRoute(solutionVec[best_sol_index], rin);
-		}
+			calculateTotalObjValue(solutionVec[current_sol_index]);
 
-		calculateTotalObjValue(solutionVec[current_sol_index]);
-
-		if (solutionVec[current_sol_index].averagefullLoadRate>
-			solutionVec[best_sol_index].averagefullLoadRate)
-		{
-			solutionVec[best_sol_index] = solutionVec[current_sol_index];
-			os << "refine " << solutionVec[best_sol_index].serveMandaOrderCnt << endl;
+			if (solutionVec[current_sol_index].averagefullLoadRate >
+				solutionVec[best_sol_index].averagefullLoadRate)
+			{
+				solutionVec[best_sol_index] = solutionVec[current_sol_index];
+				os << "refine " << solutionVec[best_sol_index].serveMandaOrderCnt << endl;
+			}
+			else
+			{
+				solutionVec[current_sol_index] = solutionVec[best_sol_index];
+				os << "not improved " << solutionVec[best_sol_index].serveMandaOrderCnt << endl;
+			}
+			os << "solution " << best_sol_index << ", total information:" << vr.getNumMandaOrder() << "\t" << vr.getNumOptionalOrder() << endl;
+			os << solutionVec[best_sol_index].totalDistance << "\t" << solutionVec[best_sol_index].totalWeightDistance << "\t"
+				<< solutionVec[best_sol_index].totalObject << "\t" << solutionVec[best_sol_index].averagefullLoadRate << "\t"
+				<< solutionVec[best_sol_index].serveMandaOrderCnt << "\t" << solutionVec[best_sol_index].servOptionalOrderCnt << "\t"
+				<< solutionVec[best_sol_index].serveMandaOrderCnt + solutionVec[best_sol_index].servOptionalOrderCnt << "\t"
+				<< solutionVec[best_sol_index].mandatoryOrderIDSet.size() << endl;
+			/*for (int rin = 0; rin < solutionVec[best_sol_index].routeVec.size(); rin++)
+			{
+				calculateObjValue(solutionVec[best_sol_index], rin);
+				printRoute(solutionVec[best_sol_index], rin);
+				checkRoute(solutionVec[best_sol_index], rin);
+			}*/
 		}
-		else
-		{
-			solutionVec[current_sol_index] = solutionVec[best_sol_index];
-			os << "not improved " << solutionVec[best_sol_index].serveMandaOrderCnt << endl;
-		}
-		os <<"solution "<<best_sol_index<< ", total information:" << vr.getNumMandaOrder() << "\t" << vr.getNumOptionalOrder() << endl;		
-		os << solutionVec[best_sol_index].totalDistance << "\t" << solutionVec[best_sol_index].totalWeightDistance << "\t"
-			<< solutionVec[best_sol_index].totalObject << "\t" << solutionVec[best_sol_index].averagefullLoadRate << "\t"
-			<< solutionVec[best_sol_index].serveMandaOrderCnt << "\t" << solutionVec[best_sol_index].servOptionalOrderCnt << "\t"
-			<< solutionVec[best_sol_index].serveMandaOrderCnt + solutionVec[best_sol_index].servOptionalOrderCnt << "\t"
-			<< solutionVec[best_sol_index].mandatoryOrderIDSet.size() << endl;
+		
 	}
 	for (int rin = 0; rin < solutionVec[best_sol_index].routeVec.size(); rin++)
 	{
@@ -217,18 +228,18 @@ void Solver::makeMove(Solution &solution,int &rin1,int &rin2)
 		if (!is_inserted)
 			oid_iter++;
 	}
-	for (list<OrderID>::iterator oid_iter = solution.routeVec[rin1].serveOrderList.begin();
-		oid_iter != solution.routeVec[rin1].serveOrderList.end();)
+	for (list<OrderID>::iterator oid_iter = solution.routeVec[rin2].serveOrderList.begin();
+		oid_iter != solution.routeVec[rin2].serveOrderList.end();)
 	{
 		bool is_inserted = false;
 		for (int rin_op = 0; rin_op < solution.routeVec.size(); rin_op++)
 		{
-			if (rin_op == rin1)
+			if (rin_op == rin2)
 				continue;
 			if (insertMandatoryOrder(solution, rin_op, *oid_iter))
 			{
 				//checkRoute(solution, rin_op);
-				oid_iter = solution.routeVec[rin1].serveOrderList.erase(oid_iter);
+				oid_iter = solution.routeVec[rin2].serveOrderList.erase(oid_iter);
 				is_inserted = true;
 				break;
 			}
@@ -968,10 +979,6 @@ bool Solver::removeMandatoryOrder(Solution &solution, const int &rin, const Clie
 }
 bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const OrderID &oid)
 {
-	// the order exceeds the quantity of the vehicle, from request and suplier client id of the oid
-	if (solution.routeVec[rin].serveClientList.front().currentQuantity + vr.orderVec[vr.orderMap.at(oid)].getQuantity() >
-		vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
-		return false;
 	// this client id has already existed in this route
 	if (solution.routeVec[rin].visitClientIDSet.count(vr.orderVec[vr.orderMap.at(oid)].getRequestID()) == 1)
 	{		
@@ -1040,6 +1047,11 @@ bool Solver::insertMandatoryOrder(Solution &solution, const int &rin, const Orde
 	for (sel_sc_iter = solution.routeVec[rin].serveClientList.begin();
 		sel_sc_iter != solution.routeVec[rin].serveClientList.end(); sel_sc_iter++)
 	{
+		// the order exceeds the quantity of the vehicle, from request and suplier client id of the oid
+		if (sel_sc_iter->currentQuantity + vr.orderVec[vr.orderMap.at(oid)].getQuantity() >
+			vr.vehicleVec[vr.vehicleMap.at(solution.routeVec[rin].VehID)].capacity)
+			return false;
+
 		if (sel_sc_iter->visitClientID == sel_cid)
 			break;
 	}

@@ -21,7 +21,7 @@ public:
 	~Solver(){ delete dsp; cout << "deconstruct Solver." << endl; }
 	const vector<Solution>& getSolutionVec()const { return solutionVec; }
 	void modifyOrder();	// modify the order to accommodate the specific problem
-	void initSolution(const int&);		// assign orders to vehicles
+	bool initSolution(const int&);		// assign orders to vehicles
 	void generateRoute(Solution &, const int &);	// generate route according to route index
 	void generateRoute1(Solution &,const int &);	// generate route for mandatory orders according to route index
 	void insertMMOrderToRoute(Solution &solution, const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &, list<ServeClient>::iterator &);
