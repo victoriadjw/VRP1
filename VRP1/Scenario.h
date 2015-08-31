@@ -152,7 +152,6 @@ public:
 	Route(){ mandaQuantity = 0; }
 	VehicleID VehID;	// corresponding vehicle
 	list<OrderID> serveOrderList;	// the list of order needed to serve
-	list<OrderID> serveOrderListBackup;	// a backup of the serveOrderList
 
 	list<ServeClient> serveClientList;	// served client list
 	set<ClientID> visitClientIDSet;	// the set of the visited client id of the route

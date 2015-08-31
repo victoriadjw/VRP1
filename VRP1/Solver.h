@@ -30,6 +30,7 @@ public:
 	void insertOMOrderToRoute(Solution &solution, const int&, list<OrderID>::iterator&, list<ServeClient>::iterator &);
 	void insertOOOrderToRoute(Solution &solution, const int&, list<OrderID>::iterator&);
 	bool checkRoute(const Solution &solution, const int&)const;
+	bool checkSolution(const Solution &)const;
 	bool checkClientInRoute(const Solution &solution, const int&, const vector<ClientID>&)const;
 	// find the least cost in mandatory order
 	OrderID findLeastCostOrder(const list<OrderID>&, const ClientID&);
